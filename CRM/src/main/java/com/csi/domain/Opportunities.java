@@ -35,22 +35,23 @@ public class Opportunities implements Serializable {
 /**
      * 预估金额
      */
-    private BigDecimal amount;
+    private double amount;
 
 /**
      * 商机阶段（'初步接触','需求分析','方案报价','谈判审核','赢单','输单'）
      */
     private Integer stage;
+    private String stageName;
 
 /**
      * 赢率(0-1)
      */
-    private BigDecimal probability;
+    private double probability;
 
 /**
      * 预计成交日期
      */
-    private Date expectedCloseDate;
+    private String expectedCloseDate;
 
 /**
      * 负责人ID
@@ -65,12 +66,12 @@ public class Opportunities implements Serializable {
 /**
      * 创建时间
      */
-    private Date createTime;
+    private String createTime;
 
 /**
      * 更新时间
      */
-    private Date updateTime;
+    private String updateTime;
 
 
 

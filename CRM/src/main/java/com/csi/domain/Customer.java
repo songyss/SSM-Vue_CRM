@@ -12,6 +12,8 @@ public class Customer implements Serializable {
     private String name;
     //客户手机号
     private String phone;
+    //客户生日
+    private String borndate;
     //客户所在公司
     private String company;
     //客户职位
@@ -21,10 +23,12 @@ public class Customer implements Serializable {
     //销售更改状态
     private Integer status;
     private String statusName;
+    //销售备注
+    private String notes;
     //电话销售更改状态
     private Integer sdrStatus;
     private String sdrStatusName;
-    //电话销售
+    //电话销售备注
     private String sdrNotes;
     //负责的销售
     private Integer assigneeId;

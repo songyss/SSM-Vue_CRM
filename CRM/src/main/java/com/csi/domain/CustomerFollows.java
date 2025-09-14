@@ -35,6 +35,7 @@ public class CustomerFollows implements Serializable {
      * 跟进方式
      */
     private Integer type;
+    private String typeName;
 
 /**
      * 跟进内容
@@ -49,12 +50,12 @@ public class CustomerFollows implements Serializable {
 /**
      * 下次联系时间
      */
-    private Date nextContactTime;
+    private String nextContactTime;
 
 /**
      * 创建时间
      */
-    private Date createTime;
+    private String createTime;
 
 
 

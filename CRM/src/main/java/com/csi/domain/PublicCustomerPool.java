@@ -34,12 +34,12 @@ public class PublicCustomerPool implements Serializable {
 /**
      * 释放时间
      */
-    private Date releaseTime;
+    private String releaseTime;
 
 /**
      * 锁定截止时间
      */
-    private Date lockedUntil;
+    private String lockedUntil;
 
 /**
      * 锁定人ID
@@ -49,7 +49,7 @@ public class PublicCustomerPool implements Serializable {
 /**
      * 创建时间
      */
-    private Date createTime;
+    private String createTime;
 
 
 

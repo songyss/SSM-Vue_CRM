@@ -25,7 +25,8 @@ public class ApprovalOrders implements Serializable {
 /**
      * 审批类型
      */
-    private Object type;
+    private Integer type;
+    private String typeName;
 
 /**
      * 客户ID
@@ -60,12 +61,13 @@ public class ApprovalOrders implements Serializable {
 /**
      * 申请金额
      */
-    private BigDecimal requestedAmount;
+    private double requestedAmount;
 
 /**
      * 审批状态
      */
-    private Object status;
+    private Integer status;
+    private String statusName;
 
 /**
      * 审批反馈
@@ -75,12 +77,12 @@ public class ApprovalOrders implements Serializable {
 /**
      * 创建时间
      */
-    private Date createTime;
+    private String createTime;
 
 /**
      * 更新时间
      */
-    private Date updateTime;
+    private String updateTime;
 
 
 

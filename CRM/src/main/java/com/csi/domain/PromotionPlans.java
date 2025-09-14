@@ -35,7 +35,7 @@ public class PromotionPlans implements Serializable {
 /**
      * 预算金额
      */
-    private BigDecimal budget;
+    private double budget;
 
 /**
      * 提交人ID
@@ -51,6 +51,7 @@ public class PromotionPlans implements Serializable {
      * 状态: 0待审批 1通过 2驳回
      */
     private Integer status;
+    private String planStatusName;
 
 /**
      * 审批反馈意见
@@ -60,12 +61,12 @@ public class PromotionPlans implements Serializable {
 /**
      * 创建时间
      */
-    private Date createTime;
+    private String createTime;
 
 /**
      * 更新时间
      */
-    private Date updateTime;
+    private String updateTime;
 
 
 

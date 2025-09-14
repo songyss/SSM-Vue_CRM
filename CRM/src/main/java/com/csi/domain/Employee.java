@@ -16,6 +16,8 @@ public class Employee implements Serializable {
     private String name;
     //手机号码
     private String phone;
+    //员工生日
+    private String borndate;
     //邮箱
     private String email;
     //部门

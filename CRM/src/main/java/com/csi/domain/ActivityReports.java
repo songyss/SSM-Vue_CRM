@@ -50,7 +50,7 @@ public class ActivityReports implements Serializable {
 /**
      * 预估投资回报率
      */
-    private BigDecimal estimatedRoi;
+    private double estimatedRoi;
 
 /**
      * 报告创建人ID
@@ -60,7 +60,7 @@ public class ActivityReports implements Serializable {
 /**
      * 创建时间
      */
-    private Date createTime;
+    private String createTime;
 
 
 

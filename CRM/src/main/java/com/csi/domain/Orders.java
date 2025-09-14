@@ -40,17 +40,18 @@ public class Orders implements Serializable {
 /**
      * 订单总金额
      */
-    private BigDecimal totalAmount;
+    private double totalAmount;
 
 /**
      * 签约日期
      */
-    private Date signedDate;
+    private String signedDate;
 
 /**
      * 订单状态
      */
     private Integer orderStatus;
+    private String orderStatusName;
 
 /**
      * 合同文件路径
@@ -65,7 +66,7 @@ public class Orders implements Serializable {
 /**
      * 创建时间
      */
-    private Date createTime;
+    private String createTime;
 
 
 

@@ -45,22 +45,22 @@ public class MarketingActivities implements Serializable {
 /**
      * 开始时间
      */
-    private Date startTime;
+    private String startTime;
 
 /**
      * 结束时间
      */
-    private Date endTime;
+    private String endTime;
 
 /**
      * 预估成本
      */
-    private BigDecimal estimatedCost;
+    private double estimatedCost;
 
 /**
      * 实际成本
      */
-    private BigDecimal actualCost;
+    private double actualCost;
 
 /**
      * 活动负责人ID
@@ -70,12 +70,13 @@ public class MarketingActivities implements Serializable {
 /**
      * 活动状态
      */
-    private Integer acttivityStatus;
+    private Integer activityStatus;
+    private String activityStatusName;
 
 /**
      * 创建时间
      */
-    private Date createTime;
+    private String createTime;
 
 
 
