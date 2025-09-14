@@ -33,4 +33,10 @@ public class CustomerServiceImpl implements CustomerService {
     public List<Customer> getUnAssignedCustomer() {
         return customerMapper.getUnAssignedCustomer();
     }
+
+    @Override
+    public int changeCustomerStatus(Customer customer) {
+        int i = customerMapper.changeCustomerStatus(customer);
+        return i;
+    }
 }

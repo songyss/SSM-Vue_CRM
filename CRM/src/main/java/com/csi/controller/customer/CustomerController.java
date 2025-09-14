@@ -4,10 +4,7 @@ import com.csi.domain.Customer;
 import com.csi.service.CustomerService;
 import com.csi.util.R;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -60,5 +57,20 @@ public class CustomerController {
             return R.error();
         }
     }
+
+    @PatchMapping("/status")
+    public R changeCustomerStatus(@RequestBody Customer customer) {
+
+        System.out.println(customer);
+
+        int i = customerService.changeCustomerStatus(customer);
+
+        if (i == 1) {
+            return R.ok(i) ;
+        } else {
+            return R.error() ;
+        }
+    }
+
 
 }

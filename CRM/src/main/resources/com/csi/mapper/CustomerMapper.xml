@@ -31,4 +31,8 @@
         where c.assignee_id is null
     </select>
 
+    <update id="changeCustomerStatus" parameterType="com.csi.domain.Customer">
+        UPDATE customers SET status = #{status} WHERE id = #{id}
+    </update>
+
 </mapper>

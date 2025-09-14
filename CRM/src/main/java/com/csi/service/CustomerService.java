@@ -12,4 +12,6 @@ public interface CustomerService {
 
     List<Customer> getUnAssignedCustomer();//获取未分配客户
 
+    int changeCustomerStatus(Customer customer);
+
 }
