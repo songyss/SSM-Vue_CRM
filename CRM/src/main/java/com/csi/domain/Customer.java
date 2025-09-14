@@ -26,10 +26,12 @@ public class Customer implements Serializable {
     private String sdrStatusName;
     //电话销售
     private String sdrNotes;
-    //负责的销售id
+    //负责的销售
     private Integer assigneeId;
-    //创建人id
+    private String name1;
+    //创建人
     private Integer creatorId;
+    private String name2;
     //最后跟进时间
     private String lastFollowUPTime;
 

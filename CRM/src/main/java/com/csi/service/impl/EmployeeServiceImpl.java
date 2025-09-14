@@ -16,11 +16,13 @@ public class EmployeeServiceImpl implements EmployeeService {
     private EmployeeMapper employeeMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public List<Employee> getAllEmployees() {
         return employeeMapper.getAllEmployees();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Employee> getEmployees(int id) {
         return employeeMapper.getEmployees(id);
     }
