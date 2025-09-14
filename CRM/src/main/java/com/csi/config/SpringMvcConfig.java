@@ -15,7 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 @Configuration
 @EnableWebMvc
-@ComponentScan({"com.csi.controller","com.csi.utils"})
+@ComponentScan({"com.csi.controller","com.csi.util"})
 public class SpringMvcConfig implements WebMvcConfigurer {
 
     @Bean

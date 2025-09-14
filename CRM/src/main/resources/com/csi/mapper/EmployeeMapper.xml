@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csi.mapper.EmployeeMapper">
+    <cache/>
+    <!--管理员查询所有员工-->
+    <select id="getAllEmployees" resultType="com.csi.domain.Employee">
+        select id,username,name,phone,email,department,department_name,role,role_name
+        from employees e join departments d on e.department = d.department_id
+        join roles r on e.role = r.role_id
+    </select>
+
+    <!--经理查询自己的员工-->
+    <select id="getEmployees" resultType="com.csi.domain.Employee">
+        select id,username,name,phone,email,department,department_name,role,role_name
+        from employees e join departments d on e.department = d.department_id
+        join roles r on e.role = r.role_id
+        where superior_id = #{id}<!--经理id-->
+    </select>
+</mapper>

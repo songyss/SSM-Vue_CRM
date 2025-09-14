@@ -14,10 +14,16 @@ public class Employee implements Serializable {
     private String password;
     //姓名
     private String name;
+    //手机号码
+    private String phone;
+    //邮箱
+    private String email;
     //部门
-    private Department department;
+    private Integer department;
+    private String departmentName;
     //角色
-    private Role role;
+    private Integer role;
+    private String roleName;
     //上级领导
     private Integer superiorId;
 
