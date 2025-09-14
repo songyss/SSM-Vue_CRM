@@ -21,7 +21,7 @@ public class MybatisJavaConfig {
         sqlSessionFactoryBean.setDataSource(dataSource);//dataSource 搞里头
 
         org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration();
-        //configuration.setMapUnderscoreToCamelCase(true);//开启驼峰
+        configuration.setMapUnderscoreToCamelCase(true);//开启驼峰
         configuration.setLogImpl(Slf4jImpl.class);//开启日志
         configuration.setAutoMappingBehavior(AutoMappingBehavior.FULL);//开启全自动映射
         sqlSessionFactoryBean.setConfiguration(configuration);//配置项 搞里头
