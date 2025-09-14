@@ -19,9 +19,11 @@ public class Customer implements Serializable {
     //客户来源
     private String source;
     //销售更改状态
-    //private Status status;
+    private Integer status;
+    private String statusName;
     //电话销售更改状态
-    //private SdrStatus sdrStatus;
+    private Integer sdrStatus;
+    private String sdrStatusName;
     //电话销售
     private String sdrNotes;
     //负责的销售id
