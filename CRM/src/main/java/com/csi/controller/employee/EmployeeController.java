@@ -17,6 +17,10 @@ public class EmployeeController {
     @Autowired
     private EmployeeService employeeService;
 
+    /**
+     * 管理员查看全部员工
+     * @return
+     */
     @GetMapping("/allList")
     public R getAllEmployeeList(){
         List<Employee> allEmployees = employeeService.getAllEmployees();
@@ -27,6 +31,11 @@ public class EmployeeController {
         }
     }
 
+    /**
+     * 查询经理自己手下的员工
+     * @param id
+     * @return
+     */
     @GetMapping("/list")
     public R getEmployeeList(@RequestParam("id") int id){
         List<Employee> employees = employeeService.getEmployees(id);

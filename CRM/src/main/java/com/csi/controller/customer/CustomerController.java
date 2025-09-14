@@ -19,6 +19,10 @@ public class CustomerController {
     @Autowired
     private CustomerService customerService;
 
+    /**
+     * 查询全部客户信息
+     * @return
+     */
     @GetMapping("/allList")
     public R getAllCustomerList(){
         List<Customer> allCustomer = customerService.getAllCustomer();
@@ -29,6 +33,10 @@ public class CustomerController {
         }
     }
 
+    /**
+     * 查询已分配客户
+     * @return
+     */
     @GetMapping("/assignedList")
     public R getAssignedCustomerList(){
         List<Customer> assignedCustomer = customerService.getAssignedCustomer();
@@ -39,6 +47,10 @@ public class CustomerController {
         }
     }
 
+    /**
+     * 查询未分配客户
+     * @return
+     */
     @GetMapping("/unAssignedList")
     public R getUnAssignedCustomerList(){
         List<Customer> unAssignedCustomer = customerService.getUnAssignedCustomer();
