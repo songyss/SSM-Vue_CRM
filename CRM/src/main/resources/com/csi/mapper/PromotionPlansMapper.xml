@@ -6,10 +6,13 @@
 
     <insert id="savePromotionPlans">
         insert into
-        promotion_plans(id,title,content,budget,submitter_id,approver_id,feedback,create_time,update_time)
-        values(#{id},#{title},#{content},#{budget},#{submitterId},#{approverId},#{feedback},#{createTime},#{updateTime})
+        promotion_plans(id,title,content,budget,submitter_id,approver_id,status,feedback,create_time,update_time)
+        values(#{id},#{title},#{content},#{budget},#{submitterId},#{approverId},#{status},#{feedback},#{createTime},#{updateTime})
     </insert>
-<!--未审批活动方案-->
+    <update id="updateByStatus">
+        update promotion_plans set status = #{status} where id = #{id}
+    </update>
+    <!--未审批活动方案-->
     <select id="getPromotionPlans" resultType="com.csi.domain.PromotionPlans">
         select * from promotion_plans where status = 0
     </select>

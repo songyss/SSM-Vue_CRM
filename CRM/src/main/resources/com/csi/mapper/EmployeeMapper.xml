@@ -6,16 +6,32 @@
     <cache/>
     <!--管理员查询所有员工-->
     <select id="getAllEmployees" resultType="com.csi.domain.Employee">
-        select id,username,name,phone,borndate,email,department,department_name,role,role_name,e.create_time,e.update_time
+        select id,username,name,phone,sex,borndate,email,department,department_name,role,role_name,e.create_time,e.update_time
         from employees e join departments d on e.department = d.department_id
         join roles r on e.role = r.role_id
     </select>
 
-    <!--经理查询自己的员工-->
-    <select id="getEmployees" resultType="com.csi.domain.Employee">
-        select id,username,name,phone,borndate,email,department,department_name,role,role_name,e.create_time,e.update_time
+    <!--管理员查询所有在职员工-->
+    <select id="getAllOnEmployees" resultType="com.csi.domain.Employee">
+        select id,username,name,phone,sex,borndate,email,department,department_name,role,role_name,e.create_time,e.update_time
         from employees e join departments d on e.department = d.department_id
         join roles r on e.role = r.role_id
-        where superior_id = #{id}<!--经理id-->
+        where is_delete = 0
+    </select>
+
+    <!--管理员查询所有离职员工-->
+    <select id="getAllLeaveEmployees" resultType="com.csi.domain.Employee">
+        select id,username,name,phone,sex,borndate,email,department,department_name,role,role_name,e.create_time,e.update_time
+        from employees e join departments d on e.department = d.department_id
+        join roles r on e.role = r.role_id
+        where is_delete = 1
+    </select>
+
+    <!--经理查询自己的员工-->
+    <select id="getEmployees" resultType="com.csi.domain.Employee">
+        select id,username,name,phone,sex,borndate,email,department,department_name,role,role_name,e.create_time,e.update_time
+        from employees e join departments d on e.department = d.department_id
+        join roles r on e.role = r.role_id
+        where superior_id = #{id}<!--经理id-->and is_delete = 0
     </select>
 </mapper>

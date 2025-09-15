@@ -32,6 +32,11 @@ public class MarketingActivities implements Serializable {
      */
     private Integer planId;
 
+    /**
+     * 方案内容(HTML格式)
+     */
+    private String content;
+
 /**
      * 活动地点
      */
@@ -66,6 +71,7 @@ public class MarketingActivities implements Serializable {
      * 活动负责人ID
      */
     private Integer managerId;
+    private String managername;
 
 /**
      * 活动状态

@@ -22,6 +22,16 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    public List<Employee> getAllOnEmployees() {
+        return employeeMapper.getAllOnEmployees();
+    }
+
+    @Override
+    public List<Employee> getAllLeaveEmployees() {
+        return employeeMapper.getAllLeaveEmployees();
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<Employee> getEmployees(int id) {
         return employeeMapper.getEmployees(id);
