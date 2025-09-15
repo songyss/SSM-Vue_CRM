@@ -25,6 +25,12 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<Customer> getAllSaleCustomer() {
+        return customerMapper.getAllSaleCustomer();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<Customer> getAssignedCustomer() {
         return customerMapper.getAssignedCustomer();
     }

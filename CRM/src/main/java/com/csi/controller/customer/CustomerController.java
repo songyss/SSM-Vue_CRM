@@ -37,16 +37,16 @@ public class CustomerController {
      */
     @GetMapping("/saleList")
     public R getAllSaleCustomerList(){
-        List<Customer> allCustomer = customerService.getAllCustomer();
-        if (allCustomer != null){
-            return R.ok(allCustomer);
+        List<Customer> allSaleCustomer = customerService.getAllSaleCustomer();
+        if (allSaleCustomer != null){
+            return R.ok(allSaleCustomer);
         } else {
             return R.error();
         }
     }
 
     /**
-     * 查询已分配客户
+     * 查询有意向已分配客户
      * @return
      */
     @GetMapping("/assignedList")
@@ -60,7 +60,7 @@ public class CustomerController {
     }
 
     /**
-     * 查询未分配客户
+     * 查询有意向未分配客户
      * @return
      */
     @GetMapping("/unAssignedList")
@@ -73,11 +73,54 @@ public class CustomerController {
         }
     }
 
+    /**
+     * 查询无意向客户
+     * @return
+     */
+    @GetMapping("/noIntention")
+    public R getNoIntentionCustomerList(){
+        List<Customer> noIntentionCustomer = customerService.getNoIntentionCustomer();
+        if (noIntentionCustomer != null){
+            return R.ok(noIntentionCustomer);
+        } else {
+            return R.error();
+        }
+    }
+
+    /**
+     * 查询信息有误客户
+     * @return
+     */
+    @GetMapping("/infoIncorrect")
+    public R getInfoIncorrectCustomerList(){
+        List<Customer> infoIncorrectCustomer = customerService.getInfoIncorrectCustomer();
+        if (infoIncorrectCustomer != null){
+            return R.ok(infoIncorrectCustomer);
+        } else {
+            return R.error();
+        }
+    }
+
+    /**
+     * 根据来源查询客户
+     * @param source
+     * @return
+     */
+    @GetMapping("/{source}")
+    public R getCustomerListBySource(@PathVariable("source") String source){
+        List<Customer> CustomerBySource = customerService.getCustomerBySource(source);
+        if (CustomerBySource != null){
+            return R.ok(CustomerBySource);
+        } else {
+            return R.error();
+        }
+    }
+
     //销售对客户状态进行更改
     @PatchMapping("/status")
-    public R changeCustomerStatus(@RequestBody Customer customer) {
+    public R changeCustomerStatus(@RequestParam("id") int id,@RequestParam("status") int status) {
 
-        int i = customerService.changeCustomerStatus(customer);
+        int i = customerService.changeCustomerStatus(id, status);
 
         if (i == 1) {
             return R.ok(i) ;
