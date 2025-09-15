@@ -87,5 +87,10 @@
         WHERE assignee_id = #{id}
     </select>
 
+    <select id="getPersonalCustomerByTime" resultType="com.csi.domain.CustomerFollows">
+        SELECT *
+        FROM customer_follows
+        WHERE DATE(create_time) = DATE(#{date})
+    </select>
 
 </mapper>

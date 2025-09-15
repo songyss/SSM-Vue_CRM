@@ -4,6 +4,7 @@ import com.csi.config.DataSourceConfig;
 import com.csi.config.MybatisJavaConfig;
 import com.csi.config.ServiceJavaConfig;
 import com.csi.domain.Customer;
+import com.csi.domain.CustomerFollows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -33,5 +34,12 @@ public class TestCustomerService {
         List<Customer> customers = customerService.getPersonalCustomer(2002);
 
         customers.forEach(System.out::println);
+    }
+
+    @Test
+    public void test2() {
+        List<CustomerFollows> customer = customerService.getPersonalCustomerByTime("2025-09-15");
+
+        customer.forEach(System.out::println);
     }
 }
