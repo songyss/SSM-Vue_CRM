@@ -32,6 +32,34 @@ public class EmployeeController {
     }
 
     /**
+     * 管理员查看全部在职员工
+     * @return
+     */
+    @GetMapping("/allOnList")
+    public R getAllOnEmployeeList(){
+        List<Employee> allOnEmployees = employeeService.getAllOnEmployees();
+        if (allOnEmployees != null){
+            return R.ok(allOnEmployees);
+        } else {
+            return R.error();
+        }
+    }
+
+    /**
+     * 管理员查看全部已离职员工
+     * @return
+     */
+    @GetMapping("/allLeaveList")
+    public R getAllLeaveEmployeeList(){
+        List<Employee> allLeaveEmployees = employeeService.getAllLeaveEmployees();
+        if (allLeaveEmployees != null){
+            return R.ok(allLeaveEmployees);
+        } else {
+            return R.error();
+        }
+    }
+
+    /**
      * 查询经理自己手下的员工
      * @param id
      * @return
