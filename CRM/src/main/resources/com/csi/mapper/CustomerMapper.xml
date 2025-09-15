@@ -4,6 +4,7 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.csi.mapper.CustomerMapper">
     <cache/>
+    <!--查询全部的客户信息-->
     <select id="getAllCustomer" resultType="com.csi.domain.Customer">
         select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         sdr_notes,assignee_id,e1.name,creator_id,e2.name,last_follow_up_time,c.create_time,c.update_time
@@ -20,7 +21,7 @@
         left join sdr_status ss on c.sdr_status = ss.sdr_status_id
         left join employees e1 on c.assignee_id = e1.id
         left join employees e2 on c.creator_id = e2.id
-        where sdr_status != 1
+        where sdr_status != 1 or status is not null
     </select>
     <!--查看有意向已分配客户-->
     <select id="getAssignedCustomer" resultType="com.csi.domain.Customer">
