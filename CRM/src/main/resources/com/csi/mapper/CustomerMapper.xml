@@ -87,10 +87,37 @@
         WHERE assignee_id = #{id}
     </select>
 
-    <select id="getPersonalCustomerByTime" resultType="com.csi.domain.CustomerFollows">
-        SELECT *
-        FROM customer_follows
-        WHERE DATE(create_time) = DATE(#{date})
-    </select>
+    <insert id="addCustomer" parameterType="com.csi.domain.Customer">
+        INSERT INTO
+        customers(
+        name, phone, sex, borndate,
+        company, position, source,
+        status, notes, assignee_id,
+        creator_id )
+        VALUES
+        ( #{name}, #{phone}, #{sex}, #{borndate},
+        #{company}, #{position}, #{source},
+        #{status}, #{notes}, #{assigneeId},
+        #{creatorId} )
+    </insert>
+
+    <update id="updateCustomer" parameterType="com.csi.domain.Customer">
+        UPDATE customers
+        SET
+        name = #{name},
+        phone = #{phone},
+        sex = #{sex},
+        borndate = #{borndate},
+        company = #{company},
+        position = #{position},
+        source = #{source},
+        status = #{status},
+        notes = #{notes},
+        assignee_id = #{assigneeId},
+        last_follow_up_time = #{lastFollowUPTime},
+        is_pool = #{isPool},
+        pool_time = #{poolTime}
+        WHERE id = #{id}
+    </update>
 
 </mapper>

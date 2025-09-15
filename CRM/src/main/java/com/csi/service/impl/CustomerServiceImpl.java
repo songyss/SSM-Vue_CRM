@@ -2,6 +2,7 @@ package com.csi.service.impl;
 
 import com.csi.domain.Customer;
 import com.csi.domain.CustomerFollows;
+import com.csi.domain.Opportunities;
 import com.csi.mapper.CustomerMapper;
 import com.csi.service.CustomerService;
 import org.apache.ibatis.annotations.Param;
@@ -75,8 +76,15 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List<CustomerFollows> getPersonalCustomerByTime(String time) {
-        List<CustomerFollows> customer = customerMapper.getPersonalCustomerByTime(time);
-        return customer;
+    public int addCustomer(Customer customer) {
+        int i = customerMapper.addCustomer(customer);
+        return i;
     }
+
+    @Override
+    public int updateCustomer(Customer customer) {
+        int i = customerMapper.updateCustomer(customer);
+        return i;
+    }
+
 }

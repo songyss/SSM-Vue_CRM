@@ -2,6 +2,7 @@ package com.csi.service;
 
 import com.csi.domain.Customer;
 import com.csi.domain.CustomerFollows;
+import com.csi.domain.Opportunities;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -26,7 +27,8 @@ public interface CustomerService {
 
     List<Customer> getPersonalCustomer(int id);//销售获取接受分配
 
-    List<CustomerFollows> getPersonalCustomerByTime(String time);//根据跟进时间筛选客户
+    int addCustomer(Customer customer);//销售新增客户
 
+    int updateCustomer(Customer customer);//销售更新用户信息
 
 }

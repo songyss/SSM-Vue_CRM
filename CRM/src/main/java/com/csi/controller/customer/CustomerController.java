@@ -141,13 +141,23 @@ public class CustomerController {
         }
     }
 
-    //根据跟进时间筛选客户
-    @GetMapping("/personalCustomerByTime")
-    public R getPersonalCustomerByTime(@RequestParam("creatTime")String creatTime) {
-        List<CustomerFollows> customers = customerService.getPersonalCustomerByTime(creatTime);
+    //销售新增用户
+    @PutMapping("/addCustomer")
+    public R addCustomer(@RequestBody Customer customer) {
+        int i = customerService.addCustomer(customer);
+        if (i == 1) {
+            return R.ok(i) ;
+        } else {
+            return R.error();
+        }
+    }
 
-        if (customers != null) {
-            return R.ok(customers);
+    //销售更新用户信息
+    @PatchMapping("/updateCustomer")
+    public R updateCustomer(@RequestBody Customer customer) {
+        int i = customerService.updateCustomer(customer);
+        if (i == 1) {
+            return R.ok(i) ;
         } else {
             return R.error();
         }

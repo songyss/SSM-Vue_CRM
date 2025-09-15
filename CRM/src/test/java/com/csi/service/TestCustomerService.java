@@ -17,6 +17,9 @@ public class TestCustomerService {
     @Autowired
     private CustomerService customerService;
 
+    @Autowired
+    private CustomerFollowsService customerFollowsService;
+
     @Test
     public void test() {
         /*Customer customer = new Customer();
@@ -38,8 +41,31 @@ public class TestCustomerService {
 
     @Test
     public void test2() {
-        List<CustomerFollows> customer = customerService.getPersonalCustomerByTime("2025-09-15");
+        List<CustomerFollows> customer = customerFollowsService.getPersonalCustomerByTime("2025-09-14","2025-09-16");
 
         customer.forEach(System.out::println);
+    }
+
+    @Test
+    public void test3() {
+        Customer customer = new Customer();
+        customer.setName("test");
+        customer.setPhone("13812345678");
+        customer.setSource("test");
+        customer.setCreatorId(2002);
+        int i = customerService.addCustomer(customer);
+        System.out.println(i);
+    }
+
+    @Test
+    public void test4() {
+        Customer customer = new Customer();
+        customer.setId(1002);
+        customer.setName("test");
+        customer.setPhone("13887654321");
+        customer.setSource("test");
+        customer.setCreatorId(2002);
+        int i = customerService.updateCustomer(customer);
+        System.out.println(i);
     }
 }

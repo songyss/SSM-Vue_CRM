@@ -40,6 +40,12 @@ public class Customer implements Serializable {
     private String name2;
     //最后跟进时间
     private String lastFollowUPTime;
+    //是否放进客户池
+    private int isPool;
+    //放入客户池时间
+    private String poolTime;
+    //客户介入的活动id
+    private int activityId ;
 
 
 }
