@@ -31,6 +31,20 @@ public class CustomerController {
     }
 
     /**
+     * 销售经理查询除未联系之外的全部客户
+     * @return
+     */
+    @GetMapping("/saleList")
+    public R getAllSaleCustomerList(){
+        List<Customer> allCustomer = customerService.getAllCustomer();
+        if (allCustomer != null){
+            return R.ok(allCustomer);
+        } else {
+            return R.error();
+        }
+    }
+
+    /**
      * 查询有意向已分配客户
      * @return
      */

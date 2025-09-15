@@ -12,6 +12,16 @@
         left join employees e1 on c.assignee_id = e1.id
         left join employees e2 on c.creator_id = e2.id
     </select>
+    <!--销售经理查看除未联系之外的所有客户信息-->
+    <select id="getAllSaleCustomer" resultType="com.csi.domain.Customer">
+        select c.id,c.name,c.phone,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
+        sdr_notes,assignee_id,e1.name,creator_id,e2.name,last_follow_up_time,c.create_time,c.update_time
+        from customers c left join status s on c.status = s.status_id
+        left join sdr_status ss on c.sdr_status = ss.sdr_status_id
+        left join employees e1 on c.assignee_id = e1.id
+        left join employees e2 on c.creator_id = e2.id
+        where sdr_status != 1
+    </select>
     <!--查看有意向已分配客户-->
     <select id="getAssignedCustomer" resultType="com.csi.domain.Customer">
         select c.id,c.name,c.phone,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
@@ -76,5 +86,6 @@
         FROM customers
         WHERE assignee_id = #{id}
     </select>
+
 
 </mapper>

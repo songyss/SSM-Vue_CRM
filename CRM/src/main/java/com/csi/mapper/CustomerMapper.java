@@ -7,7 +7,9 @@ import java.util.List;
 
 public interface CustomerMapper {
 
-    List<Customer> getAllCustomer();
+    List<Customer> getAllCustomer();//管理员查看全部的客户信息
+
+    List<Customer> getAllSaleCustomer();//销售经理查看除未联系之外的所有客户信息
 
     List<Customer> getAssignedCustomer();//获取有意向已分配客户
 
