@@ -5,7 +5,7 @@
 <mapper namespace="com.csi.mapper.CustomerMapper">
     <cache/>
     <select id="getAllCustomer" resultType="com.csi.domain.Customer">
-        select c.id,c.name,c.phone,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
+        select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         sdr_notes,assignee_id,e1.name,creator_id,e2.name,last_follow_up_time,c.create_time,c.update_time
         from customers c left join status s on c.status = s.status_id
         left join sdr_status ss on c.sdr_status = ss.sdr_status_id
@@ -14,7 +14,7 @@
     </select>
     <!--销售经理查看除未联系之外的所有客户信息-->
     <select id="getAllSaleCustomer" resultType="com.csi.domain.Customer">
-        select c.id,c.name,c.phone,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
+        select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         sdr_notes,assignee_id,e1.name,creator_id,e2.name,last_follow_up_time,c.create_time,c.update_time
         from customers c left join status s on c.status = s.status_id
         left join sdr_status ss on c.sdr_status = ss.sdr_status_id
@@ -24,7 +24,7 @@
     </select>
     <!--查看有意向已分配客户-->
     <select id="getAssignedCustomer" resultType="com.csi.domain.Customer">
-        select c.id,c.name,c.phone,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
+        select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         sdr_notes,assignee_id,e1.name,creator_id,e2.name,last_follow_up_time,c.create_time,c.update_time
         from customers c left join status s on c.status = s.status_id
         left join sdr_status ss on c.sdr_status = ss.sdr_status_id
@@ -34,7 +34,7 @@
     </select>
     <!--查看有意向未分配客户-->
     <select id="getUnAssignedCustomer" resultType="com.csi.domain.Customer">
-        select c.id,c.name,c.phone,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
+        select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         sdr_notes,assignee_id,e1.name,creator_id,e2.name,last_follow_up_time,c.create_time,c.update_time
         from customers c left join status s on c.status = s.status_id
         left join sdr_status ss on c.sdr_status = ss.sdr_status_id
@@ -45,7 +45,7 @@
 
     <!--查看无意向客户-->
     <select id="getNoIntentionCustomer" resultType="com.csi.domain.Customer">
-        select c.id,c.name,c.phone,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
+        select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         sdr_notes,assignee_id,e1.name,creator_id,e2.name,last_follow_up_time,c.create_time,c.update_time
         from customers c left join status s on c.status = s.status_id
         left join sdr_status ss on c.sdr_status = ss.sdr_status_id
@@ -56,7 +56,7 @@
 
     <!--查看信息有误客户-->
     <select id="getInfoIncorrectCustomer" resultType="com.csi.domain.Customer">
-        select c.id,c.name,c.phone,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
+        select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         sdr_notes,assignee_id,e1.name,creator_id,e2.name,last_follow_up_time,c.create_time,c.update_time
         from customers c left join status s on c.status = s.status_id
         left join sdr_status ss on c.sdr_status = ss.sdr_status_id
@@ -67,7 +67,7 @@
 
     <!--根据来源筛选客户-->
     <select id="getCustomerBySource" resultType="com.csi.domain.Customer">
-        select c.id,c.name,c.phone,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
+        select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         sdr_notes,assignee_id,e1.name,creator_id,e2.name,last_follow_up_time,c.create_time,c.update_time
         from customers c left join status s on c.status = s.status_id
         left join sdr_status ss on c.sdr_status = ss.sdr_status_id
