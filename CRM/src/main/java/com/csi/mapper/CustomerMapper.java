@@ -1,6 +1,7 @@
 package com.csi.mapper;
 
 import com.csi.domain.Customer;
+import com.csi.domain.CustomerFollows;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -24,4 +25,6 @@ public interface CustomerMapper {
     int changeCustomerStatus(@Param("id") int id,@Param("status") int status);//销售更改客户状态
 
     List<Customer> getPersonalCustomer(int id);//销售获取接受分配
+
+    List<CustomerFollows> getPersonalCustomerByTime(String time);//根据跟进时间筛选客户
 }
