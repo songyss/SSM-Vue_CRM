@@ -10,4 +10,6 @@ public interface MarketingService {
 
     List<PromotionPlans> getPromotionPlans();
 
+    int updateByStatus(PromotionPlans promotionPlans);
+
 }

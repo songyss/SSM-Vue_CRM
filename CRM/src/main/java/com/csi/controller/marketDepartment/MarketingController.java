@@ -46,6 +46,8 @@ public class MarketingController {
      */
     @PutMapping("/savePromotionPlans")
     public R savePromotionPlans(@RequestBody PromotionPlans promotionPlans) {
+
+
         int i = marketingService.savePromotionPlans(promotionPlans);
         if (i == 1) {
             return R.ok(i);
@@ -68,6 +70,8 @@ public class MarketingController {
             return R.error();
         }
     }
+
+
 
 
 }

@@ -2,6 +2,7 @@ package com.csi.service.impl;
 
 import com.csi.domain.Customer;
 import com.csi.domain.CustomerFollows;
+import com.csi.domain.CustomerFollows;
 import com.csi.domain.Opportunities;
 import com.csi.mapper.CustomerMapper;
 import com.csi.service.CustomerService;
@@ -77,6 +78,20 @@ public class CustomerServiceImpl implements CustomerService {
             int i = customerMapper.addCustomer(customer);
             return i;
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Customer> getPersonalCustomer(int id) {
+        List<Customer> customers = customerMapper.getPersonalCustomer(id);
+
+        return customers;
+    }
+
+    @Override
+    public List<CustomerFollows> getPersonalCustomerByTime(String time) {
+        List<CustomerFollows> customer = customerMapper.getPersonalCustomerByTime(time);
+        return customer;
     }
 
     @Override

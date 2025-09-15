@@ -26,6 +26,7 @@ public class TestCustomerService {
 
         customer.setId(1);
         customer.setStatus(2);*/
+        customer.setStatus(2);*/
 
         int i = customerService.changeCustomerStatus(1,2);
 
@@ -39,6 +40,7 @@ public class TestCustomerService {
         customers.forEach(System.out::println);
     }
 
+        int i = customerService.changeCustomerStatus(1,2);
     @Test
     public void test2() {
         List<CustomerFollows> customer = customerFollowsService.getPersonalCustomerByTime("2025-09-14","2025-09-16");
@@ -71,6 +73,21 @@ public class TestCustomerService {
 
     @Test
     public void test5() {
+    public void test1() {
+        List<Customer> customers = customerService.getPersonalCustomer(2002);
+
+        customers.forEach(System.out::println);
+    }
+
+    @Test
+    public void test2() {
+        List<CustomerFollows> customer = customerService.getPersonalCustomerByTime("2025-09-15");
+
+        customer.forEach(System.out::println);
+    }
+
+    @Test
+    public void test3() {
         Customer customer = new Customer();
         customer.setId(11);
         customer.setName("刘里");

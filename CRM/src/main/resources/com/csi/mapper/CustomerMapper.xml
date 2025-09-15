@@ -64,6 +64,43 @@
     <!--查看信息有误客户-->
     <select id="getInfoIncorrectCustomer" resultType="com.csi.domain.Customer">
         select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
+        select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
+        sdr_notes,assignee_id,e1.name,creator_id,e2.name,last_follow_up_time,c.create_time,c.update_time
+        from customers c left join status s on c.status = s.status_id
+        left join sdr_status ss on c.sdr_status = ss.sdr_status_id
+        left join employees e1 on c.assignee_id = e1.id
+        left join employees e2 on c.creator_id = e2.id
+        where sdr_status = 4
+        where c.assignee_id is null and sdr_status = 3
+    </select>
+
+    <!--根据来源筛选客户-->
+    <select id="getCustomerBySource" resultType="com.csi.domain.Customer">
+        select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
+        sdr_notes,assignee_id,e1.name,creator_id,e2.name,last_follow_up_time,c.create_time,c.update_time
+        from customers c left join status s on c.status = s.status_id
+        left join sdr_status ss on c.sdr_status = ss.sdr_status_id
+        left join employees e1 on c.assignee_id = e1.id
+        left join employees e2 on c.creator_id = e2.id
+        where source like concat('%',#{source},'%')
+    </select>
+
+
+    <update id="changeCustomerStatus">
+    <!--查看无意向客户-->
+    <select id="getNoIntentionCustomer" resultType="com.csi.domain.Customer">
+        select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
+        sdr_notes,assignee_id,e1.name,creator_id,e2.name,last_follow_up_time,c.create_time,c.update_time
+        from customers c left join status s on c.status = s.status_id
+        left join sdr_status ss on c.sdr_status = ss.sdr_status_id
+        left join employees e1 on c.assignee_id = e1.id
+        left join employees e2 on c.creator_id = e2.id
+        where sdr_status = 2
+    </select>
+
+    <!--查看信息有误客户-->
+    <select id="getInfoIncorrectCustomer" resultType="com.csi.domain.Customer">
+        select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         sdr_notes,assignee_id,e1.name,creator_id,e2.name,last_follow_up_time,c.create_time,c.update_time
         from customers c left join status s on c.status = s.status_id
         left join sdr_status ss on c.sdr_status = ss.sdr_status_id
@@ -126,6 +163,18 @@
         pool_time = #{poolTime}
         WHERE id = #{id}
     </update>
+
+    <select id="getPersonalCustomer" resultType="com.csi.domain.Customer">
+        SELECT *
+        FROM customers
+        WHERE assignee_id = #{id}
+    </select>
+
+    <select id="getPersonalCustomerByTime" resultType="com.csi.domain.CustomerFollows">
+        SELECT *
+        FROM customer_follows
+        WHERE DATE(create_time) = DATE(#{date})
+    </select>
 
     <select id="checkCustomerPhone" resultType="com.csi.domain.Customer">
         SELECT phone FROM CUSTOMERS WHERE phone=#{phone}
