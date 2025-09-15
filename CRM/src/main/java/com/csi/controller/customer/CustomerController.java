@@ -1,6 +1,7 @@
 package com.csi.controller.customer;
 
 import com.csi.domain.Customer;
+import com.csi.domain.CustomerFollows;
 import com.csi.service.CustomerService;
 import com.csi.util.R;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ public class CustomerController {
     }
 
     /**
-     * 查询有意向已分配客户
+     * 查询已分配客户
      * @return
      */
     @GetMapping("/assignedList")
@@ -59,7 +60,7 @@ public class CustomerController {
     }
 
     /**
-     * 查询有意向未分配客户
+     * 查询未分配客户
      * @return
      */
     @GetMapping("/unAssignedList")
@@ -73,53 +74,10 @@ public class CustomerController {
     }
 
     //销售对客户状态进行更改
-    /**
-     * 查询无意向客户
-     * @return
-     */
-    @GetMapping("/noIntention")
-    public R getNoIntentionCustomerList(){
-        List<Customer> noIntentionCustomer = customerService.getNoIntentionCustomer();
-        if (noIntentionCustomer != null){
-            return R.ok(noIntentionCustomer);
-        } else {
-            return R.error();
-        }
-    }
-
-    /**
-     * 查询信息有误客户
-     * @return
-     */
-    @GetMapping("/infoIncorrect")
-    public R getInfoIncorrectCustomerList(){
-        List<Customer> infoIncorrectCustomer = customerService.getInfoIncorrectCustomer();
-        if (infoIncorrectCustomer != null){
-            return R.ok(infoIncorrectCustomer);
-        } else {
-            return R.error();
-        }
-    }
-
-    /**
-     * 根据来源查询客户
-     * @param source
-     * @return
-     */
-    @GetMapping("/{source}")
-    public R getCustomerListBySource(@PathVariable("source") String source){
-        List<Customer> CustomerBySource = customerService.getCustomerBySource(source);
-        if (CustomerBySource != null){
-            return R.ok(CustomerBySource);
-        } else {
-            return R.error();
-        }
-    }
-
     @PatchMapping("/status")
-    public R changeCustomerStatus(@RequestParam("id") int id,@RequestParam("status") int status) {
+    public R changeCustomerStatus(@RequestBody Customer customer) {
 
-        int i = customerService.changeCustomerStatus(id, status);
+        int i = customerService.changeCustomerStatus(customer);
 
         if (i == 1) {
             return R.ok(i) ;
@@ -140,5 +98,16 @@ public class CustomerController {
         }
     }
 
+    //根据跟进时间筛选客户
+    @GetMapping("/personalCustomerByTime")
+    public R getPersonalCustomerByTime(@RequestParam("creatTime")String creatTime) {
+        List<CustomerFollows> customers = customerService.getPersonalCustomerByTime(creatTime);
+
+        if (customers != null) {
+            return R.ok(customers);
+        } else {
+            return R.error();
+        }
+    }
 
 }
