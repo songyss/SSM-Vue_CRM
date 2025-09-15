@@ -39,4 +39,16 @@ public class CustomerServiceImpl implements CustomerService {
         int i = customerMapper.changeCustomerStatus(customer);
         return i;
     }
+
+    @Override
+    public int addCustomer(Customer customer){
+        Customer result=customerMapper.checkCustomerPhone(customer.getPhone());
+        if(result!=null){
+            return 0;
+        }else {
+
+            int i = customerMapper.addCustomer(customer);
+            return i;
+        }
+    }
 }

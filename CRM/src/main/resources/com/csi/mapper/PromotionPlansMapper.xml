@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csi.mapper.PromotionPlansMapper">
+
+    <insert id="savePromotionPlans">
+        insert into
+        promotion_plans(id,title,content,budget,submitter_id,approver_id,feedback,create_time,update_time)
+        values(#{id},#{title},#{content},#{budget},#{submitterId},#{approverId},#{feedback},#{createTime},#{updateTime})
+    </insert>
+<!--未审批活动方案-->
+    <select id="getPromotionPlans" resultType="com.csi.domain.PromotionPlans">
+        select * from promotion_plans where status = 0
+    </select>
+
+
+</mapper>
