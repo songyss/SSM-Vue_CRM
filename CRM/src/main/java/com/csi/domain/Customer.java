@@ -44,8 +44,6 @@ public class Customer implements Serializable {
     private int isPool;
     //放入客户池时间
     private String poolTime;
-    //客户介入的活动id
-    private int activityId ;
     //关联活动id
     private Integer activityId;
 
