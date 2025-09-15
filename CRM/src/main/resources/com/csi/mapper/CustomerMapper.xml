@@ -35,4 +35,10 @@
         UPDATE customers SET status = #{status} WHERE id = #{id}
     </update>
 
+    <select id="getPersonalCustomer" resultType="com.csi.domain.Customer">
+        SELECT *
+        FROM customers
+        WHERE assignee_id = #{id}
+    </select>
+
 </mapper>

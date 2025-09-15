@@ -58,10 +58,11 @@ public class CustomerController {
         }
     }
 
+    //销售对客户状态进行更改
     @PatchMapping("/status")
     public R changeCustomerStatus(@RequestBody Customer customer) {
 
-        System.out.println(customer);
+//        System.out.println(customer);
 
         int i = customerService.changeCustomerStatus(customer);
 
@@ -69,6 +70,18 @@ public class CustomerController {
             return R.ok(i) ;
         } else {
             return R.error() ;
+        }
+    }
+
+    //查询当前销售的所负责客户
+    @GetMapping("/personalCustomer")
+    public R getPersonalCustomer(@RequestParam("id") int id) {
+        List<Customer> customers = customerService.getPersonalCustomer(id);
+
+        if (customers != null) {
+            return R.ok(customers);
+        } else {
+            return R.error();
         }
     }
 

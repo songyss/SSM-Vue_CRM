@@ -12,5 +12,7 @@ public interface CustomerMapper {
 
     List<Customer> getUnAssignedCustomer();//获取未分配客户
 
-    int changeCustomerStatus(Customer customer);    //销售更改客户状态
+    int changeCustomerStatus(Customer customer);//销售更改客户状态
+
+    List<Customer> getPersonalCustomer(int id);//销售获取接受分配
 }

@@ -39,4 +39,11 @@ public class CustomerServiceImpl implements CustomerService {
         int i = customerMapper.changeCustomerStatus(customer);
         return i;
     }
+
+    @Override
+    public List<Customer> getPersonalCustomer(int id) {
+        List<Customer> customers = customerMapper.getPersonalCustomer(id);
+
+        return customers;
+    }
 }
