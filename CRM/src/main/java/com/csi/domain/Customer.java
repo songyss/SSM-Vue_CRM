@@ -12,6 +12,8 @@ public class Customer implements Serializable {
     private String name;
     //客户手机号
     private String phone;
+    //客户性别
+    private Integer sex;
     //客户生日
     private String borndate;
     //客户所在公司
