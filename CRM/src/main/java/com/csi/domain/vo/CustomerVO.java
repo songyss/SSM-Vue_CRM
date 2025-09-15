@@ -1,10 +1,12 @@
-package com.csi.domain;
+package com.csi.domain.vo;
 
+import com.csi.domain.MarketingActivities;
 import lombok.Data;
 
 import java.io.Serializable;
+
 @Data
-public class Customer implements Serializable {
+public class CustomerVO implements Serializable {
 
     //客户id
     private Integer id;
@@ -40,11 +42,9 @@ public class Customer implements Serializable {
     private String name2;
     //最后跟进时间
     private String lastFollowUPTime;
-    //是否放进客户池
-    private int isPool;
-    //放入客户池时间
-    private String poolTime;
     //关联活动id
     private Integer activityId;
+    private MarketingActivities marketingActivities;
+
 
 }

@@ -6,7 +6,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerAdapter;
 import org.springframework.web.servlet.HandlerMapping;
+import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
@@ -27,6 +29,18 @@ public class SpringMvcConfig implements WebMvcConfigurer {
     public HandlerAdapter handlerAdapter(){
         return new RequestMappingHandlerAdapter();
     }
+
+    /*@Override
+    public void configureViewResolvers(ViewResolverRegistry registry) {
+        //  /index.jsp
+        registry.jsp("/", ".jsp");
+    }
+
+    @Override
+    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+        //如果找到的是一个资源地址，则直接放行
+        configurer.enable();
+    }*/
 
     /*// 1. 注册Token拦截器（把拦截器交给Spring管理）
     @Bean
