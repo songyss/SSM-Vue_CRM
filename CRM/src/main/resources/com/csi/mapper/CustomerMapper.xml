@@ -4,7 +4,10 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.csi.mapper.CustomerMapper">
     <cache/>
+    <!--查询全部的客户信息-->
     <select id="getAllCustomer" resultType="com.csi.domain.Customer">
+        select
+        c.id,c.name,c.phone,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         sdr_notes,assignee_id,e1.name,creator_id,e2.name,last_follow_up_time,c.create_time,c.update_time
         from customers c left join status s on c.status = s.status_id
@@ -24,6 +27,8 @@
     </select>
     <!--查看有意向已分配客户-->
     <select id="getAssignedCustomer" resultType="com.csi.domain.Customer">
+        select
+        c.id,c.name,c.phone,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         sdr_notes,assignee_id,e1.name,creator_id,e2.name,last_follow_up_time,c.create_time,c.update_time
         from customers c left join status s on c.status = s.status_id
@@ -34,6 +39,8 @@
     </select>
     <!--查看有意向未分配客户-->
     <select id="getUnAssignedCustomer" resultType="com.csi.domain.Customer">
+        select
+        c.id,c.name,c.phone,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         sdr_notes,assignee_id,e1.name,creator_id,e2.name,last_follow_up_time,c.create_time,c.update_time
         from customers c left join status s on c.status = s.status_id
@@ -119,5 +126,14 @@
         pool_time = #{poolTime}
         WHERE id = #{id}
     </update>
+
+    <select id="checkCustomerPhone" resultType="com.csi.domain.Customer">
+        SELECT phone FROM CUSTOMERS WHERE phone=#{phone}
+    </select>
+
+    <insert id="addCustomer">
+        INSERT INTO customers (name, phone, borndate, company, position, source, status, assignee_id,creator_id)
+        VALUES (#{name}, #{phone}, #{borndate}, #{company}, #{position}, #{source},#{status},#{assigneeId},#{creatorId});
+    </insert>
 
 </mapper>

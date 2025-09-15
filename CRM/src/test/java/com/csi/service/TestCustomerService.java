@@ -68,4 +68,22 @@ public class TestCustomerService {
         int i = customerService.updateCustomer(customer);
         System.out.println(i);
     }
+
+    @Test
+    public void test1() {
+        Customer customer = new Customer();
+        customer.setId(11);
+        customer.setName("刘里");
+        customer.setPhone("12345678909");
+        customer.setBorndate("2001-09-09");
+        customer.setCompany("公司");
+        customer.setSource("线下活动");
+        customer.setStatus(1);
+        customer.setCreatorId(1);
+
+
+
+        customer.setAssigneeId(888);
+        customerService.addCustomer(customer);
+    }
 }

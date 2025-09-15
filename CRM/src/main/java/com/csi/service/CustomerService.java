@@ -31,4 +31,6 @@ public interface CustomerService {
 
     int updateCustomer(Customer customer);//销售更新用户信息
 
+    int addCustomer(Customer customer); //客户端录入客户信息
+
 }

@@ -22,4 +22,11 @@ public class R extends HashMap<String, Object> {
         r.put("data",null);
         return r;
     }
+
+    // 只返回消息不返回数据
+    public static R message(String message) {
+        R r = new R();
+        r.put("message", message);
+        return r;
+    }
 }

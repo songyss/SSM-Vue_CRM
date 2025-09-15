@@ -68,6 +68,18 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public int addCustomer(Customer customer){
+        Customer result=customerMapper.checkCustomerPhone(customer.getPhone());
+        if(result!=null){
+            return 0;
+        }else {
+
+            int i = customerMapper.addCustomer(customer);
+            return i;
+        }
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<Customer> getPersonalCustomer(int id) {
         List<Customer> customers = customerMapper.getPersonalCustomer(id);
