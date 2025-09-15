@@ -70,7 +70,7 @@ public class TestCustomerService {
     }
 
     @Test
-    public void test1() {
+    public void test5() {
         Customer customer = new Customer();
         customer.setId(11);
         customer.setName("刘里");
