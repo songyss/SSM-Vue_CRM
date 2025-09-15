@@ -88,7 +88,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public int addCustomer(Customer customer) {
+    public int add5Customer(Customer customer) {
         int i = customerMapper.addCustomer(customer);
         return i;
     }

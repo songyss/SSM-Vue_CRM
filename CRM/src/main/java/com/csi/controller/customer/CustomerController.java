@@ -142,9 +142,9 @@ public class CustomerController {
     }
 
     //销售新增用户
-    @PutMapping("/addCustomer")
-    public R addCustomer(@RequestBody Customer customer) {
-        int i = customerService.addCustomer(customer);
+    @PutMapping("/add5Customer")
+    public R add5Customer(@RequestBody Customer customer) {
+        int i = customerService.add5Customer(customer);
         if (i == 1) {
             return R.ok(i) ;
         } else {

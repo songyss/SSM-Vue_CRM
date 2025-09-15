@@ -94,7 +94,7 @@
         WHERE assignee_id = #{id}
     </select>
 
-    <insert id="addCustomer" parameterType="com.csi.domain.Customer">
+    <insert id="add5Customer" parameterType="com.csi.domain.Customer">
         INSERT INTO
         customers(
         name, phone, sex, borndate,

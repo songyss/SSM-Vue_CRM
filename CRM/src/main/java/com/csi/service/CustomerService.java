@@ -27,7 +27,7 @@ public interface CustomerService {
 
     List<Customer> getPersonalCustomer(int id);//销售获取接受分配
 
-    int addCustomer(Customer customer);//销售新增客户
+    int add5Customer(Customer customer);//销售新增客户
 
     int updateCustomer(Customer customer);//销售更新用户信息
 
