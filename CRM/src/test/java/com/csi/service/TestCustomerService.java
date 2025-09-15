@@ -18,12 +18,12 @@ public class TestCustomerService {
 
     @Test
     public void test() {
-        Customer customer = new Customer();
+        /*Customer customer = new Customer();
 
         customer.setId(1);
-        customer.setStatus(2);
+        customer.setStatus(2);*/
 
-        int i = customerService.changeCustomerStatus(customer);
+        int i = customerService.changeCustomerStatus(1,2);
 
         System.out.println(i);
     }

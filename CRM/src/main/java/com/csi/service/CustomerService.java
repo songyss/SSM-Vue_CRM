@@ -1,6 +1,7 @@
 package com.csi.service;
 
 import com.csi.domain.Customer;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -8,11 +9,17 @@ public interface CustomerService {
 
     List<Customer> getAllCustomer();
 
-    List<Customer> getAssignedCustomer();//获取已分配客户
+    List<Customer> getAssignedCustomer();//获取有意向已分配客户
 
-    List<Customer> getUnAssignedCustomer();//获取未分配客户
+    List<Customer> getUnAssignedCustomer();//获取有意向未分配客户
 
-    int changeCustomerStatus(Customer customer);//销售更改客户状态
+    List<Customer> getNoIntentionCustomer();//获取无意向客户
+
+    List<Customer> getInfoIncorrectCustomer();//获取信息有误客户
+
+    List<Customer> getCustomerBySource(String source);//根据来源筛选客户
+
+    int changeCustomerStatus(@Param("id") int id, @Param("status") int status);
 
     List<Customer> getPersonalCustomer(int id);//销售获取接受分配
 
