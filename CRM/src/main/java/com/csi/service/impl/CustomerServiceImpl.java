@@ -74,8 +74,12 @@ public class CustomerServiceImpl implements CustomerService {
         if(result!=null){
             return 0;
         }else {
-            int i = customerMapper.addCustomer(customer);
-            return i;
+            customer.setIsPool(0);
+
+
+            customerMapper.addCustomer(customer);
+
+            return 1;
         }
     }
 

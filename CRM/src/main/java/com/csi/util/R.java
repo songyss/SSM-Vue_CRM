@@ -26,6 +26,7 @@ public class R extends HashMap<String, Object> {
     // 只返回消息不返回数据
     public static R message(String message) {
         R r = new R();
+        r.put("code",500);
         r.put("message", message);
         return r;
     }

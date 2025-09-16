@@ -37,4 +37,6 @@ public interface CustomerMapper {
     Customer checkCustomerPhone(String phone);  //检验客户手机号唯一性
 
     int addCustomer (Customer customer);  //市场部录入客户信息
+
+
 }
