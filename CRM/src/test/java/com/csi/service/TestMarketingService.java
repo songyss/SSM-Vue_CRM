@@ -54,4 +54,8 @@ public class TestMarketingService {
         int i = marketingService.updateByStatus(promotionPlans);
         System.out.println(i);
     }
+    @Test
+    public void test5(){
+        System.out.println(111);
+    }
 }

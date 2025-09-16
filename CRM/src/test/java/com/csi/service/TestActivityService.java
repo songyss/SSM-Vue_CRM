@@ -50,4 +50,9 @@ public class TestActivityService {
             System.out.println(marketingActivities);
         }
     }
+
+    @Test
+    public void test1(){
+        System.out.println(123);
+    }
 }
