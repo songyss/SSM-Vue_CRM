@@ -129,6 +129,9 @@
     <select id="checkCustomerPhone" resultType="com.csi.domain.Customer">
         SELECT phone FROM CUSTOMERS WHERE phone=#{phone}
     </select>
+    <select id="findById" resultType="com.csi.domain.Customer">
+        select * from customers where id = #{id}
+    </select>
 
     <insert id="addCustomer">
         INSERT INTO customers (name, phone, sex,borndate, company, position, source, status, assignee_id,creator_id,is_pool,activity_id)

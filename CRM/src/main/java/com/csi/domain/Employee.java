@@ -33,4 +33,6 @@ public class Employee implements Serializable {
     private String createTime;
     private String updateTime;
 
+    private Integer isDelete;
+
 }

@@ -25,6 +25,8 @@ public interface CustomerService {
 
     int changeCustomerStatus(@Param("id") int id, @Param("status") int status);
 
+    Customer findById(int id);
+
     List<Customer> getPersonalCustomer(int id);//销售获取接受分配
 
     int add5Customer(Customer customer);//销售新增客户
