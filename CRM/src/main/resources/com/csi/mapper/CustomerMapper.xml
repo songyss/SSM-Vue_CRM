@@ -6,8 +6,6 @@
     <cache/>
     <!--查询全部的客户信息-->
     <select id="getAllCustomer" resultType="com.csi.domain.Customer">
-        select
-        c.id,c.name,c.phone,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         sdr_notes,assignee_id,e1.name,creator_id,e2.name,last_follow_up_time,c.create_time,c.update_time
         from customers c left join status s on c.status = s.status_id
@@ -27,8 +25,6 @@
     </select>
     <!--查看有意向已分配客户-->
     <select id="getAssignedCustomer" resultType="com.csi.domain.Customer">
-        select
-        c.id,c.name,c.phone,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         sdr_notes,assignee_id,e1.name,creator_id,e2.name,last_follow_up_time,c.create_time,c.update_time
         from customers c left join status s on c.status = s.status_id
@@ -39,8 +35,6 @@
     </select>
     <!--查看有意向未分配客户-->
     <select id="getUnAssignedCustomer" resultType="com.csi.domain.Customer">
-        select
-        c.id,c.name,c.phone,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         sdr_notes,assignee_id,e1.name,creator_id,e2.name,last_follow_up_time,c.create_time,c.update_time
         from customers c left join status s on c.status = s.status_id
@@ -63,7 +57,6 @@
 
     <!--查看信息有误客户-->
     <select id="getInfoIncorrectCustomer" resultType="com.csi.domain.Customer">
-        select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
         sdr_notes,assignee_id,e1.name,creator_id,e2.name,last_follow_up_time,c.create_time,c.update_time
         from customers c left join status s on c.status = s.status_id
@@ -139,8 +132,8 @@
     </select>
 
     <insert id="addCustomer">
-        INSERT INTO customers (name, phone, borndate, company, position, source, status, assignee_id,creator_id)
-        VALUES (#{name}, #{phone}, #{borndate}, #{company}, #{position}, #{source},#{status},#{assigneeId},#{creatorId});
+        INSERT INTO customers (name, phone, sex,borndate, company, position, source, status, assignee_id,creator_id,activity_id)
+        VALUES (#{name}, #{phone}, #{sex},#{borndate}, #{company}, #{position}, #{source},#{status},#{assigneeId},#{creatorId},#{activityId});
     </insert>
 
 </mapper>

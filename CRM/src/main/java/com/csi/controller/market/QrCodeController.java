@@ -14,7 +14,7 @@ import java.io.OutputStream;
 public class QrCodeController {
 
     // 扫码跳转的表单页面
-    private static final String SCAN_FORM_URL = "https://f7ab4223e9b2.ngrok-free.app";
+    private static final String SCAN_FORM_URL = "https://8b503a023cf1.ngrok-free.app";
 
     /**
      * 生成普通活动二维码（不带logo）
