@@ -20,7 +20,7 @@
         from marketing_activities ma
         join activity_status as ats on ma.activity_status =ats.activity_status_id
         join employees e on ma.manager_id = e.id
-        where ma.name like '%${name}%'
+        where ma.name like '%#{name}%'
     </select>
     <select id="getMarketActivityByStatus" resultType="com.csi.domain.MarketingActivities">
         select

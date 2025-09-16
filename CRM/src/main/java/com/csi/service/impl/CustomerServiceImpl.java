@@ -88,19 +88,11 @@ public class CustomerServiceImpl implements CustomerService {
         return customers;
     }
 
-    @Override
+    /*@Override
     public List<CustomerFollows> getPersonalCustomerByTime(String time) {
         List<CustomerFollows> customer = customerMapper.getPersonalCustomerByTime(time);
         return customer;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Customer> getPersonalCustomer(int id) {
-        List<Customer> customers = customerMapper.getPersonalCustomer(id);
-
-        return customers;
-    }
+    }*/
 
     @Override
     public int add5Customer(Customer customer) {
