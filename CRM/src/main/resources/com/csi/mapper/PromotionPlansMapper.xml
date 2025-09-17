@@ -14,7 +14,22 @@
     </update>
     <!--未审批活动方案-->
     <select id="getPromotionPlans" resultType="com.csi.domain.PromotionPlans">
-        select * from promotion_plans where status = 0
+        SELECT
+            pp.id,
+            pp.title,
+            pp.content,
+            pp.budget,
+            pp.feedback,
+            pp.create_time,
+            pp.update_time,
+            ps.plan_status_name,
+            s.username as submitter_name,
+            a.username as approver_name
+        FROM promotion_plans pp
+        LEFT JOIN plan_status ps ON pp.status = ps.plan_id
+        LEFT JOIN employees s ON pp.submitter_id = s.id
+        LEFT JOIN employees a ON pp.approver_id = a.id
+        WHERE pp.status = 0;
     </select>
 
 

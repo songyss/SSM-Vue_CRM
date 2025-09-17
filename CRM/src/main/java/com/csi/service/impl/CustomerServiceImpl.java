@@ -122,4 +122,16 @@ public class CustomerServiceImpl implements CustomerService {
         return i;
     }
 
+
+    @Override
+    public List<Customer> getCustomerBySdrStatus() {
+        return customerMapper.getCustomerBySdrStatus();
+    }
+
+    @Override
+    public int updateCustomerSdrStatus(Customer customer) {
+        int i = customerMapper.updateCustomerSdrStatus(customer.getSdrStatus(), customer.getSdrNotes(), customer.getId());
+        return i;
+    }
+
 }

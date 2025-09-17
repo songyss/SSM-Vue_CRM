@@ -14,4 +14,10 @@ public interface MarketActivitiesService  {
     List<MarketingActivities> getMarketActivityByName(String name);
 
     List<MarketingActivities> getMarketActivityByStatus(int activityStatus);
+
+    int updateMarketActivity(MarketingActivities activity);
+
+    int deleteMarketActivity(int id);
+
+    MarketingActivities getMarketActivityById(int id);
 }

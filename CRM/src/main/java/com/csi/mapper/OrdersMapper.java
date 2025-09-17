@@ -9,8 +9,9 @@ public interface OrdersMapper {
 
     int addOrders(Orders order);//新建订单
 
-    int updateOrdersStatus(@Param("id") int id , @Param("status") int status);//更新订单状体
+    int updateOrdersStatus(@Param("status") int status,@Param("id") int id);//更新订单状体
 
     //销售个人查看自己的订单
     List<Orders> selectPersonalOrders(@Param("id") int id);
+
 }

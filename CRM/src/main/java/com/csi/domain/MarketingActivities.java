@@ -84,7 +84,8 @@ public class MarketingActivities implements Serializable {
      */
     private String createTime;
 
-
+    //活动二维码
+    private String qrCodeUrl;
 
 }
 

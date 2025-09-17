@@ -37,6 +37,8 @@ public class ActivityReports implements Serializable {
      */
     private String content;
 
+    private double actualCost;
+
 /**
      * 新增客户数
      */
@@ -56,6 +58,7 @@ public class ActivityReports implements Serializable {
      * 报告创建人ID
      */
     private Integer creatorId;
+    private String creatorName;
 
 /**
      * 创建时间

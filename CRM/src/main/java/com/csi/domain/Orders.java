@@ -69,6 +69,10 @@ public class Orders implements Serializable {
     private String createTime;
 
 
+    // 以下字段映射多表联查
+    private String customerName;
+    private String opportunityName;
+
 
 }
 

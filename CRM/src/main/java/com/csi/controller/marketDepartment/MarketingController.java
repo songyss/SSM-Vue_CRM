@@ -40,13 +40,11 @@ public class MarketingController {
 
     /**
      * 活动计划提交
-     *
      * @return
      *
      */
     @PutMapping("/savePromotionPlans")
     public R savePromotionPlans(@RequestBody PromotionPlans promotionPlans) {
-
 
         int i = marketingService.savePromotionPlans(promotionPlans);
         if (i == 1) {

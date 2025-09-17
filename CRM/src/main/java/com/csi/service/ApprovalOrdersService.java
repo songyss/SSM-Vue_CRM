@@ -12,5 +12,7 @@ public interface ApprovalOrdersService {
 
     List<ApprovalOrders> selectAll();//显示所有申请表
 
-    List<ApprovalOrders> selectPersonal(int approverId);//显示个人申请
+    List<ApprovalOrders> selectByApproverId(int approverId);//根据审批人ID显示申请
+    
+    List<ApprovalOrders> selectByApplicantId(int applicantId);//根据申请人ID显示申请
 }

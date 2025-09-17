@@ -40,5 +40,8 @@ public interface CustomerMapper {
 
     int addCustomer (Customer customer);  //市场部录入客户信息
 
+    List<Customer> getCustomerBySdrStatus();//根据联系状态获取客户
+
+    int updateCustomerSdrStatus(@Param("status") int sdrStatus,@Param("notes")String notes,@Param("id") int id);//更新客户联系状态
 
 }
