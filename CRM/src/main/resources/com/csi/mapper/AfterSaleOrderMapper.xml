@@ -52,4 +52,7 @@
                  left join customers c on a.customer_id = c.id
         where order_number = ?
     </select>
+    <update id="updateAfterSaleOrder" >
+        update after_sale_order set after_sale_status = #{afterSaleStatus} where id = #{id}
+    </update>
 </mapper>

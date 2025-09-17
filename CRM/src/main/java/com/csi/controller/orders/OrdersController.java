@@ -27,8 +27,8 @@ public class OrdersController {
     }
 
     @PatchMapping("/update")
-    public R updateOrdersStatus(@RequestParam("id") int id ,@RequestParam("status") int status) {
-        int i = ordersService.updateOrdersStatus(id,status);
+    public R updateOrdersStatus(Orders order) {
+        int i = ordersService.updateOrdersStatus(order);
         if (i > 0) {
             return R.ok(i) ;
         } else {

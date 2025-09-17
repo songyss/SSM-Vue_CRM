@@ -12,7 +12,7 @@ public class AfterSaleOrder implements Serializable {
     //编号
     private Integer id;
     //订单号
-    private Integer orderNumber;
+    private String orderNumber;
     //客户ID
     private Integer customerId;
     //订单总金额
