@@ -13,7 +13,5 @@ public interface OrdersMapper {
 
     //销售个人查看自己的订单
     List<Orders> selectPersonalOrders(@Param("id") int id);
-    int saveOrders(Orders orders);
-    Orders getOrdersByStatus();
-    int updateOrders(int id,int orderStatus);
+
 }

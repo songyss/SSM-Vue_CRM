@@ -4,7 +4,7 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.csi.mapper.OrdersMapper">
 
-
+    <!--生成订单-->
     <insert id="addOrders" parameterType="com.csi.domain.Orders">
         INSERT INTO orders (
         order_number,
@@ -25,11 +25,6 @@
         #{signedDate},
         #{orderStatus}
         )
-<!--生成订单-->
-    <insert id="saveOrders">
-        insert into orders(order_number,customer_id,opportunity_id,total_amount,signed_date,
-        order_status,file_url,notes,create_time)
-        values(#{orderNumber},#{customerId},#{opportunityId},#{totalAmount},#{signedDate},#{orderStatus},#{fileUrl},#{notes},#{createTime})
     </insert>
 <!--按订单查询订单-->
     <select id="getOrdersStatus" resultType="com.csi.domain.Orders">
@@ -50,7 +45,7 @@
         LEFT JOIN customers c ON orders.customer_id = c.id
         LEFT JOIN opportunities o ON orders.opportunity_id = o.id
         WHERE orders.order_status = ?
-
+    </select>
     <update id="updateOrdersStatus" >
         update orders set order_status = #{status} where id = #{id}
     </update>
