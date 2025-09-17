@@ -19,7 +19,7 @@
         <result property="superiorId" column="superior_id" />
         <result property="createTime" column="create_time" />
         <result property="updateTime" column="update_time" />
-        <result property="isDelete" column="is_delete" />
+
     </resultMap>
 
     <!--管理员查询所有员工-->
@@ -80,6 +80,8 @@
         #{department}, #{role}, #{superiorId}
         )
     </insert>
+
+    <!--更新员工信息-->
 
     <!--    更新员工信息-->
     <update id="update" parameterType="com.csi.domain.Employee">

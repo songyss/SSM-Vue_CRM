@@ -163,4 +163,24 @@ public class CustomerController {
         }
     }
 
+    @GetMapping("/findBySdrStatus")
+    public R getCustomerBySdrStatus(){
+        List<Customer> list = customerService.getCustomerBySdrStatus();
+        if (list != null){
+            return R.ok(list);
+        }else {
+            return R.error();
+        }
+    }
+    @PatchMapping("/updateCustomerSdrStatus")
+    public R updateCustomerSdrStatus(@RequestBody Customer customer){
+        int i = customerService.updateCustomerSdrStatus(customer);
+        if (i == 1){
+            return R.ok(i);
+        }else {
+            return R.error();
+        }
+    }
+
+
 }

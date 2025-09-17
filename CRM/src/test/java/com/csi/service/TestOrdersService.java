@@ -32,7 +32,10 @@ public class TestOrdersService {
 
     @Test
     public void test2() {
-        int i = ordersService.updateOrdersStatus(1, 2);
+        Orders orders = new Orders();
+        orders.setId(1);
+        orders.setOrderStatus(1);
+        int i = ordersService.updateOrdersStatus(orders);
         System.out.println(i);
     }
 }

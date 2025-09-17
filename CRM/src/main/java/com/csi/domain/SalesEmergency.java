@@ -1,8 +1,11 @@
 package com.csi.domain;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.sql.Date;
 
+@Data
 public class SalesEmergency implements Serializable {
     private Integer id; // 主键ID
     private String emergencyNo; // 突发编号

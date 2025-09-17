@@ -34,8 +34,14 @@ public class ApprovalOrdersServiceImpl implements ApprovalOrdersService {
     }
 
     @Override
-    public List<ApprovalOrders> selectPersonal(int approverId) {
+    public List<ApprovalOrders> selectByApproverId(int approverId) {
         List<ApprovalOrders> approvalOrders = approvalOrdersMapper.selectPersonal(approverId);
+        return approvalOrders;
+    }
+    
+    @Override
+    public List<ApprovalOrders> selectByApplicantId(int applicantId) {
+        List<ApprovalOrders> approvalOrders = approvalOrdersMapper.selectByApplicant(applicantId);
         return approvalOrders;
     }
 }

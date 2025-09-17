@@ -69,6 +69,11 @@ public class PromotionPlans implements Serializable {
     private String updateTime;
 
 
+    // 以下字段映射多表联查
+    private String submitterName;
+    private String approverName;
+
+
 
 }
 
