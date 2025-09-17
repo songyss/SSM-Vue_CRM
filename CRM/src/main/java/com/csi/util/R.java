@@ -15,6 +15,13 @@ public class R extends HashMap<String, Object> {
         return r;
     }
 
+    public static R loginSuccess(Object data){
+        R r = new R();
+        r.put("message","登录成功");
+        r.put("data",data);
+        return r;
+    }
+
     public static R error(){
         R r = new R();
         r.put("code",500);

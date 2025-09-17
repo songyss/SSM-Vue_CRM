@@ -133,6 +133,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeMapper.deleteById(id);
     }
 
+    @Override
+    public Employee login(String username, String password) {
+        return employeeMapper.login(username, password);
+    }
+
     /**
      * 检查用户名是否唯一
      * @param username 要检查的用户名

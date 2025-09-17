@@ -63,6 +63,12 @@
     <select id="findById" parameterType="int" resultMap="EmployeesResultMap">
         SELECT * FROM employees WHERE id = #{id} AND is_delete = 0
     </select>
+    <select id="findLeaderIdByEmployeeId" resultType="java.lang.Integer">
+        select superior_id from employees where id = #{id}
+    </select>
+    <select id="login" resultType="com.csi.domain.Employee">
+        select * from employees where username = #{username} and password = #{password}
+    </select>
 
     <!--    新增员工-->
     <insert id="save" parameterType="com.csi.domain.Employee">

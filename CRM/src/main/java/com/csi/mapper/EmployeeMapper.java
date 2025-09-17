@@ -1,6 +1,7 @@
 package com.csi.mapper;
 
 import com.csi.domain.Employee;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -29,5 +30,7 @@ public interface EmployeeMapper {
     void save(Employee employee);
     void update(Employee employee);
     void deleteById(Integer id);
+
+    Employee login(@Param("username") String username,@Param("password") String password);
 
 }

@@ -1,18 +1,21 @@
 package com.csi.config;
 
 /*import com.csi.interceptor.TokenInterceptor;*/
+import com.csi.interceptor.TokenAuthInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.servlet.HandlerAdapter;
 import org.springframework.web.servlet.HandlerMapping;
-import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Configuration
@@ -42,10 +45,10 @@ public class SpringMvcConfig implements WebMvcConfigurer {
         configurer.enable();
     }*/
 
-    /*// 1. 注册Token拦截器（把拦截器交给Spring管理）
+    // 1. 注册Token拦截器（把拦截器交给Spring管理）
     @Bean
-    public TokenInterceptor tokenInterceptor() {
-        return new TokenInterceptor();
+    public TokenAuthInterceptor tokenInterceptor() {
+        return new TokenAuthInterceptor();
     }
 
     // 2. 配置拦截器：指定拦截哪些请求、放行哪些请求
@@ -53,7 +56,19 @@ public class SpringMvcConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(tokenInterceptor())
                 .addPathPatterns("/**") // 拦截所有请求
-                .excludePathPatterns(); // 放行不需要登录的接口（和拦截器中一致）
+                .excludePathPatterns("/user/login")
+                .excludePathPatterns("/market/qrcode/common");
+    }
+
+    /*//设置媒体字符类型 utf-8
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        StringHttpMessageConverter stringConverter = new StringHttpMessageConverter(StandardCharsets.UTF_8);
+        List<org.springframework.http.MediaType> supportedMediaTypes = new ArrayList<>();
+        supportedMediaTypes.add(org.springframework.http.MediaType.TEXT_HTML);
+        supportedMediaTypes.add(org.springframework.http.MediaType.APPLICATION_JSON);
+        supportedMediaTypes.add(org.springframework.http.MediaType.ALL);
+        converters.add(stringConverter);
     }*/
 
 }
