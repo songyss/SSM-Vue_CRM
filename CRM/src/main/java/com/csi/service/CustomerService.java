@@ -35,4 +35,8 @@ public interface CustomerService {
 
     int addCustomer(Customer customer); //客户端录入客户信息
 
+    List<Customer> getCustomerBySdrStatus();//根据联系状态获取客户信息
+
+    int updateCustomerSdrStatus(Customer customer);//更新客户联系状态
+
 }

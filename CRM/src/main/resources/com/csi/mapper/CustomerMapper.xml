@@ -137,5 +137,33 @@
         INSERT INTO customers (name, phone, sex,borndate, company, position, source, status, assignee_id,creator_id,is_pool,activity_id)
         VALUES (#{name}, #{phone}, #{sex},#{borndate}, #{company}, #{position}, #{source},#{status},#{assigneeId},#{creatorId},#{isPool},#{activityId});
     </insert>
+    
+    <select id="getCustomerBySdrStatus" resultType="com.csi.domain.Customer">
+        select
+            c.id,
+            c.name,
+            c.phone,
+            c.sex,
+            c.borndate,
+            c.company,
+            c.position,
+            c.source,
+            s.status_name,
+            c.notes,
+            ss.sdr_status_name,
+            c.sdr_notes,
+            c.last_follow_up_time,
+            c.create_time,
+            c.update_time
+        from customers c
+        left join status s on c.status = s.status_id
+        left join sdr_status ss on c.sdr_status = ss.sdr_status_id
+        where c.sdr_status IN(1,2,3)
+    </select>
+
+    <update id="updateCustomerSdrStatus" >
+        UPDATE customers SET sdr_status = #{sdrStatus}, notes = #{notes} WHERE id = #{id}
+    </update>
+
 
 </mapper>
