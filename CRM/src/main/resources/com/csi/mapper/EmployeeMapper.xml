@@ -5,7 +5,7 @@
 <mapper namespace="com.csi.mapper.EmployeeMapper">
     <cache/>
 
-    <resultMap id="EmployeesResultMap" type="com.csi.admin.domain.Employees">
+    <resultMap id="EmployeesResultMap" type="com.csi.domain.Employee">
         <id property="id" column="id" />
         <result property="username" column="username" />
         <result property="password" column="password" />
@@ -19,7 +19,7 @@
         <result property="superiorId" column="superior_id" />
         <result property="createTime" column="create_time" />
         <result property="updateTime" column="update_time" />
-        <result property="isDelete" column="is_delete" />
+
     </resultMap>
 
     <!--管理员查询所有员工-->
@@ -65,7 +65,7 @@
     </select>
 
     <!--    新增员工-->
-    <insert id="save" parameterType="com.csi.admin.domain.Employees">
+    <insert id="save" parameterType="com.csi.domain.Employee">
         INSERT INTO employees (
         username, password, name, sex, phone, borndate, email,
         department, role, superior_id
@@ -75,8 +75,8 @@
         )
     </insert>
 
-    <!--    更新员工信息-->
-    <update id="update" parameterType="com.csi.admin.domain.Employees">
+    <!--更新员工信息-->
+    <update id="update" parameterType="com.csi.domain.Employee">
         UPDATE employees
         SET username = #{username}, name = #{name}, sex = #{sex},
         phone = #{phone}, borndate = #{borndate}, email = #{email},

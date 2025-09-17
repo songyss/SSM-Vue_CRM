@@ -20,7 +20,7 @@ public class TestMarketingService {
     public void test() {
 
         PromotionPlans promotionPlans =new PromotionPlans();
-        promotionPlans.setId(3);
+
         promotionPlans.setTitle("测试");
         promotionPlans.setContent("测试");
         promotionPlans.setBudget(1000);

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csi.mapper.AfterSaleOrderMapper">
+<!--获取售后订单信息-->
+    <insert id="saveAfterSaleOrder">
+        insert into after_sale_order(order_number, customer_id, opportunity_id, total_amount, signed_date,
+                                     order_status, file_url, notes, create_time)
+        values (#{orderNumber}, #{customerId}, #{opportunityId}, #{totalAmount}, #{signedDate}, #{orderStatus},
+                #{fileUrl}, #{notes}, #{createTime})
+    </insert>
+<!--    根据售后状态查询-->
+
+    <select id="getAfterSaleOrderByStatus" resultType="com.csi.domain.AfterSaleOrder">
+        select
+            a.id,
+            a.order_number,
+            c.name as customer_name,
+            a.total_amount,
+            a.signed_date,
+            a.after_sale_status,
+            a.after_sale_apply_time,
+            a.after_sale_complete_time,
+            a.after_sale_handler_id,
+            a.file_url,
+            a.notes,
+            s.status_name,
+            a.create_time,
+            a.update_time
+        from after_sale_order as a
+        left join aftersale_status as s on a.after_sale_status = s.id
+        left join customers c on a.customer_id = c.id
+        where after_sale_status = ?
+    </select>
+    <select id="getAfterSaleOrderByOrderNumber" resultType="com.csi.domain.AfterSaleOrder">
+        select
+            a.id,
+            a.order_number,
+            c.name as customer_name,
+            a.total_amount,
+            a.signed_date,
+            a.after_sale_status,
+            a.after_sale_apply_time,
+            a.after_sale_complete_time,
+            a.after_sale_handler_id,
+            a.file_url,
+            a.notes,
+            s.status_name,
+            a.create_time,
+            a.update_time
+        from after_sale_order as a
+                 left join aftersale_status as s on a.after_sale_status = s.id
+                 left join customers c on a.customer_id = c.id
+        where order_number = ?
+    </select>
+</mapper>
