@@ -40,6 +40,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    public int findLeaderIdByEmployeeId(int id) {
+        return employeeMapper.findLeaderIdByEmployeeId(id);
+    }
+
+    @Override
     public Employee findById(Integer id) {
         if (id == null) {
             throw new IllegalArgumentException("员工ID不能为空");

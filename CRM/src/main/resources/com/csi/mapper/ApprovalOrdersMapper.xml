@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csi.mapper.ApprovalOrdersMapper">
+    <insert id="insert" parameterType="com.csi.domain.ApprovalOrders">
+        INSERT INTO
+        approval_orders
+        (type, customer_id, opportunity_id, order_id,
+        applicant_id, approver_id, content, requested_amount,
+        status, feedback, create_time, update_time)
+        VALUES
+        (#{type}, #{customerId}, #{opportunityId}, #{orderId},
+        #{applicantId}, #{approverId}, #{content}, #{requestedAmount},
+        #{status}, #{feedback}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="updateStatus">
+        UPDATE approval_orders
+        SET status = #{status},
+            feedback = #{feedback},
+            update_time = #{updateTime}
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectAll" resultType="com.csi.domain.ApprovalOrders">
+        SELECT * FROM approval_orders
+    </select>
+
+    <select id="selectPersonal" >
+        SELECT * FROM approval_orders
+        WHERE approver_id = #{approverId}
+    </select>
+</mapper>

@@ -5,6 +5,7 @@ import com.csi.domain.CustomerFollows;
 import com.csi.domain.CustomerFollows;
 import com.csi.domain.Opportunities;
 import com.csi.mapper.CustomerMapper;
+import com.csi.mapper.EmployeeMapper;
 import com.csi.service.CustomerService;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     private CustomerMapper customerMapper;
+
+    @Autowired
+    private EmployeeMapper employeeMapper;
 
     @Override
     @Transactional(readOnly = true)
@@ -69,13 +73,22 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public Customer findById(int id) {
+        return customerMapper.findById(id);
+    }
+
+    @Override
     public int addCustomer(Customer customer){
         Customer result=customerMapper.checkCustomerPhone(customer.getPhone());
         if(result!=null){
             return 0;
         }else {
             customer.setIsPool(0);
-
+            customer.setStatus(1);
+            //前提是扫码自动绑定此员工id
+            customer.setCreatorId(2002);
+            //根据市场部员工id找到市场部经理id
+            customer.setAssigneeId(employeeMapper.findLeaderIdByEmployeeId(customer.getCreatorId()));
 
             customerMapper.addCustomer(customer);
 

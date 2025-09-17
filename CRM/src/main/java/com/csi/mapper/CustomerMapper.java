@@ -31,6 +31,8 @@ public interface CustomerMapper {
 
     int updateCustomer(Customer customer);//销售更新用户信息
 
+    Customer findById(int id);
+
     List<CustomerFollows> getPersonalCustomerByTime(String time);//根据跟进时间筛选客户
     int changeCustomerStatus(Customer customer);    //销售更改客户状态
 

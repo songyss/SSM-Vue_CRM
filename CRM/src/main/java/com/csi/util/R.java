@@ -30,4 +30,11 @@ public class R extends HashMap<String, Object> {
         r.put("message", message);
         return r;
     }
+
+    public static R okMessage(String message) {
+        R r = new R();
+        r.put("code",200);
+        r.put("message", message);
+        return r;
+    }
 }

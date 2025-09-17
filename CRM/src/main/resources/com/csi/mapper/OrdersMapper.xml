@@ -3,6 +3,28 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.csi.mapper.OrdersMapper">
+
+
+    <insert id="addOrders" parameterType="com.csi.domain.Orders">
+        INSERT INTO orders (
+        order_number,
+        file_url,
+        notes,
+        opportunity_id,
+        customer_id,
+        total_amount,
+        signed_date,
+        order_status
+        ) VALUES (
+        #{orderNumber},
+        #{fileUrl},
+        #{notes},
+        #{opportunityId},
+        #{customerId},
+        #{totalAmount},
+        #{signedDate},
+        #{orderStatus}
+        )
 <!--生成订单-->
     <insert id="saveOrders">
         insert into orders(order_number,customer_id,opportunity_id,total_amount,signed_date,
@@ -28,6 +50,13 @@
         LEFT JOIN customers c ON orders.customer_id = c.id
         LEFT JOIN opportunities o ON orders.opportunity_id = o.id
         WHERE orders.order_status = ?
+
+    <update id="updateOrdersStatus" >
+        update orders set order_status = #{status} where id = #{id}
+    </update>
+
+    <select id="selectPersonalOrders" resultType="com.csi.domain.Orders">
+        select * from orders where customer_id = #{id}
     </select>
 
 

@@ -14,6 +14,9 @@ public interface EmployeeService {
 
     List<Employee> getEmployees(int id);
 
+    //根据员工id找到经理id
+    int findLeaderIdByEmployeeId(int id);
+
     Employee findById(Integer id) ; //根据员工id查询员工信息
 
     List<Employee> findByDepartment(Integer department) ; //根据部门查询员工信息
