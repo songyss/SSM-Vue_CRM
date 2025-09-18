@@ -45,5 +45,17 @@ public class OrdersController {
             return R.error() ;
         }
     }
-
+    
+    /**
+     * 查询所有订单
+     */
+    @GetMapping("/list")
+    public R selectAllOrders() {
+        List<Orders> orders = ordersService.selectAllOrders();
+        if (orders.size() > 0) {
+            return R.ok(orders);
+        } else {
+            return R.error();
+        }
+    }
 }

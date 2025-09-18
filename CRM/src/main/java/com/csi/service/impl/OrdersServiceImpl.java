@@ -48,4 +48,9 @@ public class OrdersServiceImpl implements OrdersService {
     public List<Orders> selectPersonalOrders(int id) {
         return ordersMapper.selectPersonalOrders(id);
     }
+    
+    @Override
+    public List<Orders> selectAllOrders() {
+        return ordersMapper.selectAllOrders();
+    }
 }
