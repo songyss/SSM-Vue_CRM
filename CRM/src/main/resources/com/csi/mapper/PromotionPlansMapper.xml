@@ -3,12 +3,13 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.csi.mapper.PromotionPlansMapper">
-
+<!--添加活动-->
     <insert id="savePromotionPlans">
         insert into
         promotion_plans(id,title,content,budget,submitter_id,approver_id,status,feedback,create_time,update_time)
         values(#{id},#{title},#{content},#{budget},#{submitterId},#{approverId},#{status},#{feedback},#{createTime},#{updateTime})
     </insert>
+    <!--修改活动状态/审批活动-->
     <update id="updateByStatus">
         update promotion_plans set status = #{status} where id = #{id}
     </update>
