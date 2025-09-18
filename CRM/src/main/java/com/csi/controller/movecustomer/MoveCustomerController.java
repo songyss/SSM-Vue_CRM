@@ -3,10 +3,10 @@ package com.csi.controller.movecustomer;
 import com.csi.service.MoveCustomerService;
 import com.csi.util.IpUtil;
 import com.csi.util.R;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +28,7 @@ public class MoveCustomerController {
             int targetManagerId = Integer.parseInt(paramMap.get("targetManagerId").toString());
             int operatorId = Integer.parseInt(paramMap.get("operatorId").toString());
 
-            String realIp = IpUtil.getRealIp(request);
+            String realIp = IpUtil.getRealIp((javax.servlet.http.HttpServletRequest) request);
             moveCustomerService.batchPush(customerIds, targetManagerId, operatorId,realIp);
 
             return R.okMessage("批量推送成功，共" + customerIds.size() + "条客户");

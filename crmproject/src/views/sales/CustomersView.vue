@@ -1,34 +1,98 @@
 <template>
   <div class="customers-container">
-    <div class="page-header">
-      <h1>客户管理</h1>
-      <el-button type="primary" @click="handleAddCustomer">
-        <el-icon><Plus /></el-icon> 新增客户
-      </el-button>
-    </div>
+    <div class="customer-layout">
+      <!-- 侧边栏导航 -->
+      <div class="customer-sidebar">
+        <el-menu
+          :default-active="activeMenu"
+          class="customer-menu"
+          @select="handleMenuSelect"
+        >
+          <el-menu-item index="profile">
+            <el-icon><User /></el-icon>
+            <span>客户档案</span>
+          </el-menu-item>
+          <el-menu-item index="groups">
+            <el-icon><Grid /></el-icon>
+            <span>客户分组</span>
+          </el-menu-item>
+          <el-menu-item index="tags">
+            <el-icon><PriceTag /></el-icon>
+            <span>客户标签</span>
+          </el-menu-item>
+          <el-menu-item index="followups">
+            <el-icon><Clock /></el-icon>
+            <span>跟进记录</span>
+          </el-menu-item>
+          <el-menu-item index="transactions">
+            <el-icon><Document /></el-icon>
+            <span>交易历史</span>
+          </el-menu-item>
+          <el-menu-item index="analytics">
+            <el-icon><DataAnalysis /></el-icon>
+            <span>客户分析</span>
+          </el-menu-item>
+        </el-menu>
+      </div>
+
+        <!-- 主内容区 -->
+        <div class="customer-main">
+          <div class="page-header">
+            <h1>{{ activeMenu === 'profile' ? '客户管理' : 
+                 activeMenu === 'groups' ? '客户分组' :
+                 activeMenu === 'tags' ? '客户标签' :
+                 activeMenu === 'followups' ? '跟进记录' :
+                 activeMenu === 'transactions' ? '交易历史' : '客户分析' }}</h1>
+            <el-button type="primary" @click="handleAddCustomer" v-if="activeMenu === 'profile'">
+              <el-icon><Plus /></el-icon> 新增客户
+            </el-button>
+          </div>
+          
+          <!-- 动态内容区域 -->
+          <div v-if="activeMenu === 'profile'">
 
     <!-- 搜索筛选区域 -->
     <el-card class="filter-card">
-      <el-row :gutter="20">
-        <el-col :span="6">
-          <el-input v-model="searchForm.name" placeholder="客户名称" clearable />
+      <el-row :gutter="16">
+        <el-col :xs="24" :sm="12" :md="8" :lg="6">
+          <el-input v-model="searchForm.name" placeholder="客户姓名" clearable />
         </el-col>
-        <el-col :span="6">
-          <el-select v-model="searchForm.type" placeholder="客户类型" clearable>
+        <el-col :xs="24" :sm="12" :md="8" :lg="6">
+          <el-input v-model="searchForm.phone" placeholder="手机号" clearable />
+        </el-col>
+        <el-col :xs="24" :sm="12" :md="8" :lg="6">
+          <el-select v-model="searchForm.gender" placeholder="性别" clearable>
             <el-option label="全部" value="" />
-            <el-option label="企业客户" value="enterprise" />
-            <el-option label="个人客户" value="individual" />
+            <el-option label="男" value="male" />
+            <el-option label="女" value="female" />
           </el-select>
         </el-col>
-        <el-col :span="6">
-          <el-select v-model="searchForm.level" placeholder="客户等级" clearable>
+        <el-col :xs="24" :sm="12" :md="8" :lg="6">
+          <el-select v-model="searchForm.source" placeholder="客户来源" clearable>
             <el-option label="全部" value="" />
-            <el-option label="VIP客户" value="vip" />
-            <el-option label="普通客户" value="normal" />
-            <el-option label="潜在客户" value="potential" />
+            <el-option label="线上" value="online" />
+            <el-option label="线下" value="offline" />
+            <el-option label="转介绍" value="referral" />
           </el-select>
         </el-col>
-        <el-col :span="6" class="filter-actions">
+      </el-row>
+      <el-row :gutter="16" style="margin-top: 16px;">
+        <el-col :xs="24" :sm="12" :md="8" :lg="6">
+          <el-select v-model="searchForm.callStatus" placeholder="电话筛选状态">
+            <el-option label="未联系" value="1" />
+            <el-option label="无意向" value="2" />
+            <el-option label="有意向" value="3" />
+            <el-option label="信息有误" value="4" />
+          </el-select>
+        </el-col>
+        <el-col :xs="24" :sm="12" :md="16" :lg="12">
+          <el-input 
+            v-model="searchForm.remark" 
+            placeholder="备注" 
+            clearable 
+          />
+        </el-col>
+        <el-col :xs="24" :sm="24" :md="24" :lg="6" class="filter-actions">
           <el-button type="primary" @click="handleSearch">搜索</el-button>
           <el-button @click="resetSearch">重置</el-button>
         </el-col>
@@ -103,12 +167,28 @@
         />
       </div>
     </el-card>
-  </div>
+          </div>
+          
+          <!-- 其他功能区域占位 -->
+          <div v-if="activeMenu !== 'profile'" class="feature-placeholder">
+            <el-empty description="功能开发中，敬请期待" />
+          </div>
+        </div>
+      </div>
+    </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { Plus } from '@element-plus/icons-vue'
+import { 
+  Plus,
+  User,
+  Grid,
+  PriceTag,
+  Clock,
+  Document,
+  DataAnalysis
+} from '@element-plus/icons-vue'
 import { ElMessage, ElLoading } from 'element-plus'
 import axios from 'axios' // 引入axios
 
@@ -129,8 +209,11 @@ const levelTagType = {
 // 搜索表单
 const searchForm = reactive({
   name: '',
-  type: '',
-  level: '',
+  phone: '',
+  gender: '',
+  source: '',
+  callStatus: '1', // 默认未联系
+  remark: ''
 })
 
 // 分页配置
@@ -139,6 +222,40 @@ const pagination = reactive({
   pageSize: 10,
   total: 0,
 })
+
+// 当前激活的菜单
+const activeMenu = ref('profile')
+
+// 处理菜单选择
+const handleMenuSelect = (index: string) => {
+  activeMenu.value = index
+  // 根据选择的菜单加载不同的数据
+  switch(index) {
+    case 'profile':
+      getCustomerList()
+      break
+    case 'groups':
+      // TODO: 加载分组数据
+      ElMessage.info('客户分组功能开发中')
+      break
+    case 'tags':
+      // TODO: 加载标签数据
+      ElMessage.info('客户标签功能开发中')
+      break
+    case 'followups':
+      // TODO: 加载跟进记录
+      ElMessage.info('跟进记录功能开发中')
+      break
+    case 'transactions':
+      // TODO: 加载交易历史
+      ElMessage.info('交易历史功能开发中')
+      break
+    case 'analytics':
+      // TODO: 加载分析数据
+      ElMessage.info('客户分析功能开发中')
+      break
+  }
+}
 
 // 客户列表数据
 const customerList = ref([])
@@ -158,8 +275,11 @@ const getCustomerList = async () => {
       page: pagination.currentPage,
       size: pagination.pageSize,
       name: searchForm.name,
-      type: searchForm.type,
-      level: searchForm.level,
+      phone: searchForm.phone,
+      gender: searchForm.gender,
+      source: searchForm.source,
+      callStatus: searchForm.callStatus,
+      remark: searchForm.remark
     }
 
     // 发起GET请求
@@ -194,8 +314,11 @@ const handleSearch = () => {
 const resetSearch = () => {
   Object.assign(searchForm, {
     name: '',
-    type: '',
-    level: '',
+    phone: '',
+    gender: '',
+    source: '',
+    callStatus: '1', // 重置为未联系
+    remark: ''
   })
   pagination.currentPage = 1
   getCustomerList() // 重置后重新获取数据
@@ -280,43 +403,167 @@ const handleDelete = async (row: any) => {
 </script>
 <style scoped>
 .customers-container {
-  padding: 20px;
+  padding: 16px;
+}
+
+.customer-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.customer-sidebar {
+  width: 100%;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.customer-menu {
+  border-right: none;
+}
+
+.customer-menu .el-menu-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 4px !important;
+}
+
+.customer-menu .el-menu-item span {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.customer-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.feature-placeholder {
+  padding: 24px 0;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 16px;
 }
 
 .page-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .filter-card {
-  margin-bottom: 20px;
-  padding: 15px;
+  margin-bottom: 16px;
+  padding: 12px;
 }
 
 .filter-actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .table-card {
-  overflow: hidden;
+  overflow: auto;
 }
 
 .pagination-container {
-  margin-top: 15px;
+  margin-top: 12px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
 }
 
 .customer-name {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .customer-avatar {
   background-color: #42b983;
+}
+
+/* 响应式布局 */
+@media (min-width: 768px) {
+  .customer-layout {
+    flex-direction: row;
+  }
+  
+  .customer-sidebar {
+    width: 220px;
+    margin-bottom: 0;
+  }
+  
+  .customer-menu {
+    display: block;
+  }
+  
+  .customer-menu .el-menu-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    padding: 0 20px !important;
+  }
+  
+  .customer-menu .el-menu-item span {
+    font-size: 14px;
+    margin-top: 0;
+    margin-left: 8px;
+  }
+  
+  .page-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .filter-actions {
+    margin-top: 0;
+    justify-content: flex-end;
+  }
+  
+  .pagination-container {
+    justify-content: flex-end;
+  }
+}
+
+@media (min-width: 992px) {
+  .customers-container {
+    padding: 20px;
+  }
+  
+  .customer-layout {
+    gap: 20px;
+  }
+  
+  .page-header {
+    margin-bottom: 20px;
+  }
+  
+  .filter-card {
+    margin-bottom: 20px;
+    padding: 16px;
+  }
+  
+  .filter-actions {
+    gap: 10px;
+  }
+  
+  .pagination-container {
+    margin-top: 16px;
+  }
+  
+  .customer-name {
+    gap: 10px;
+  }
 }
 </style>

@@ -31,108 +31,100 @@ const router = createRouter({
           component: () => import('../views/DashboardView.vue'),
           meta: { title: '控制台', icon: 'house', requiresAuth: true },
         },
-        //市场部路由
+        //权限管理
         {
-          path: '/marketing',
-          name: 'marketing',
-          component: () => import('../views/MarketingView.vue'),
-          meta: { title: '市场部', icon: 'promotion', requiresAuth: true },
+          path: '/permission',
+          name: 'permission',
+          component: () => import('../views/ConsoleView.vue'),
+          meta: { title: '权限管理', icon: 'setting', requiresAuth: true },
           children: [
             {
-              path: 'campaigns',
-              name: 'marketing.campaigns',
-              component: () => import('../views/marketing/CampaignsView_temp.vue'),
-              meta: { title: '营销活动', requiresAuth: true },
-              // parentPath: '/marketing',
+              path: 'roles',
+              name: 'permission.roles',
+              component: () => import('../views/console/RolesView.vue'),
+              meta: { title: '角色管理', requiresAuth: true },
+              parentPath: '/permission',
             },
             {
-              path: 'leads',
-              name: 'marketing.leads',
-              component: () => import('../views/marketing/LeadsView.vue'),
-              meta: { title: '潜在客户', requiresAuth: true },
-              parentPath: '/marketing',
+              path: 'departments',
+              name: 'permission.departments',
+              component: () => import('../views/console/UsersView.vue'),
+              meta: { title: '部门管理', requiresAuth: true },
+              parentPath: '/permission',
+            },
+            {
+              path: 'users',
+              name: 'permission.users',
+              component: () => import('../views/console/UsersView.vue'),
+              meta: { title: '用户管理', requiresAuth: true },
+              parentPath: '/permission',
+            },
+            {
+              path: 'logs',
+              name: 'permission.logs',
+              component: () => import('../views/console/UsersView.vue'),
+              meta: { title: '系统日志', requiresAuth: true },
+              parentPath: '/permission',
             },
           ],
         },
+        //运营管理
         {
-          path: '/sales',
-          name: 'sales',
+          path: '/operation',
+          name: 'operation',
+          component: () => import('../views/MarketingView.vue'),
+          meta: { title: '运营管理', icon: 'promotion', requiresAuth: true },
+          children: [
+            {
+              path: 'customers',
+              name: 'operation.customers',
+              component: () => import('../views/sales/CustomersView.vue'),
+              meta: { title: '客户管理', requiresAuth: true },
+              parentPath: '/operation',
+            },
+            {
+              path: 'campaigns',
+              name: 'operation.campaigns',
+              component: () => import('../views/marketing/CampaignsView_temp.vue'),
+              meta: { title: '营销活动', requiresAuth: true },
+              parentPath: '/operation',
+            },
+          ],
+        },
+        //业务管理
+        {
+          path: '/business',
+          name: 'business',
           component: () => import('../views/SalesView.vue'),
-          meta: { title: '销售部', icon: 'sell' },
+          meta: { title: '业务管理', icon: 'sell', requiresAuth: true },
           children: [
             {
               path: 'orders',
-              name: 'sales.orders',
+              name: 'business.orders',
               component: () => import('../views/sales/OrdersView.vue'),
               meta: { title: '订单管理', requiresAuth: true },
-              parentPath: '/sales',
+              parentPath: '/business',
             },
             {
-              path: 'customers',
-              name: 'sales.customers',
-              component: () => import('../views/sales/CustomersView.vue'),
-              meta: { title: '客户管理', requiresAuth: true },
-              parentPath: '/sales',
-            },
-            {
-              path: 'invoices',
-              name: 'sales.invoices',
-              component: () => import('../views/sales/InvoicesView.vue'),
-              meta: { title: '发票管理', requiresAuth: true },
-              parentPath: '/sales',
-            },
-          ],
-        },
-        {
-          path: '/telesales',
-          name: 'telesales',
-          component: () => import('../views/TeleSalesView.vue'),
-          meta: { title: '电销部', icon: 'phone', requiresAuth: true },
-          children: [
-            {
-              path: 'calls',
-              name: 'telesales.calls',
+              path: 'emergencies',
+              name: 'business.emergencies',
               component: () => import('../views/telesales/CallsView.vue'),
-              meta: { title: '通话记录', requiresAuth: true },
-              parentPath: '/telesales',
+              meta: { title: '突发事件', requiresAuth: true },
+              parentPath: '/business',
             },
             {
-              path: 'tasks',
-              name: 'telesales.tasks',
+              path: 'aftersales',
+              name: 'business.aftersales',
               component: () => import('../views/telesales/TasksView.vue'),
-              meta: { title: '任务管理', requiresAuth: true },
-              parentPath: '/telesales',
-            },
-            // 新增话术管理子路由
-            {
-              path: 'scripts',
-              name: 'telesales.scripts',
-              component: () => import('../views/telesales/ScriptView.vue'),
-              meta: { title: '话术管理', requiresAuth: true },
-              parentPath: '/telesales',
-            },
-          ],
-        },
-        {
-          path: '/console',
-          name: 'console',
-          component: () => import('../views/ConsoleView.vue'),
-          meta: { title: '系统控制台', icon: 'setting', requiresAuth: true },
-          // 新增系统控制台子路由
-          children: [
-            {
-              path: 'users',
-              name: 'console.users',
-              component: () => import('../views/console/UsersView.vue'),
-              meta: { title: '用户管理', requiresAuth: true },
-              parentPath: '/console',
+              meta: { title: '售后管理', requiresAuth: true },
+              parentPath: '/business',
             },
             {
-              path: 'roles',
-              name: 'console.roles',
-              component: () => import('../views/console/RolesView.vue'),
-              meta: { title: '角色管理', requiresAuth: true },
-              parentPath: '/console',
+              path: 'opportunities',
+              name: 'business.opportunities',
+              component: () => import('../views/marketing/LeadsView.vue'),
+              meta: { title: '商机管理', requiresAuth: true },
+              parentPath: '/business',
             },
           ],
         },
@@ -142,16 +134,12 @@ const router = createRouter({
 })
 
 //路由守卫，检查用户是否登录
-<<<<<<< HEAD
 // 路由守卫，检查用户是否登录
-=======
->>>>>>> 0e5380c6c0bb9606823c793a4ff3b5bb711a6a04
 router.beforeEach((to: RouteLocationNormalized, from, next) => {
   if (to.meta.requiresAuth) {
     // 检查用户是否有登录令牌
     const token = localStorage.getItem('crm_token')
     if (!token) {
-<<<<<<< HEAD
       // 用户未登录，重定向到登录页面
       next('/login')
     } else {
@@ -162,12 +150,6 @@ router.beforeEach((to: RouteLocationNormalized, from, next) => {
     // 不需要认证的路由直接放行
     next()
   }
-=======
-      return '/login' // 用户未登录，重定向到登录页面
-    }
-  }
-  next()
->>>>>>> 0e5380c6c0bb9606823c793a4ff3b5bb711a6a04
 })
 
 export default router

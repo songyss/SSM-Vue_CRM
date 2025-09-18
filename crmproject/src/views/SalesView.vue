@@ -1,9 +1,9 @@
 <template>
   <div class="sales">
-    <h1>销售部管理</h1>
+    <h1>业务管理</h1>
     <div class="action-buttons">
-      <button>新增客户</button>
-      <button>查看销售漏斗</button>
+      <button>新建订单</button>
+      <button>处理突发事件</button>
     </div>
 
     <div class="content-area">

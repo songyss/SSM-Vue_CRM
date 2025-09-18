@@ -1,9 +1,9 @@
 <template>
   <div class="marketing">
-    <h1>市场部管理</h1>
+    <h1>运营管理</h1>
     <div class="action-buttons">
       <button @click="navigateToCampaigns">新建营销活动</button>
-      <button>查看活动报告</button>
+      <button>查看客户列表</button>
     </div>
 
     <div class="content-area">
