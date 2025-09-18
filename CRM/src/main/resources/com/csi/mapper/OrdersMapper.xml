@@ -54,8 +54,25 @@
         select * from orders where customer_id = #{id}
     </select>
 
-
-
-
+    <!-- 查询所有订单 -->
+    <select id="selectAllOrders" resultType="com.csi.domain.Orders">
+        SELECT
+            orders.id,
+            orders.order_number,
+            orders.total_amount,
+            orders.signed_date,
+            orders.order_status,
+            orders.file_url,
+            orders.notes,
+            orders.create_time,
+            c.name as customer_name,
+            o.name as opportunity_name,
+            os.order_status_name
+        FROM orders
+        LEFT JOIN order_status os ON orders.order_status = os.order_status_id
+        LEFT JOIN customers c ON orders.customer_id = c.id
+        LEFT JOIN opportunities o ON orders.opportunity_id = o.id
+        ORDER BY orders.id DESC
+    </select>
 
 </mapper>

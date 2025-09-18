@@ -29,7 +29,7 @@ public class LoginController {
         Employee login = employeeService.login(username, password);
 
         if (login == null) { // 实际需加密校验
-            return R.message("用户名或密码错误！");
+            return R.loginFail();
         }
 
         String token = JwtTokenUtils.generateToken(login);

@@ -12,4 +12,7 @@ public interface OrdersService {
     int updateOrdersStatus(Orders order);//更新订单状体
 
     List<Orders> selectPersonalOrders(@Param("id") int id);//查询个人订单
+    
+    // 查询所有订单
+    List<Orders> selectAllOrders();//查询所有订单
 }

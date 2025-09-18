@@ -13,5 +13,7 @@ public interface OrdersMapper {
 
     //销售个人查看自己的订单
     List<Orders> selectPersonalOrders(@Param("id") int id);
-
+    
+    // 查询所有订单
+    List<Orders> selectAllOrders();
 }

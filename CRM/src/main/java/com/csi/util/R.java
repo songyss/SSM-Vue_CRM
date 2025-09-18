@@ -22,6 +22,14 @@ public class R extends HashMap<String, Object> {
         return r;
     }
 
+    public static R loginFail(){
+        R r = new R();
+        r.put("code",500);
+        r.put("message","登陆失败");
+        r.put("data",null);
+        return r;
+    }
+
     public static R error(){
         R r = new R();
         r.put("code",500);

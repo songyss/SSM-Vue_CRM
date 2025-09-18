@@ -33,6 +33,11 @@ public class TokenAuthInterceptor implements HandlerInterceptor {
             return false;
         }
 
+        System.out.println(token);
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
         // 3. 验证 Token 有效性（防过期、防篡改）
         if (!JwtTokenUtils.validateToken(token)) {
             response.setContentType("application/json;charset=UTF-8");

@@ -16,11 +16,11 @@
         <el-col :span="6">
           <el-select v-model="searchForm.status" placeholder="订单状态" clearable>
             <el-option label="全部" value="" />
-            <el-option label="待付款" value="pending" />
-            <el-option label="已付款" value="paid" />
-            <el-option label="已发货" value="shipped" />
-            <el-option label="已完成" value="completed" />
-            <el-option label="已取消" value="cancelled" />
+            <el-option label="待付款" value="1" />
+            <el-option label="已付款" value="2" />
+            <el-option label="已发货" value="3" />
+            <el-option label="已完成" value="4" />
+            <el-option label="已取消" value="5" />
           </el-select>
         </el-col>
         <el-col :span="6">
@@ -51,21 +51,21 @@
         @row-click="handleRowClick"
       >
         <el-table-column type="selection" width="55" />
-        <el-table-column prop="orderNo" label="订单编号" width="180" sortable />
+        <el-table-column prop="orderNumber" label="订单编号" width="180" sortable />
         <el-table-column prop="customerName" label="客户名称" width="160" />
-        <el-table-column prop="orderDate" label="下单日期" width="160" sortable />
-        <el-table-column prop="amount" label="订单金额" width="140" sortable>
+        <el-table-column prop="signedDate" label="下单日期" width="160" sortable />
+        <el-table-column prop="totalAmount" label="订单金额" width="140" sortable>
           <template #default="scope">
-            <span class="amount">{{ scope.row.amount | formatCurrency }}</span>
+            <span class="amount">¥{{ scope.row.totalAmount }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="status" label="订单状态" width="140">
+        <el-table-column prop="orderStatusName" label="订单状态" width="140">
           <template #default="scope">
             <el-tag
-              :type="statusTagType[scope.row.status]"
-              :effect="scope.row.status === 'completed' ? 'dark' : 'light'"
+              :type="statusTagType[scope.row.orderStatus]"
+              :effect="scope.row.orderStatus === 4 ? 'dark' : 'light'"
             >
-              {{ statusMap[scope.row.status] }}
+              {{ scope.row.orderStatusName }}
             </el-tag>
           </template>
         </el-table-column>
@@ -78,7 +78,7 @@
               type="text"
               text-color="#ff4d4f"
               @click="handleDelete(scope.row)"
-              v-if="['pending', 'paid'].includes(scope.row.status)"
+              v-if="[1, 2].includes(scope.row.orderStatus)"
             >
               取消
             </el-button>
@@ -103,26 +103,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import request from '@/utils/request'
 
-// 订单状态映射
-const statusMap = {
-  pending: '待付款',
-  paid: '已付款',
-  shipped: '已发货',
-  completed: '已完成',
-  cancelled: '已取消',
-}
-
-// 状态标签样式映射
+// 订单状态标签样式映射
 const statusTagType = {
-  pending: 'warning',
-  paid: 'info',
-  shipped: 'primary',
-  completed: 'success',
-  cancelled: 'danger',
+  1: 'warning',  // 待付款
+  2: 'info',     // 已付款
+  3: 'primary',  // 已发货
+  4: 'success',  // 已完成
+  5: 'danger',   // 已取消
 }
 
 // 搜索表单
@@ -136,56 +128,30 @@ const searchForm = reactive({
 const pagination = reactive({
   currentPage: 1,
   pageSize: 10,
-  total: 100,
+  total: 0,
 })
 
 // 订单列表数据
-const orderList = ref([
-  {
-    id: 1,
-    orderNo: 'ORD202305001',
-    customerName: '北京某某科技有限公司',
-    orderDate: '2023-05-10',
-    amount: 12500,
-    status: 'completed',
-  },
-  {
-    id: 2,
-    orderNo: 'ORD202305002',
-    customerName: '上海某某贸易公司',
-    orderDate: '2023-05-12',
-    amount: 8900,
-    status: 'shipped',
-  },
-  {
-    id: 3,
-    orderNo: 'ORD202305003',
-    customerName: '广州某某企业',
-    orderDate: '2023-05-15',
-    amount: 5600,
-    status: 'paid',
-  },
-  {
-    id: 4,
-    orderNo: 'ORD202305004',
-    customerName: '深圳某某集团',
-    orderDate: '2023-05-18',
-    amount: 23000,
-    status: 'pending',
-  },
-  {
-    id: 5,
-    orderNo: 'ORD202305005',
-    customerName: '杭州某某工作室',
-    orderDate: '2023-05-20',
-    amount: 3200,
-    status: 'cancelled',
-  },
-])
+const orderList = ref([])
 
 // 表格行样式
 const tableRowClassName = ({ row }: { row: any }) => {
-  return row.status === 'cancelled' ? 'row-cancelled' : ''
+  return row.orderStatus === 5 ? 'row-cancelled' : ''
+}
+
+// 获取订单列表
+const fetchOrderList = async () => {
+  try {
+    // 调用后端查询所有订单的接口
+    const response = await request.get('/orders/list')
+    if (response) {
+      orderList.value = response
+      pagination.total = response.length
+    }
+  } catch (error) {
+    ElMessage.error('获取订单列表失败')
+    console.error('获取订单列表失败:', error)
+  }
 }
 
 // 搜索处理
@@ -207,10 +173,12 @@ const resetSearch = () => {
 // 分页事件
 const handleSizeChange = (val: number) => {
   pagination.pageSize = val
+  fetchOrderList()
 }
 
 const handleCurrentChange = (val: number) => {
   pagination.currentPage = val
+  fetchOrderList()
 }
 
 // 行点击事件
@@ -235,10 +203,10 @@ const handleDelete = (row: any) => {
   console.log('取消订单:', row)
 }
 
-// 过滤器：格式化金额
-const formatCurrency = (value: number) => {
-  return '¥' + value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')
-}
+// 组件挂载时获取数据
+onMounted(() => {
+  fetchOrderList()
+})
 </script>
 
 <style scoped>
