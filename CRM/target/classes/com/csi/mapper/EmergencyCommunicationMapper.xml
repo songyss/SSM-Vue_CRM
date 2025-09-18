@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csi.mapper.EmergencyCommunicationMapper">
+
+    <resultMap id="EmergencyCommunicationResultMap" type="com.csi.domain.EmergencyCommunication">
+        <id property="id" column="id" />
+        <result property="emergencyId" column="emergency_id" />
+        <result property="commType" column="comm_type" />
+        <result property="commChannel" column="comm_channel" />
+        <result property="content" column="content" />
+        <result property="createdBy" column="created_by" />
+        <result property="createdTime" column="created_time" />
+    </resultMap>
+
+    <insert id="insert" parameterType="com.csi.domain.EmergencyCommunication" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO emergency_communication (
+            emergency_id, comm_type, comm_channel, content, created_by, created_time
+        ) VALUES (
+                     #{emergencyId}, #{commType}, #{commChannel}, #{content}, #{createdBy}, NOW()
+                 )
+    </insert>
+
+    <select id="selectByEmergencyId" parameterType="int" resultMap="EmergencyCommunicationResultMap">
+        SELECT * FROM emergency_communication
+        WHERE emergency_id = #{emergencyId}
+        ORDER BY created_time DESC
+    </select>
+
+</mapper>

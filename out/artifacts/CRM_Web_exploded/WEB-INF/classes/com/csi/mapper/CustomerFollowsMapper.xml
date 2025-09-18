@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csi.mapper.CustomerFollowsMapper">
+    <cache/>
+
+    <select id="getPersonalCustomerByTime" resultType="com.csi.domain.CustomerFollows">
+        SELECT *
+        FROM customer_follows
+        WHERE create_time BETWEEN #{startTime} AND #{endTime}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="getAllCustomerFollows" parameterType="com.csi.domain.CustomerFollows">
+        select * from customerfollows
+    </select>
+
+    <insert id="addCustomerFollows"  parameterType="com.csi.domain.CustomerFollows">
+        INSERT INTO follow_up (
+        customer_id,
+        executor_id,
+        type,
+        type_name,
+        content,
+        next_plan,
+        next_contact_time
+        ) VALUES (
+        #{customerId},
+        #{executorId},
+        #{type},
+        #{typeName},
+        #{content},
+        #{nextPlan},
+        #{nextContactTime}
+        )
+    </insert>
+
+    <update id="updateCustomerFollows" parameterType="com.csi.domain.CustomerFollows">
+        UPDATE follow_up SET
+        customer_id = #{customerId},
+        executor_id = #{executorId},
+        type = #{type},
+        type_name = #{typeName},
+        content = #{content},
+        next_plan = #{nextPlan},
+        next_contact_time = #{nextContactTime}
+        WHERE id = #{id}
+    </update>
+
+</mapper>

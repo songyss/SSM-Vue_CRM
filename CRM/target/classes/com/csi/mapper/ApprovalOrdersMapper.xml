@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csi.mapper.ApprovalOrdersMapper">
+    <insert id="insert" parameterType="com.csi.domain.ApprovalOrders">
+        INSERT INTO
+        approval_orders
+        (type, customer_id, opportunity_id, order_id,
+        applicant_id, approver_id, content, requested_amount,
+        status, feedback, create_time, update_time)
+        VALUES
+        (#{type}, #{customerId}, #{opportunityId}, #{orderId},
+        #{applicantId}, #{approverId}, #{content}, #{requestedAmount},
+        #{status}, #{feedback}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="updateStatus">
+        UPDATE approval_orders
+        SET status = #{status},
+            approver_id = #{approverId},
+            feedback = #{feedback},
+            update_time = #{updateTime}
+        WHERE id = #{id}
+    </update>
+
+    <resultMap id="approvalOrdersMap" type="com.csi.domain.ApprovalOrders">
+        <id property="id" column="id"/>
+        <result property="type" column="type"/>
+        <!-- typeName是VO预留字段，不从数据库映射 -->
+        <result property="customerId" column="customer_id"/>
+        <result property="opportunityId" column="opportunity_id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="applicantId" column="applicant_id"/>
+        <result property="approverId" column="approver_id"/>
+        <result property="content" column="content"/>
+        <result property="requestedAmount" column="requested_amount"/>
+        <result property="status" column="status"/>
+        <!-- statusName是VO预留字段，不从数据库映射 -->
+        <result property="feedback" column="feedback"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="approvalOrdersMap">
+        SELECT id, type, customer_id, opportunity_id, order_id,
+               applicant_id, approver_id, content, requested_amount,
+               status, feedback, create_time, update_time
+        FROM approval_orders
+    </select>
+
+    <select id="selectPersonal" resultMap="approvalOrdersMap">
+        SELECT id, type, customer_id, opportunity_id, order_id,
+               applicant_id, approver_id, content, requested_amount,
+               status, feedback, create_time, update_time
+        FROM approval_orders
+        WHERE approver_id = #{approverId}
+    </select>
+
+    <select id="selectByApplicant" resultMap="approvalOrdersMap">
+        SELECT id, type, customer_id, opportunity_id, order_id,
+               applicant_id, approver_id, content, requested_amount,
+               status, feedback, create_time, update_time
+        FROM approval_orders
+        WHERE applicant_id = #{applicantId}
+    </select>
+</mapper>

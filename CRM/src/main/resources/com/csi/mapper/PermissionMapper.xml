@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csi.mapper.PermissionMapper">
+    <cache/>
+
+    <resultMap id="PermissionResultMap" type="com.csi.domain.Permission">
+        <id property="id" column="id"/>
+        <result property="permissionName" column="permission_name"/>
+        <result property="permissionDesc" column="permission_desc"/>
+        <result property="url" column="url"/>
+        <result property="method" column="method"/>
+        <result property="modelId" column="model_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="isDelete" column="is_delete"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="PermissionResultMap">
+        SELECT id, permission_name, permission_desc, url, method, model_id, create_time, update_time, is_delete
+        FROM permission
+        WHERE is_delete = 0
+    </select>
+
+    <select id="findById" parameterType="int" resultMap="PermissionResultMap">
+        SELECT id, permission_name, permission_desc, url, method, model_id, create_time, update_time, is_delete
+        FROM permission
+        WHERE id = #{id} AND is_delete = 0
+    </select>
+
+    <insert id="save" parameterType="com.csi.domain.Permission">
+        INSERT INTO permission (permission_name, permission_desc, url, method, module_id, create_time, update_time, is_delete)
+        VALUES (#{permissionName}, #{permissionDesc}, #{url}, #{method}, #{modelId}, NOW(), NOW(), #{isDelete})
+    </insert>
+
+    <update id="update" parameterType="com.csi.domain.Permission">
+        UPDATE permission
+        SET permission_name = #{permissionName},
+            permission_desc = #{permissionDesc},
+            url = #{url},
+            method = #{method},
+            model_id = #{modelId},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="int">
+        UPDATE permission
+        SET is_delete = 1,
+            update_time = NOW()
+        WHERE id = #{id}
+    </delete>
+</mapper>
