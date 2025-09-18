@@ -1,9 +1,9 @@
 package com.csi.service;
 
-import com.csi.domain.OperationLogs;
+import com.csi.domain.OperateLogs;
 
 public interface OperationLogsService {
 
-    int insert(OperationLogs operationLogs);
+    int insert(OperateLogs operateLogs);
 
 }

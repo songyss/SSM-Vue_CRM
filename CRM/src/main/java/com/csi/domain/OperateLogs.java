@@ -1,5 +1,4 @@
 package com.csi.domain;
-import java.util.Date;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -14,7 +13,7 @@ import lombok.Data;
 
 @Data
 
-public class OperationLogs implements Serializable {
+public class OperateLogs implements Serializable {
     private static final long serialVersionUID = -50775137267533664L;
 /**
      * 主键ID

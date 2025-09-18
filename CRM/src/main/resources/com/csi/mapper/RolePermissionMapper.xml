@@ -3,74 +3,18 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.csi.mapper.RolePermissionMapper">
-    <cache/>
 
-    <resultMap id="RolePermissionResultMap" type="com.csi.domain.RolePermission">
-        <id property="id" column="id"/>
-        <result property="roleId" column="role_id"/>
-        <result property="permissionId" column="permission_id"/>
-        <result property="modelId" column="model_id"/>
-        <result property="createTime" column="create_time"/>
-        <result property="updateTime" column="update_time"/>
-        <result property="isDelete" column="is_delete"/>
-    </resultMap>
 
-    <select id="findAll" resultMap="RolePermissionResultMap">
-        SELECT id, role_id, permission_id, model_id, create_time, update_time, is_delete
-        FROM role_permission
-        WHERE is_delete = 0
+    <select id="selectPermissions" resultType="com.csi.domain.RolePermission">
+        select model_id,permissions_id
+        from role_permission
+        where role_id = #{roleId}
+    </select>
+    <select id="selectPermissionByList" resultType="string">
+        select url
+        from permissions
+        where id = #{id}
     </select>
 
-    <select id="findByRoleId" parameterType="int" resultMap="RolePermissionResultMap">
-        SELECT id, role_id, permission_id, model_id, create_time, update_time, is_delete
-        FROM role_permission
-        WHERE role_id = #{roleId} AND is_delete = 0
-    </select>
 
-    <select id="findByRoleIdAndModuleId" resultMap="RolePermissionResultMap">
-        SELECT id, role_id, permission_id, model_id, create_time, update_time, is_delete
-        FROM role_permission
-        WHERE role_id = #{roleId} AND model_id = #{modelId} AND is_delete = 0
-    </select>
-
-    <select id="findByPermissionId" parameterType="int" resultMap="RolePermissionResultMap">
-        SELECT id, role_id, permission_id, model_id, create_time, update_time, is_delete
-        FROM role_permission
-        WHERE permission_id = #{permissionId} AND is_delete = 0
-    </select>
-
-    <insert id="save" parameterType="com.csi.domain.RolePermission">
-        INSERT INTO role_permission (role_id, permission_id, model_id, create_time, update_time, is_delete)
-        VALUES (#{roleId}, #{permissionId}, #{modelId}, NOW(), NOW(), #{isDelete})
-    </insert>
-
-    <update id="update" parameterType="com.csi.domain.RolePermission">
-        UPDATE role_permission
-        SET role_id = #{roleId},
-            permission_id = #{permissionId},
-            model_id = #{modelId},
-            update_time = NOW()
-        WHERE id = #{id}
-    </update>
-
-    <delete id="deleteById" parameterType="int">
-        UPDATE role_permission
-        SET is_delete = 1,
-            update_time = NOW()
-        WHERE id = #{id}
-    </delete>
-
-    <delete id="deleteByRoleIdAndPermissionId">
-        UPDATE role_permission
-        SET is_delete = 1,
-            update_time = NOW()
-        WHERE role_id = #{roleId} AND permission_id = #{permissionId}
-    </delete>
-
-    <delete id="deleteByRoleId">
-        UPDATE role_permission
-        SET is_delete = 1,
-            update_time = NOW()
-        WHERE role_id = #{roleId}
-    </delete>
 </mapper>

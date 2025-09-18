@@ -1,88 +1,48 @@
 package com.csi.controller.permission;
 
-import com.csi.domain.Permission;
-import com.csi.service.PermissionService;
+import com.csi.domain.RolePermission;
+import com.csi.service.RolePermissionService;
+import com.csi.util.R;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+@RestController
 @CrossOrigin
-@Controller
 @RequestMapping("/permission")
 public class PermissionController {
 
     @Autowired
-    private PermissionService permissionService;
+    private RolePermissionService rolePermissionService;
 
-    @ResponseBody
-    @GetMapping("/list")
-    public Map<String, Object> list() {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            List<Permission> permissions = permissionService.findAllPermissions();
-            result.put("code", 200);
-            result.put("msg", "查询成功");
-            result.put("data", permissions);
-        } catch (Exception e) {
-            result.put("code", 500);
-            result.put("msg", "查询失败: " + e.getMessage());
-        }
-        return result;
-    }
-
-    @ResponseBody
-    @GetMapping("/list/{moduleId}")
-    public Map<String, Object> listByModuleId(@PathVariable Integer moduleId) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            List<Permission> permissions = permissionService.findPermissionsByModuleId(moduleId);
-            result.put("code", 200);
-            result.put("msg", "查询成功");
-            result.put("data", permissions);
-        } catch (Exception e) {
-            result.put("code", 500);
-            result.put("msg", "查询失败: " + e.getMessage());
-        }
-        return result;
-    }
-
-    @ResponseBody
-    @PostMapping("/save")
-    public Map<String, Object> save(@RequestBody Permission permission) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            if (permission.getId() == null) {
-                permissionService.savePermission(permission);
-                result.put("code", 200);
-                result.put("msg", "权限添加成功");
-            } else {
-                permissionService.updatePermission(permission);
-                result.put("code", 200);
-                result.put("msg", "权限更新成功");
+    @GetMapping("/getPermission")
+    public R getPermission(@RequestParam("roleId") int roleId){
+        //拿着角色id 找到角色模块权限集合
+        List<RolePermission> rolePermissions = rolePermissionService.selectPermissions(roleId);
+        Map<Integer,List<String>> map = new HashMap<>();
+        //遍历集合
+        for (RolePermission rolePermission : rolePermissions) {
+            //拿到模块id
+            Integer modelId = rolePermission.getModelId();
+            //拿到权限集合
+            String permissionsId = rolePermission.getPermissionsId();
+            String[] parts = permissionsId.split(",");
+            List<Integer> permissionsIdList = new ArrayList<>();
+            for (String part : parts) {
+                int num = Integer.parseInt(part);
+                permissionsIdList.add(num);
             }
-        } catch (Exception e) {
-            result.put("code", 500);
-            result.put("msg", "操作失败: " + e.getMessage());
+            List<String> urlList = new ArrayList<>();
+            for (Integer i : permissionsIdList) {
+                String url = rolePermissionService.selectPermissionByList(i);
+                urlList.add(url);
+            }
+            //一个模块对应一个权限集合
+            map.put(modelId,urlList);
         }
-        return result;
+        //返回map
+        return R.ok(map);
     }
 
-    @ResponseBody
-    @DeleteMapping("/delete/{id}")
-    public Map<String, Object> delete(@PathVariable Integer id) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            permissionService.deletePermission(id);
-            result.put("code", 200);
-            result.put("msg", "权限删除成功");
-        } catch (Exception e) {
-            result.put("code", 500);
-            result.put("msg", "删除失败: " + e.getMessage());
-        }
-        return result;
-    }
 }

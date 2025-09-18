@@ -1,5 +1,6 @@
 package com.csi.controller.login;
 
+import com.csi.annotation.OperateLog;
 import com.csi.domain.Employee;
 import com.csi.service.EmployeeService;
 import com.csi.util.JwtTokenUtils;
@@ -19,6 +20,7 @@ public class LoginController {
     private EmployeeService employeeService;
 
     @PostMapping("/login")
+    @OperateLog(operation = "登录",targetType = "employee")
     public R login(@RequestBody Map<String, String> loginParam){
 
         String username = loginParam.get("username");

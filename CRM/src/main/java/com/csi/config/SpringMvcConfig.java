@@ -20,7 +20,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan({"com.csi.controller","com.csi.util"})
+@ComponentScan({"com.csi.controller","com.csi.util","com.csi.aspect"})
 public class SpringMvcConfig implements WebMvcConfigurer {
 
     @Bean

@@ -1,11 +1,11 @@
-package com.csi.mapper;
+package com.csi.service;
 
 import com.csi.domain.Permission;
 import com.csi.domain.RolePermission;
 
 import java.util.List;
 
-public interface RolePermissionMapper {
+public interface RolePermissionService {
 
     List<RolePermission> selectPermissions(int roleId);
 
