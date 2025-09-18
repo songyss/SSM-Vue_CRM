@@ -17,8 +17,8 @@ public class AfterSaleOrdersController {
     private AfterSaleOrderService afterSaleOrderService;
 
     @GetMapping("/getAfterSaleOrderByStatus")
-    public R getAfterSaleOrderByStatus(int afterSaleStatus) {
-        AfterSaleOrder afterSaleOrder = afterSaleOrderService.getAfterSaleOrderByStatus(afterSaleStatus);
+    public R getAfterSaleOrderByStatus() {
+        AfterSaleOrder afterSaleOrder = afterSaleOrderService.getAfterSaleOrderByStatus(2);
         if (afterSaleOrder != null) {
             return R.ok(afterSaleOrder);
         } else {
