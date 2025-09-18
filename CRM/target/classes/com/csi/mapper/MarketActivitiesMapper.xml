@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csi.mapper.MarketActivitiesMapper">
+    <insert id="addMarketActivity" parameterType="com.csi.domain.MarketingActivities">
+        insert into marketing_activities(name,plan_id,content,location,form,start_time,end_time,estimated_cost,actual_cost,manager_id,activity_status,create_time)
+        values(#{name},#{planId},#{content},#{location},#{form},#{startTime},#{endTime},#{estimatedCost},#{actualCost},#{managerId},#{activityStatus},#{createTime})
+    </insert>
+    <select id="getAllMarketActivities" resultType="com.csi.domain.MarketingActivities">
+        select
+        ma.id,ma.name,ma.plan_id,ma.content,ma.location,ma.form,ma.start_time,ma.end_time,ma.estimated_cost,ma.actual_cost,e.username,ma.manager_id,e.name as managername,ma.activity_status,ats.activity_status_name,ma.create_time
+        from marketing_activities ma
+        join activity_status as ats on ma.activity_status =ats.activity_status_id
+        join employees e on ma.manager_id = e.id
+    </select>
+    <select id="getMarketActivityByName" resultType="com.csi.domain.MarketingActivities">
+        select
+        ma.id,ma.name,ma.plan_id,ma.content,ma.location,ma.form,ma.start_time,ma.end_time,ma.estimated_cost,ma.actual_cost,e.username,ma.manager_id,e.name as managername,ma.activity_status,ats.activity_status_name,ma.create_time
+        from marketing_activities ma
+        join activity_status as ats on ma.activity_status =ats.activity_status_id
+        join employees e on ma.manager_id = e.id
+        where ma.name like CONCAT('%', #{name}, '%')
+    </select>
+    <select id="getMarketActivityByStatus" resultType="com.csi.domain.MarketingActivities">
+        select
+        ma.id,ma.name,ma.plan_id,ma.content,ma.location,ma.form,ma.start_time,ma.end_time,ma.estimated_cost,ma.actual_cost,e.username,ma.manager_id,e.name as managername,ma.activity_status,ats.activity_status_name,ma.create_time
+        from marketing_activities ma
+        join activity_status as ats on ma.activity_status =ats.activity_status_id
+        join employees e on ma.manager_id = e.id
+        where ma.plan_id = #{activityStatus}
+    </select>
+</mapper>
