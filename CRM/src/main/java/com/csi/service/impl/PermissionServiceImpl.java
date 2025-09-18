@@ -29,7 +29,7 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public Permission findById(Integer id) {
-        return permissionMapper.findById(id);
+        return null;
     }
 
     @Override
@@ -47,18 +47,6 @@ public class PermissionServiceImpl implements PermissionService {
         permissionMapper.deleteById(id);
     }
 
-    @Override
-    public Set<String> getRolePermissions(Integer roleId) {
-        Set<String> permissions = new HashSet<>();
-        List<RolePermission> rolePermissions = rolePermissionMapper.findByRoleId(roleId);
-        for (RolePermission rp : rolePermissions) {
-            Permission p = permissionMapper.findById(rp.getPermissionId());
-            if (p != null && p.getIsDelete() == 0) {
-                permissions.add(p.getPermissionName());
-            }
-        }
-        return permissions;
-    }
     
     @Override
     public List<Permission> findPermissionsByModuleId(Integer modelId) {

@@ -11,7 +11,7 @@ public interface PermissionService {
     void updatePermission(Permission permission);
     void deletePermission(Integer id);
     
-    Set<String> getRolePermissions(Integer roleId);
+
     
     List<Permission> findPermissionsByModuleId(Integer modelId);
 }

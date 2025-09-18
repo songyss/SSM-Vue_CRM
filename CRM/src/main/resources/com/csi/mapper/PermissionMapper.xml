@@ -10,7 +10,7 @@
         <result property="permissionName" column="permission_name"/>
         <result property="permissionDesc" column="permission_desc"/>
         <result property="url" column="url"/>
-        <result property="method" column="method"/>
+
         <result property="modelId" column="model_id"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
@@ -18,20 +18,20 @@
     </resultMap>
 
     <select id="findAll" resultMap="PermissionResultMap">
-        SELECT id, permission_name, permission_desc, url, method, model_id, create_time, update_time, is_delete
+        SELECT id, permission_name, permission_desc, url, model_id, create_time, update_time, is_delete
         FROM permission
         WHERE is_delete = 0
     </select>
 
     <select id="findById" parameterType="int" resultMap="PermissionResultMap">
-        SELECT id, permission_name, permission_desc, url, method, model_id, create_time, update_time, is_delete
+        SELECT id, permission_name, permission_desc, url,  model_id, create_time, update_time, is_delete
         FROM permission
         WHERE id = #{id} AND is_delete = 0
     </select>
 
     <insert id="save" parameterType="com.csi.domain.Permission">
-        INSERT INTO permission (permission_name, permission_desc, url, method, module_id, create_time, update_time, is_delete)
-        VALUES (#{permissionName}, #{permissionDesc}, #{url}, #{method}, #{modelId}, NOW(), NOW(), #{isDelete})
+        INSERT INTO permission (permission_name, permission_desc, url, module_id, create_time, update_time, is_delete)
+        VALUES (#{permissionName}, #{permissionDesc}, #{url}, #{modelId}, NOW(), NOW(), #{isDelete})
     </insert>
 
     <update id="update" parameterType="com.csi.domain.Permission">
@@ -39,7 +39,6 @@
         SET permission_name = #{permissionName},
             permission_desc = #{permissionDesc},
             url = #{url},
-            method = #{method},
             model_id = #{modelId},
             update_time = NOW()
         WHERE id = #{id}

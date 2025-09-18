@@ -44,22 +44,7 @@ public class RoleServiceImpl implements RoleService {
         roleMapper.deleteById(id);
     }
 
-    @Override
-    public List<RolePermission> findPermissionsByRoleId(Integer roleId) {
-        return rolePermissionMapper.findByRoleId(roleId);
-    }
 
-    @Override
-    public void assignPermissionToRole(Integer roleId, Integer permissionId) {
-        RolePermission rp = new RolePermission();
-        rp.setRoleId(roleId);
-        rp.setPermissionId(permissionId);
-        rp.setIsDelete(0);
-        rolePermissionMapper.save(rp);
-    }
 
-    @Override
-    public void removePermissionFromRole(Integer roleId, Integer permissionId) {
-        rolePermissionMapper.deleteByRoleIdAndPermissionId(roleId, permissionId);
-    }
+
 }

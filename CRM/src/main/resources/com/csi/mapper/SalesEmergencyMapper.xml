@@ -38,12 +38,12 @@
             emergency_no, type, salesperson_id, customer_id, related_id,
             title, description, customer_request, urgency, solution_content,
             proposed_by, cost_impact, risk_level, status, current_handler_id,
-            approval_comment, occur_time, deadline, created_time, updated_time
+             occur_time, deadline, created_time, updated_time
         ) VALUES (
                      #{emergencyNo}, #{type}, #{salespersonId}, #{customerId}, #{relatedId},
                      #{title}, #{description}, #{customerRequest}, #{urgency}, #{solutionContent},
                      #{proposedBy}, #{costImpact}, #{riskLevel}, #{status}, #{currentHandlerId},
-                     #{approvalComment}, #{occurTime}, #{deadline}, NOW(), NOW()
+                      #{occurTime}, #{deadline}, NOW(), NOW()
                  )
     </insert>
 

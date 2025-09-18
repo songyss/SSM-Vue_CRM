@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.csi.mapper.ActivityReportMapper">
+    <insert id="addActivityReport">
+        insert into
+        activity_reports(activity_id,title,content,actual_cost,new_customers_count,potential_leads_count,estimated_roi,creator_id,create_time)
+        values(#{activityId},#{title},#{content},#{actualCost},#{newCustomersCount},#{potentialLeadsCount},#{estimatedRoi},#{creatorId},#{createTime})
+    </insert>
+    <update id="updateActivityReport">
+        update activity_reports
+        <set>
+            <if test="activityId != null">
+                activity_id = #{activityId},
+            </if>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="content != null">
+                content = #{content},
+            </if>
+            <if test="actualCost != null">
+                actual_cost = #{actualCost},
+            </if>
+            <if test="newCustomersCount != null">
+                new_customers_count = #{newCustomersCount},
+            </if>
+            <if test="potentialLeadsCount != null">
+                potential_leads_count = #{potentialLeadsCount},
+            </if>
+            <if test="estimatedRoi != null">
+                estimated_roi = #{estimatedRoi},
+            </if>
+            <if test="creatorId != null">
+                creator_id = #{creatorId},
+            </if>
+
+        </set>
+        where id = #{id}
+    </update>
+    <delete id="deleteActivityReport">
+        delete from activity_reports where id = #{id}
+    </delete>
+
+
+    <select id="getActivityReportByName" resultType="com.csi.domain.ActivityReports">
+        select
+        ar.id,ar.activity_id,ar.title,ar.content,ar.actual_cost,ar.new_customers_count,ar.potential_leads_count,ar.estimated_roi,ar.creator_id,e.name as creatorName,ar.create_time
+        from activity_reports ar
+        left join employees e on ar.creator_id = e.id
+        where ar.title like concat ('%',#{name},'%')
+    </select>
+    <select id="getAllActivityReport" resultType="com.csi.domain.ActivityReports">
+        select
+        ar.id,ar.activity_id,ar.title,ar.content,ar.actual_cost,ar.new_customers_count,ar.potential_leads_count,ar.estimated_roi,ar.creator_id,e.name as creatorName,ar.create_time
+        from activity_reports ar
+        left join employees e on ar.creator_id = e.id
+    </select>
+    <select id="getActivityReportByStatus" resultType="com.csi.domain.ActivityReports">
+        select
+        ar.id,ar.activity_id,ar.title,ar.content,ar.actual_cost,ar.new_customers_count,ar.potential_leads_count,ar.estimated_roi,ar.creator_id,e.name as creatorName,ar.create_time
+        from activity_reports ar
+        left join employees e on ar.creator_id = e.id
+        where ar.status = #{status}
+    </select>
+    <select id="getActivityReportById" resultType="com.csi.domain.ActivityReports">
+        select
+        ar.id,ar.activity_id,ar.title,ar.content,ar.actual_cost,ar.new_customers_count,ar.potential_leads_count,ar.estimated_roi,ar.creator_id,e.name as creatorName,ar.create_time
+        from activity_reports ar
+        left join employees e on ar.creator_id = e.id
+        where ar.id = #{id}
+    </select>
+</mapper>

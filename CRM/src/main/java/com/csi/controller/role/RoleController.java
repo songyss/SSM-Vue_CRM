@@ -77,38 +77,5 @@ public class RoleController {
         }
     }
 
-    // 获取角色的所有权限
-    @GetMapping("/permissions")
-    public R getRolePermissions(@RequestParam("roleId") Integer roleId) {
-        try {
-            List<com.csi.domain.RolePermission> permissions = roleService.findPermissionsByRoleId(roleId);
-            return R.ok(permissions);
-        } catch (Exception e) {
-            return R.error();
-        }
-    }
 
-    // 为角色分配权限
-    @PostMapping("/assign")
-    public R assignPermissionToRole(@RequestParam("roleId") Integer roleId,
-                                    @RequestParam("permissionId") Integer permissionId) {
-        try {
-            roleService.assignPermissionToRole(roleId, permissionId);
-            return R.okMessage("权限分配成功");
-        } catch (Exception e) {
-            return R.error();
-        }
-    }
-
-    // 移除角色权限
-    @PostMapping("/remove")
-    public R removePermissionFromRole(@RequestParam("roleId") Integer roleId,
-                                      @RequestParam("permissionId") Integer permissionId) {
-        try {
-            roleService.removePermissionFromRole(roleId, permissionId);
-            return R.okMessage("权限移除成功");
-        } catch (Exception e) {
-            return R.error();
-        }
-    }
 }

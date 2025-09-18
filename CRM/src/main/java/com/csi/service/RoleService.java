@@ -10,8 +10,5 @@ public interface RoleService {
     void saveRole(Role role);
     void updateRole(Role role);
     void deleteRole(Integer id);
-    
-    List<RolePermission> findPermissionsByRoleId(Integer roleId);
-    void assignPermissionToRole(Integer roleId, Integer permissionId);
-    void removePermissionFromRole(Integer roleId, Integer permissionId);
+
 }

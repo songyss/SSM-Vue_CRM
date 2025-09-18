@@ -11,7 +11,9 @@ public class SalesEmergency implements Serializable {
     private String emergencyNo; // 突发编号
     private String type; // 类型：DISCOUNT-折扣、PAYMENT-付款、DELIVERY-交付、CONTRACT-合同
     private Integer salespersonId; // 销售人员ID
+    private String salespersonName;
     private Integer customerId; // 客户ID
+    private String customerName;
     private Integer relatedId; // 关联业务ID
     private String title; // 突发状况标题
     private String description; // 详细描述
@@ -19,12 +21,15 @@ public class SalesEmergency implements Serializable {
     private Integer urgency; // 紧急程度：1-特急、2-紧急、3-普通、4-低
     private String solutionContent; // 解决方案
     private Integer proposedBy; // 提议人ID（逻辑外键→employees.id）
+    private String proposedByName;
     private Double costImpact; // 成本影响金额
     private String riskLevel; // 风险等级（高/中/低）
     private String status; // 状态：DRAFT-草稿、PENDING-待审批、APPROVED-已批准、REJECTED-已拒绝、SOLVED-已解决
     private Integer currentHandlerId; // 当前处理人ID（逻辑外键→employees.id）
     private Date occurTime; // 发生时间
     private Date deadline; // 处理截止时间（null=无强制时限）
+    private String currentHandlerName;
+    private String approvalComment;
     private Date createdTime; // 创建时间
     private Date updatedTime; // 最后更新时间
     private Date solvedTime;  // 解决时间
