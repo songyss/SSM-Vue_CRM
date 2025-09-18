@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csi.mapper.ModelMapper">
+    <cache/>
+
+    <resultMap id="ModelResultMap" type="com.csi.domain.Model">
+        <id property="id" column="id"/>
+        <result property="modelName" column="model_name"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="ModelResultMap">
+        SELECT id, model_name
+        FROM model
+    </select>
+
+    <select id="findById" parameterType="int" resultMap="ModelResultMap">
+        SELECT id, model_name
+        FROM model
+        WHERE id = #{id}
+    </select>
+
+    <insert id="save" parameterType="com.csi.domain.Model">
+        INSERT INTO model (model_name)
+        VALUES (#{modelName})
+    </insert>
+
+    <update id="update" parameterType="com.csi.domain.Model">
+        UPDATE model
+        SET model_name = #{modelName}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM model
+        WHERE id = #{id}
+    </delete>
+</mapper>
