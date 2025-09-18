@@ -2,38 +2,17 @@
   <el-container style="height: 100vh">
     <!-- 侧边导航栏 -->
     <el-aside width="220px" style="background-color: #304156">
-<<<<<<< HEAD
       <div class="logo" style="
-=======
-      <div
-        class="logo"
-        style="
->>>>>>> 0e5380c6c0bb9606823c793a4ff3b5bb711a6a04
           height: 60px;
           display: flex;
           align-items: center;
           justify-content: center;
           color: white;
-<<<<<<< HEAD
         ">
         <h2>CRM系统</h2>
       </div>
       <el-menu :default-active="activeMenu" class="nav-menu" background-color="#304156" text-color="#bfcbd9"
         active-text-color="#409EFF" router>
-=======
-        "
-      >
-        <h2>CRM系统</h2>
-      </div>
-      <el-menu
-        :default-active="activeMenu"
-        class="nav-menu"
-        background-color="#304156"
-        text-color="#bfcbd9"
-        active-text-color="#409EFF"
-        router
-      >
->>>>>>> 0e5380c6c0bb9606823c793a4ff3b5bb711a6a04
         <!-- 菜单内容保持不变 -->
         <template v-for="route in $router.options.routes" :key="route.path">
           <!-- 有子路由的菜单项 -->
@@ -43,16 +22,8 @@
                 <template #title>
                   <span>{{ child.meta?.title }}</span>
                 </template>
-<<<<<<< HEAD
                 <el-menu-item v-for="grandChild in child.children" :key="grandChild.path"
                   :index="`${child.path}/${grandChild.path}`">
-=======
-                <el-menu-item
-                  v-for="grandChild in child.children"
-                  :key="grandChild.path"
-                  :index="`${child.path}/${grandChild.path}`"
-                >
->>>>>>> 0e5380c6c0bb9606823c793a4ff3b5bb711a6a04
                   {{ grandChild.meta?.title }}
                 </el-menu-item>
               </el-sub-menu>
@@ -69,24 +40,14 @@
 
     <el-container>
       <!-- 顶部导航栏 -->
-<<<<<<< HEAD
       <el-header style="
-=======
-      <el-header
-        style="
->>>>>>> 0e5380c6c0bb9606823c793a4ff3b5bb711a6a04
           height: auto;
           padding: 10px 20px;
           border-bottom: 1px solid #eee;
           display: flex;
           justify-content: space-between;
           align-items: center;
-<<<<<<< HEAD
         ">
-=======
-        "
-      >
->>>>>>> 0e5380c6c0bb9606823c793a4ff3b5bb711a6a04
         <el-breadcrumb separator="/">
           <el-breadcrumb-item v-for="item in breadcrumbs" :key="item.path" :to="item.path">
             {{ item.title }}

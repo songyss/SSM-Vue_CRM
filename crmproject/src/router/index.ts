@@ -142,16 +142,12 @@ const router = createRouter({
 })
 
 //路由守卫，检查用户是否登录
-<<<<<<< HEAD
 // 路由守卫，检查用户是否登录
-=======
->>>>>>> 0e5380c6c0bb9606823c793a4ff3b5bb711a6a04
 router.beforeEach((to: RouteLocationNormalized, from, next) => {
   if (to.meta.requiresAuth) {
     // 检查用户是否有登录令牌
     const token = localStorage.getItem('crm_token')
     if (!token) {
-<<<<<<< HEAD
       // 用户未登录，重定向到登录页面
       next('/login')
     } else {
@@ -162,12 +158,6 @@ router.beforeEach((to: RouteLocationNormalized, from, next) => {
     // 不需要认证的路由直接放行
     next()
   }
-=======
-      return '/login' // 用户未登录，重定向到登录页面
-    }
-  }
-  next()
->>>>>>> 0e5380c6c0bb9606823c793a4ff3b5bb711a6a04
 })
 
 export default router
