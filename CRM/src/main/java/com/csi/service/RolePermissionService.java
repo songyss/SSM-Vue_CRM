@@ -1,0 +1,15 @@
+package com.csi.service;
+
+import com.csi.domain.Permission;
+import com.csi.domain.RolePermission;
+
+import java.util.List;
+
+public interface RolePermissionService {
+
+    List<RolePermission> selectPermissions(int roleId);
+
+    //通过切割完的permission的permission_id集合查询
+    String selectPermissionByList(int id);
+
+}

@@ -1,6 +1,6 @@
 package com.csi.service.impl;
 
-import com.csi.domain.OperationLogs;
+import com.csi.domain.OperateLogs;
 import com.csi.mapper.OperationLogsMapper;
 import com.csi.service.OperationLogsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ public class OperationLogsServiceImpl implements OperationLogsService {
 
 
     @Override
-    public int insert(OperationLogs operationLogs) {
-        return operationLogsMapper.insert(operationLogs);
+    public int insert(OperateLogs operateLogs) {
+        return operationLogsMapper.insert(operateLogs);
     }
 }

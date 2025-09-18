@@ -2,7 +2,7 @@ package com.csi.service.impl;
 
 import com.csi.domain.Customer;
 import com.csi.domain.Employee;
-import com.csi.domain.OperationLogs;
+import com.csi.domain.OperateLogs;
 import com.csi.mapper.CustomerMapper;
 import com.csi.mapper.EmployeeMapper;
 import com.csi.mapper.OperationLogsMapper;
@@ -65,7 +65,7 @@ public class MoveCustomerServiceImpl implements MoveCustomerService {
             customerMapper.updateCustomer(customer);
 
             // 5. 生成操作日志（匹配需求2.1.2操作日志记录规则）
-            OperationLogs log = new OperationLogs();
+            OperateLogs log = new OperateLogs();
             log.setOperatorId(operatorId);
             log.setOperation("批量推送客户至销售部经理");
             log.setTargetType("customer"); // 操作对象类型：客户

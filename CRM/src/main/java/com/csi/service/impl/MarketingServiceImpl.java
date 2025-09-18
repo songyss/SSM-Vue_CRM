@@ -56,6 +56,7 @@ public class MarketingServiceImpl implements MarketingService {
 
     /**
      * 修改状态
+     * 市场部经理做审批使用。
      * @param promotionPlans
      * @return
      */

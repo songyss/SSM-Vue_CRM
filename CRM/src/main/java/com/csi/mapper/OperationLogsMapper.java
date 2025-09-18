@@ -1,9 +1,9 @@
 package com.csi.mapper;
 
-import com.csi.domain.OperationLogs;
+import com.csi.domain.OperateLogs;
 
 public interface OperationLogsMapper {
 
-    int insert(OperationLogs operationLogs);
+    int insert(OperateLogs operateLogs);
 
 }
