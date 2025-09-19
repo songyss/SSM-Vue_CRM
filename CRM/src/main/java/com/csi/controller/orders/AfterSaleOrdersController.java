@@ -4,10 +4,9 @@ import com.csi.domain.AfterSaleOrder;
 import com.csi.service.AfterSaleOrderService;
 import com.csi.util.R;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -17,20 +16,21 @@ public class AfterSaleOrdersController {
     private AfterSaleOrderService afterSaleOrderService;
 
     @GetMapping("/getAfterSaleOrderByStatus")
-    public R getAfterSaleOrderByStatus() {
-        AfterSaleOrder afterSaleOrder = afterSaleOrderService.getAfterSaleOrderByStatus(2);
-        if (afterSaleOrder != null) {
-            return R.ok(afterSaleOrder);
+    public R getAfterSaleOrderByStatus(@RequestParam(value = "afterSaleStatus",defaultValue = "0") Integer afterSaleStatus){
+        List<AfterSaleOrder> afterSaleOrders = afterSaleOrderService.getAfterSaleOrderByStatus(afterSaleStatus);
+        // 正确的判断逻辑：检查列表是否不为空且包含元素
+        if (afterSaleOrders.size()>0) {
+            return R.ok(afterSaleOrders);
         } else {
-            return R.error();
+            return R.error() ;
         }
     }
 
     @GetMapping("/getAfterSaleOrderByOrderNumber")
     public R getAfterSaleOrderByOrderNumber(int orderNumber) {
-        AfterSaleOrder afterSaleOrder = afterSaleOrderService.getAfterSaleOrderByOrderNumber(orderNumber);
-        if (afterSaleOrder != null) {
-            return R.ok(afterSaleOrder);
+        List<AfterSaleOrder> afterSaleOrders = afterSaleOrderService.getAfterSaleOrderByOrderNumber(orderNumber);
+        if (afterSaleOrders.size()>0) {
+            return R.ok(afterSaleOrders);
         } else {
             return R.error();
         }

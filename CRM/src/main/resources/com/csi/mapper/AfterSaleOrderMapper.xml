@@ -12,24 +12,24 @@
 
     <select id="getAfterSaleOrderByStatus" resultType="com.csi.domain.AfterSaleOrder">
         select
-            a.id,
-            a.order_number,
-            c.name as customer_name,
-            a.total_amount,
-            a.signed_date,
-            a.after_sale_status,
-            a.after_sale_apply_time,
-            a.after_sale_complete_time,
-            a.after_sale_handler_id,
-            a.file_url,
-            a.notes,
-            s.status_name,
-            a.create_time,
-            a.update_time
+        a.id,
+        a.order_number,
+        c.name as customer_name,
+        a.total_amount,
+        a.signed_date,
+        a.after_sale_status,
+        a.after_sale_apply_time,
+        a.after_sale_complete_time,
+        a.after_sale_handler_id,
+        a.file_url,
+        a.notes,
+        s.status_name,
+        a.create_time,
+        a.update_time
         from after_sale_order as a
         left join aftersale_status as s on a.after_sale_status = s.id
         left join customers c on a.customer_id = c.id
-        where after_sale_status = ?
+        where after_sale_status = #{afterSaleStatus}
     </select>
     <select id="getAfterSaleOrderByOrderNumber" resultType="com.csi.domain.AfterSaleOrder">
         select
@@ -50,7 +50,7 @@
         from after_sale_order as a
                  left join aftersale_status as s on a.after_sale_status = s.id
                  left join customers c on a.customer_id = c.id
-        where order_number = ?
+        where order_number = #{orderNumber}
     </select>
     <update id="updateAfterSaleOrder" >
         update after_sale_order set after_sale_status = #{afterSaleStatus} where id = #{id}

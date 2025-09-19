@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 public class AfterSaleOrderServiceImpl implements AfterSaleOrderService {
@@ -20,7 +22,7 @@ public class AfterSaleOrderServiceImpl implements AfterSaleOrderService {
  * 根据售后状态查询售后订单
  * */
     @Override
-    public AfterSaleOrder getAfterSaleOrderByStatus(int afterSaleStatus) {
+    public List<AfterSaleOrder> getAfterSaleOrderByStatus(int afterSaleStatus) {
         return afterSaleOrderMapper.getAfterSaleOrderByStatus(afterSaleStatus);
     }
     /**
@@ -28,7 +30,7 @@ public class AfterSaleOrderServiceImpl implements AfterSaleOrderService {
      * */
 
     @Override
-    public AfterSaleOrder getAfterSaleOrderByOrderNumber(int orderNumber) {
+    public List<AfterSaleOrder> getAfterSaleOrderByOrderNumber(int orderNumber) {
         return afterSaleOrderMapper.getAfterSaleOrderByOrderNumber(orderNumber);
     }
 /**

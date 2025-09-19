@@ -13,8 +13,14 @@ export default defineConfig({
     port: 8081, // 端口号（避免与后端SSM的8080冲突）
     allowedHosts: true,
     strictPort: true, // 端口被占用时自动退出，避免冲突
-  },
-  resolve: {
+    proxy: {
+      '/afterSaleOrders': {
+        target: 'http://localhost:8080', // 后端服务地址
+        changeOrigin: true,
+        secure: false
+      }
+    }
+  }, resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
