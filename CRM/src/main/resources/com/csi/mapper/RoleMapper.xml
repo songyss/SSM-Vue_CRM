@@ -25,22 +25,20 @@
         WHERE id = #{id} AND is_delete = 0
     </select>
 
-    <insert id="save" parameterType="com.csi.domain.Role">
-        INSERT INTO role (role_name, create_time, update_time, is_delete)
-        VALUES (#{roleName}, NOW(), NOW(), #{isDelete})
+    <insert id="save" parameterType="com.csi.domain.Role" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO role (role_name,is_delete)
+        VALUES (#{roleName},#{isDelete})
     </insert>
 
     <update id="update" parameterType="com.csi.domain.Role">
         UPDATE role
         SET role_name = #{roleName},
-            update_time = NOW()
         WHERE id = #{id}
     </update>
 
     <delete id="deleteById" parameterType="int">
         UPDATE role
         SET is_delete = 1,
-            update_time = NOW()
         WHERE id = #{id}
     </delete>
 </mapper>

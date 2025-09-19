@@ -24,4 +24,14 @@ public class RolePermissionServiceImpl implements RolePermissionService {
     public String selectPermissionByList(int id) {
         return rolePermissionMapper.selectPermissionByList(id);
     }
+
+    @Override
+    public int getModelIdByPermissionId(int permissionId) {
+        return rolePermissionMapper.getModelIdByPermissionId(permissionId);
+    }
+
+    @Override
+    public int save(RolePermission rolePermission) {
+        return rolePermissionMapper.save(rolePermission);
+    }
 }

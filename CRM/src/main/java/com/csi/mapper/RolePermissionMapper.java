@@ -12,4 +12,8 @@ public interface RolePermissionMapper {
     //通过切割完的permission的permission_id集合查询
     String selectPermissionByList(int id);
 
+    int getModelIdByPermissionId(int permissionId);
+
+    int save(RolePermission rolePermission);
+
 }

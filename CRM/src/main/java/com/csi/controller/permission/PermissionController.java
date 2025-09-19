@@ -18,10 +18,10 @@ public class PermissionController {
     private RolePermissionService rolePermissionService;
 
     @GetMapping("/getPermission")
-    public R getPermission(@RequestParam("roleId") int roleId){
+    public R getPermission(@RequestParam("roleId") int roleId) {
         //拿着角色id 找到角色模块权限集合
         List<RolePermission> rolePermissions = rolePermissionService.selectPermissions(roleId);
-        Map<Integer,List<String>> map = new HashMap<>();
+        Map<Integer, List<String>> map = new HashMap<>();
         //遍历集合
         for (RolePermission rolePermission : rolePermissions) {
             //拿到模块id
@@ -40,10 +40,59 @@ public class PermissionController {
                 urlList.add(url);
             }
             //一个模块对应一个权限集合
-            map.put(modelId,urlList);
+            map.put(modelId, urlList);
         }
         //返回map
         return R.ok(map);
+    }
+
+    @PostMapping("/savePermission")
+    public R savePermission(@RequestParam("roleId") int roleId,
+                            @RequestParam("modelsId") String modelsId,
+                            @RequestParam("permissionsId") String permissionsId) {
+        String[] modelIds = modelsId.split(",");
+        List<Integer> modelsIdList = new ArrayList<>();
+        for (String modelId : modelIds) {
+            int num1 = Integer.parseInt(modelId);
+            modelsIdList.add(num1);
+        }
+        String[] permissionIds = permissionsId.split(",");
+        List<Integer> permissionIdList = new ArrayList<>();
+        for (String permissionId : permissionIds) {
+            int num2 = Integer.parseInt(permissionId);
+            permissionIdList.add(num2);
+        }
+
+        // 用于存储每个模块ID对应的权限ID字符串
+        Map<Integer, String> modelPermissionsMap = new HashMap<>();
+
+        for (Integer modelId : modelsIdList) {
+            List<String> permissionsForModel = new ArrayList<>();
+
+            for (Integer permissionId : permissionIdList) {
+                int permModelId = rolePermissionService.getModelIdByPermissionId(permissionId);
+                if (modelId == permModelId) {
+                    permissionsForModel.add(String.valueOf(permissionId));
+                }
+            }
+
+            // 将权限ID列表拼接成以逗号分隔的字符串
+            if (!permissionsForModel.isEmpty()) {
+                String permissionsStr = String.join(",", permissionsForModel);
+                modelPermissionsMap.put(modelId, permissionsStr);
+            }
+        }
+
+        for (Map.Entry<Integer, String> entry : modelPermissionsMap.entrySet()) {
+            RolePermission rolePermission = new RolePermission();
+            rolePermission.setRoleId(roleId);
+            rolePermission.setModelId(entry.getKey());
+            rolePermission.setPermissionsId(entry.getValue());
+            rolePermission.setIsDelete(0);
+            rolePermissionService.save(rolePermission);
+        }
+        return R.okMessage("权限保存成功");
+
     }
 
 }

@@ -52,13 +52,13 @@ public class SpringMvcConfig implements WebMvcConfigurer {
     }
 
     // 2. 配置拦截器：指定拦截哪些请求、放行哪些请求
-    @Override
+    /*@Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(tokenInterceptor())
                 .addPathPatterns("/**") // 拦截所有请求
                 .excludePathPatterns("/user/login")
                 .excludePathPatterns("/market/qrcode/common");
-    }
+    }*/
 
     /*//设置媒体字符类型 utf-8
     @Override
