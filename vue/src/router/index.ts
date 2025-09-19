@@ -79,7 +79,11 @@ const router = createRouter({
               path: 'customers',
               name: 'operation.customers',
               component: () => import('../views/sales/CustomersView.vue'),
-              meta: { title: '客户管理', requiresAuth: true },
+              meta: { 
+                title: '客户管理', 
+                requiresAuth: true,
+                keepAlive: true
+              },
               parentPath: '/operation',
             },
             {
