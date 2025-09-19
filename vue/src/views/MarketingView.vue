@@ -1,13 +1,6 @@
 <template>
   <div class="marketing">
-    <h1>市场部管理</h1>
-    <div class="action-buttons">
-      <button @click="navigateToCampaigns">新建营销活动</button>
-      <button>查看活动报告</button>
-    </div>
-
     <div class="content-area">
-      <!-- 这里添加子路由出口 -->
       <RouterView />
     </div>
   </div>
@@ -16,20 +9,6 @@
 <style scoped>
 .marketing {
   padding: 20px;
-}
-
-.action-buttons {
-  margin-bottom: 20px;
-}
-
-.action-buttons button {
-  margin-right: 10px;
-  padding: 8px 15px;
-  background: #42b983;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
 }
 
 .content-area {
