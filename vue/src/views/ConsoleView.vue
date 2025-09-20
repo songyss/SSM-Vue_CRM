@@ -5,6 +5,7 @@
       <p>系统设置和管理区域</p>
     </div>
   </div>
+  <router-view/>
 </template>
 
 <style scoped>

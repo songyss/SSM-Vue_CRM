@@ -4,9 +4,64 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.csi.mapper.OperationLogsMapper">
     <cache/>
+
     <insert id="insert">
-        insert into operation_logs(operator_id,operation,target_type,target_id,old_value,new_value,ipaddress)
-        values(operatorId,operation,targetType,targetId,oldValue,newValue,ipAddress)
+        INSERT INTO operation_logs(operator_id, operation, target_type, target_id, old_value, new_value, ip_address)
+        VALUES(#{operatorId}, #{operation}, #{targetType}, #{targetId}, #{oldValue}, #{newValue}, #{ipAddress})
     </insert>
 
+    <!-- 查询所有日志 -->
+    <select id="selectLogList" resultType="com.csi.domain.OperateLogs">
+        SELECT
+        id,
+        operator_id AS operatorId,
+        operation,
+        target_type AS targetType,
+        target_id AS targetId,
+        old_value AS oldValue,
+        new_value AS newValue,
+        ip_address AS ipAddress,
+        create_time AS createTime
+        FROM operation_logs
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 条件查询日志 -->
+    <select id="selectByCondition" resultType="com.csi.domain.OperateLogs">
+        SELECT
+        id,
+        operator_id AS operatorId,
+        operation,
+        target_type AS targetType,
+        target_id AS targetId,
+        old_value AS oldValue,
+        new_value AS newValue,
+        ip_address AS ipAddress,
+        create_time AS createTime
+        FROM operation_logs
+        <where>
+            <if test="operatorId != null">
+                AND operator_id = #{operatorId}
+            </if>
+            <if test="operation != null and operation != ''">
+                AND operation LIKE CONCAT('%', #{operation}, '%')
+            </if>
+            <if test="targetType != null and targetType != ''">
+                AND target_type = #{targetType}
+            </if>
+            <if test="targetId != null">
+                AND target_id = #{targetId}
+            </if>
+            <if test="ipAddress != null and ipAddress != ''">
+                AND ip_address LIKE CONCAT('%', #{ipAddress}, '%')
+            </if>
+            <if test="startTime != null and startTime != ''">
+                AND create_time >= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                AND create_time <![CDATA[<=]]> #{endTime}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
 </mapper>

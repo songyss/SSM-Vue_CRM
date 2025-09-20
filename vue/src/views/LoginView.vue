@@ -73,7 +73,7 @@ const handleLogin = async () => {
       )
 
       // 第三步：处理后端响应（按需求文档返回格式解析）
-      const { token, userInfo } = response
+      const { token, userInfo } = response.data
       if (token && userInfo) {
         // 3.1 存储Token（需求文档"数据安全性"：后续接口需携带）
         localStorage.setItem('crm_token', token) // 长期存储，支撑单次登录持续访问
