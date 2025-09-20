@@ -53,6 +53,6 @@
         where order_number = #{orderNumber}
     </select>
     <update id="updateAfterSaleOrder" >
-        update after_sale_order set after_sale_status = #{afterSaleStatus} where id = #{id}
+        update after_sale_order set after_sale_status = #{afterSaleStatus} where order_number = #{orderNumber}
     </update>
 </mapper>

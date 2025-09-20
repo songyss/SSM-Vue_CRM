@@ -40,6 +40,11 @@ public class OrdersServiceImpl implements OrdersService {
             afterSaleOrder.setNotes(order.getNotes());
             afterSaleOrder.setCreateTime(order.getCreateTime());
             afterSaleOrderMapper.saveAfterSaleOrder(afterSaleOrder);
+        }else if (order.getOrderStatus()==7) {
+            AfterSaleOrder afterSaleOrder = new AfterSaleOrder();
+            afterSaleOrder.setOrderNumber(order.getOrderNumber());
+            afterSaleOrder.setAfterSaleStatus(4);
+            afterSaleOrderMapper.updateAfterSaleOrder(afterSaleOrder.getAfterSaleStatus(),afterSaleOrder.getOrderNumber());
         }
         return i;
     }

@@ -1,10 +1,5 @@
 <template>
   <div class="sales">
-    <h1>销售部管理</h1>
-    <div class="action-buttons">
-      <button>新增客户</button>
-      <button>查看销售漏斗</button>
-    </div>
 
     <div class="content-area">
       <!-- 这里添加子路由出口 -->
@@ -16,10 +11,6 @@
 <style scoped>
 .sales {
   padding: 20px;
-}
-
-.action-buttons {
-  margin-bottom: 20px;
 }
 
 .action-buttons button {

@@ -39,22 +39,22 @@ public class AfterSaleOrderServiceImpl implements AfterSaleOrderService {
  * */
     @Override
     public int updateAfterSaleOrderStatus(AfterSaleOrder afterSaleOrder) {
-        int i = afterSaleOrderMapper.updateAfterSaleOrder(afterSaleOrder.getAfterSaleStatus(), afterSaleOrder.getId());
+        int i = afterSaleOrderMapper.updateAfterSaleOrder(afterSaleOrder.getAfterSaleStatus(), afterSaleOrder.getOrderNumber());
         if (afterSaleOrder.getAfterSaleStatus()==2){
             Orders orders = new Orders();
             orders.setOrderNumber(afterSaleOrder.getOrderNumber());
-            orders.setOrderStatus(4);
+            orders.setOrderStatus(8);
             ordersService.updateOrdersStatus(orders);
         }else if (afterSaleOrder.getAfterSaleStatus()==3){
             Orders orders = new Orders();
             orders.setOrderNumber(afterSaleOrder.getOrderNumber());
-            orders.setOrderStatus(6);
+            orders.setOrderStatus(4);
             ordersService.updateOrdersStatus(orders);
 
-        }else if (afterSaleOrder.getAfterSaleStatus()==4){
+        }else if (afterSaleOrder.getAfterSaleStatus()==5){
             Orders orders = new Orders();
             orders.setOrderNumber(afterSaleOrder.getOrderNumber());
-            orders.setOrderStatus(7);
+            orders.setOrderStatus(6);
             ordersService.updateOrdersStatus(orders);
         }
         return i;

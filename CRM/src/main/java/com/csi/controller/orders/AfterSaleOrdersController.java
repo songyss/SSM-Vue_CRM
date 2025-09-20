@@ -16,7 +16,7 @@ public class AfterSaleOrdersController {
     private AfterSaleOrderService afterSaleOrderService;
 
     @GetMapping("/getAfterSaleOrderByStatus")
-    public R getAfterSaleOrderByStatus(@RequestParam(value = "afterSaleStatus",defaultValue = "0") Integer afterSaleStatus){
+    public R getAfterSaleOrderByStatus(@RequestParam(value = "afterSaleStatus",defaultValue = "1") Integer afterSaleStatus){
         List<AfterSaleOrder> afterSaleOrders = afterSaleOrderService.getAfterSaleOrderByStatus(afterSaleStatus);
         // 正确的判断逻辑：检查列表是否不为空且包含元素
         if (afterSaleOrders.size()>0) {
