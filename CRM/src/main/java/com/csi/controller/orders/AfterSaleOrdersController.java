@@ -27,7 +27,7 @@ public class AfterSaleOrdersController {
     }
 
     @GetMapping("/getAfterSaleOrderByOrderNumber")
-    public R getAfterSaleOrderByOrderNumber(int orderNumber) {
+    public R getAfterSaleOrderByOrderNumber(@RequestParam("orderNumber") String orderNumber) {
         List<AfterSaleOrder> afterSaleOrders = afterSaleOrderService.getAfterSaleOrderByOrderNumber(orderNumber);
         if (afterSaleOrders.size()>0) {
             return R.ok(afterSaleOrders);
@@ -35,6 +35,38 @@ public class AfterSaleOrdersController {
             return R.error();
         }
     }
+
+    @GetMapping("/getAfterSaleOrderByDateRange")
+    public R getAfterSaleOrderByDateRange(
+            @RequestParam(value = "startDate", required = false) String startDate,
+            @RequestParam(value = "endDate", required = false) String endDate) {
+
+        List<AfterSaleOrder> afterSaleOrders = afterSaleOrderService.getAfterSaleOrderByDateRange(startDate, endDate);
+
+        if (afterSaleOrders.size() > 0) {
+            return R.ok(afterSaleOrders);
+        } else {
+            return R.error();
+        }
+    }
+
+    @GetMapping("/getAfterSaleOrderByCondition")
+    public R getAfterSaleOrderByCondition(
+            @RequestParam(value = "afterSaleStatus", required = false) Integer afterSaleStatus,
+            @RequestParam(value = "orderNumber", required = false) String orderNumber,
+            @RequestParam(value = "startDate", required = false) String startDate,
+            @RequestParam(value = "endDate", required = false) String endDate) {
+
+        List<AfterSaleOrder> afterSaleOrders = afterSaleOrderService.getAfterSaleOrderByCondition(
+                afterSaleStatus, orderNumber, startDate, endDate);
+
+        if (afterSaleOrders != null && !afterSaleOrders.isEmpty()) {
+            return R.ok(afterSaleOrders);
+        } else {
+            return R.error();
+        }
+    }
+
 
     @GetMapping("/updateAfterSaleOrderStatus")
     public R updateAfterSaleOrderStatus(AfterSaleOrder afterSaleOrder) {

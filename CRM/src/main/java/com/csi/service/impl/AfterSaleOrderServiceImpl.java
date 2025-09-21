@@ -18,9 +18,9 @@ public class AfterSaleOrderServiceImpl implements AfterSaleOrderService {
     private AfterSaleOrderMapper afterSaleOrderMapper;
     @Autowired
     private OrdersService ordersService;
-/**
- * 根据售后状态查询售后订单
- * */
+    /**
+     * 根据售后状态查询售后订单
+     * */
     @Override
     public List<AfterSaleOrder> getAfterSaleOrderByStatus(int afterSaleStatus) {
         return afterSaleOrderMapper.getAfterSaleOrderByStatus(afterSaleStatus);
@@ -30,13 +30,19 @@ public class AfterSaleOrderServiceImpl implements AfterSaleOrderService {
      * */
 
     @Override
-    public List<AfterSaleOrder> getAfterSaleOrderByOrderNumber(int orderNumber) {
+    public List<AfterSaleOrder> getAfterSaleOrderByOrderNumber(String orderNumber) {
         return afterSaleOrderMapper.getAfterSaleOrderByOrderNumber(orderNumber);
     }
-/**
- * 修改售后订单状态
- * 根据修改的状态值修改订单状态
- * */
+
+    @Override
+    public List<AfterSaleOrder> getAfterSaleOrderByDateRange(String startDate, String endDate) {
+        return afterSaleOrderMapper.getAfterSaleOrderByDateRange(startDate, endDate);
+    }
+
+    /**
+     * 修改售后订单状态
+     * 根据修改的状态值修改订单状态
+     * */
     @Override
     public int updateAfterSaleOrderStatus(AfterSaleOrder afterSaleOrder) {
         int i = afterSaleOrderMapper.updateAfterSaleOrder(afterSaleOrder.getAfterSaleStatus(), afterSaleOrder.getOrderNumber());
@@ -59,5 +65,11 @@ public class AfterSaleOrderServiceImpl implements AfterSaleOrderService {
         }
         return i;
 
+    }
+
+    @Override
+    public List<AfterSaleOrder> getAfterSaleOrderByCondition(Integer afterSaleStatus, String orderNumber,
+                                                             String startDateStr, String endDateStr) {
+        return afterSaleOrderMapper.getAfterSaleOrderByCondition(afterSaleStatus, orderNumber, startDateStr, endDateStr);
     }
 }

@@ -9,6 +9,14 @@ public interface AfterSaleOrderMapper {
     int saveAfterSaleOrder(AfterSaleOrder afterSaleOrder);
     List<AfterSaleOrder> getAfterSaleOrderByStatus(int afterSaleStatus);
 
-    List<AfterSaleOrder> getAfterSaleOrderByOrderNumber(int orderNumber);
+    List<AfterSaleOrder> getAfterSaleOrderByOrderNumber(String orderNumber);
+    List<AfterSaleOrder> getAfterSaleOrderByDateRange(@Param("startDate")String startDate,@Param("endDate")String endDate);
     int updateAfterSaleOrder(@Param("afterSaleStatus")int afterSaleStatus,@Param("orderNumber")String orderNumber);
+    List<AfterSaleOrder> getAfterSaleOrderByCondition(
+            @Param("afterSaleStatus") Integer afterSaleStatus,
+            @Param("orderNumber") String orderNumber,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate
+    );
+
 }

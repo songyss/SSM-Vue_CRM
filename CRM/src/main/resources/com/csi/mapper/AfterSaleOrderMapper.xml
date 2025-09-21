@@ -1,34 +1,34 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.csi.mapper.AfterSaleOrderMapper">
-<!--获取售后订单信息-->
+    <!--获取售后订单信息-->
     <insert id="saveAfterSaleOrder">
         insert into after_sale_order(order_number, customer_id, opportunity_id, total_amount, signed_date,
                                      order_status, file_url, notes, create_time)
         values (#{orderNumber}, #{customerId}, #{opportunityId}, #{totalAmount}, #{signedDate}, #{orderStatus},
                 #{fileUrl}, #{notes}, #{createTime})
     </insert>
-<!--    根据售后状态查询-->
+    <!--    根据售后状态查询-->
 
     <select id="getAfterSaleOrderByStatus" resultType="com.csi.domain.AfterSaleOrder">
         select
-        a.id,
-        a.order_number,
-        c.name as customer_name,
-        a.total_amount,
-        a.signed_date,
-        a.after_sale_status,
-        a.after_sale_apply_time,
-        a.after_sale_complete_time,
-        a.after_sale_handler_id,
-        a.file_url,
-        a.notes,
-        s.status_name,
-        a.create_time,
-        a.update_time
+            a.id,
+            a.order_number,
+            c.name as customer_name,
+            a.total_amount,
+            a.signed_date,
+            a.after_sale_status,
+            a.after_sale_apply_time,
+            a.after_sale_complete_time,
+            a.after_sale_handler_id,
+            a.file_url,
+            a.notes,
+            s.status_name,
+            a.create_time,
+            a.update_time
         from after_sale_order as a
-        left join aftersale_status as s on a.after_sale_status = s.id
-        left join customers c on a.customer_id = c.id
+                 left join aftersale_status as s on a.after_sale_status = s.id
+                 left join customers c on a.customer_id = c.id
         where after_sale_status = #{afterSaleStatus}
     </select>
     <select id="getAfterSaleOrderByOrderNumber" resultType="com.csi.domain.AfterSaleOrder">
@@ -50,8 +50,82 @@
         from after_sale_order as a
                  left join aftersale_status as s on a.after_sale_status = s.id
                  left join customers c on a.customer_id = c.id
-        where order_number = #{orderNumber}
+        where a.order_number = #{orderNumber}
     </select>
+
+    <!-- 修改后的代码 -->
+    <select id="getAfterSaleOrderByDateRange" resultType="com.csi.domain.AfterSaleOrder">
+        select
+        a.id,
+        a.order_number,
+        c.name as customer_name,
+        a.total_amount,
+        a.signed_date,
+        a.after_sale_status,
+        a.after_sale_apply_time,
+        a.after_sale_complete_time,
+        a.after_sale_handler_id,
+        a.file_url,
+        a.notes,
+        s.status_name,
+        a.create_time,
+        a.update_time
+        from after_sale_order as a
+        left join aftersale_status as s on a.after_sale_status = s.id
+        left join customers c on a.customer_id = c.id
+        where 1=1
+        <if test="startDate != null and endDate != null">
+            and a.after_sale_apply_time between #{startDate, jdbcType=TIMESTAMP} and #{endDate, jdbcType=TIMESTAMP}
+        </if>
+        <if test="startDate != null and endDate == null">
+            and a.after_sale_apply_time &gt;= #{startDate, jdbcType=TIMESTAMP}  <!-- 使用 &gt;= -->
+        </if>
+        <if test="startDate == null and endDate != null">
+            and a.after_sale_apply_time &lt;= #{endDate, jdbcType=TIMESTAMP}  <!-- 使用 &lt;= -->
+        </if>
+    </select>
+    <!--组合查询-->
+    <select id="getAfterSaleOrderByCondition" resultType="com.csi.domain.AfterSaleOrder">
+        select
+        a.id,
+        a.order_number,
+        c.name as customer_name,
+        a.total_amount,
+        a.signed_date,
+        a.after_sale_status,
+        a.after_sale_apply_time,
+        a.after_sale_complete_time,
+        a.after_sale_handler_id,
+        a.file_url,
+        a.notes,
+        s.status_name,
+        a.create_time,
+        a.update_time
+        from after_sale_order as a
+        left join aftersale_status as s on a.after_sale_status = s.id
+        left join customers c on a.customer_id = c.id
+        where 1=1
+        <!-- 根据售后状态查询 -->
+        <if test="afterSaleStatus != null">
+            and a.after_sale_status = #{afterSaleStatus}
+        </if>
+        <!-- 根据订单号查询（精确匹配） -->
+        <if test="orderNumber != null and orderNumber != ''">
+            and a.order_number = #{orderNumber}
+        </if>
+        <!-- 日期范围查询 -->
+        <if test="startDate != null and endDate != null">
+            and a.after_sale_apply_time between #{startDate, jdbcType=TIMESTAMP} and #{endDate, jdbcType=TIMESTAMP}
+        </if>
+        <if test="startDate != null and endDate == null">
+            and a.after_sale_apply_time &gt;= #{startDate, jdbcType=TIMESTAMP}
+        </if>
+        <if test="startDate == null and endDate != null">
+            and a.after_sale_apply_time &lt;= #{endDate, jdbcType=TIMESTAMP}
+        </if>
+        order by a.create_time desc
+    </select>
+
     <update id="updateAfterSaleOrder" >
         update after_sale_order set after_sale_status = #{afterSaleStatus} where order_number = #{orderNumber}
     </update>
