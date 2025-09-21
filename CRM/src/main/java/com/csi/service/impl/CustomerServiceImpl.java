@@ -130,8 +130,25 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public int updateCustomerSdrStatus(Customer customer) {
-        int i = customerMapper.updateCustomerSdrStatus(customer.getSdrStatus(), customer.getSdrNotes(), customer.getId());
+        // 修复空指针异常：添加空值检查
+        Integer sdrStatus = customer.getSdrStatus();
+        String sdrNotes = customer.getSdrNotes();
+
+        if (sdrStatus == null) {
+            sdrStatus = 1; // 默认设为1（未联系）
+        }
+        if (sdrNotes == null) {
+            sdrNotes = ""; // 避免空字符串
+        }
+
+        // 确保参数顺序和命名与Mapper一致
+        int i = customerMapper.updateCustomerSdrStatus(sdrStatus, sdrNotes, customer.getId());
         return i;
     }
-
+    // 添加客户查询功能
+    @Override
+    @Transactional(readOnly = true)
+    public List<Customer> getCustomerByCondition(String name, String phone, String source, Integer status) {
+        return customerMapper.getCustomerByCondition(name, phone, source, status);
+    }
 }

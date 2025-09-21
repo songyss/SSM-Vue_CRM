@@ -1422,3 +1422,172 @@ Caused by: java.lang.ClassNotFoundException: Cannot find class: com.csi.admin.do
 	at org.apache.ibatis.type.TypeAliasRegistry.resolveAlias(TypeAliasRegistry.java:124)
 	... 117 more
 2025-09-16 15:11:10  [ main:590 ] - [ DEBUG ]  After test class: class [TestActivityService], class annotated with @DirtiesContext [false] with mode [null]
+2025-09-18 16:58:22  [ main:0 ] - [ DEBUG ]  Using ContextCustomizerFactory implementations for test class [TestOrdersService]: [MockServerContainerContextCustomizerFactory, DynamicPropertiesContextCustomizerFactory]
+2025-09-18 16:58:22  [ main:4 ] - [ DEBUG ]  Using ContextCustomizers for test class [TestOrdersService]: []
+2025-09-18 16:58:22  [ main:14 ] - [ DEBUG ]  Skipping candidate TestExecutionListener [org.springframework.test.context.observation.MicrometerObservationRegistryTestExecutionListener] due to a missing dependency. Specify custom TestExecutionListener classes or make the default TestExecutionListener classes and their required dependencies available. Offending class: io.micrometer.context.ThreadLocalAccessor. MicrometerObservationRegistryTestExecutionListener requires io.micrometer:micrometer-observation:1.10.8 or higher and io.micrometer:context-propagation:1.0.3 or higher.
+2025-09-18 16:58:22  [ main:20 ] - [ DEBUG ]  Using TestExecutionListeners for test class [TestOrdersService]: [ServletTestExecutionListener, DirtiesContextBeforeModesTestExecutionListener, ApplicationEventsTestExecutionListener, DependencyInjectionTestExecutionListener, DirtiesContextTestExecutionListener, TransactionalTestExecutionListener, SqlScriptsTestExecutionListener, EventPublishingTestExecutionListener]
+2025-09-18 16:58:22  [ main:21 ] - [ DEBUG ]  Before test class: class [TestOrdersService], class annotated with @DirtiesContext [false] with mode [null]
+2025-09-18 16:58:22  [ main:29 ] - [ DEBUG ]  Performing dependency injection for test class com.csi.service.TestOrdersService
+2025-09-18 16:58:22  [ main:30 ] - [ DEBUG ]  Loading ApplicationContext for test class com.csi.service.TestOrdersService
+2025-09-18 16:58:22  [ main:57 ] - [ DEBUG ]  Activating profiles []
+2025-09-18 16:58:22  [ main:57 ] - [ DEBUG ]  Registering component classes: [com.csi.config.DataSourceConfig, com.csi.config.MybatisJavaConfig, com.csi.config.ServiceJavaConfig]
+2025-09-18 16:58:22  [ main:88 ] - [ DEBUG ]  Refreshing org.springframework.context.support.GenericApplicationContext@75437611
+2025-09-18 16:58:22  [ main:100 ] - [ DEBUG ]  Creating shared instance of singleton bean 'org.springframework.context.annotation.internalConfigurationAnnotationProcessor'
+2025-09-18 16:58:22  [ main:153 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\service\impl\AfterSaleOrderServiceImpl.class]
+2025-09-18 16:58:22  [ main:154 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\service\impl\ApprovalOrdersServiceImpl.class]
+2025-09-18 16:58:22  [ main:154 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\service\impl\CustomerFollowsServiceImpl.class]
+2025-09-18 16:58:22  [ main:155 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\service\impl\CustomerServiceImpl.class]
+2025-09-18 16:58:22  [ main:155 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\service\impl\EmployeeServiceImpl.class]
+2025-09-18 16:58:22  [ main:156 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\service\impl\MarketActivitiesServiceImpl.class]
+2025-09-18 16:58:22  [ main:157 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\service\impl\MarketingServiceImpl.class]
+2025-09-18 16:58:22  [ main:157 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\service\impl\MoveCustomerServiceImpl.class]
+2025-09-18 16:58:22  [ main:157 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\service\impl\OperationLogsServiceImpl.class]
+2025-09-18 16:58:22  [ main:157 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\service\impl\OpportunitiesServiceImpl.class]
+2025-09-18 16:58:22  [ main:158 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\service\impl\OrdersServiceImpl.class]
+2025-09-18 16:58:22  [ main:158 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\service\impl\SalesEmergencyServiceImpl.class]
+2025-09-18 16:58:22  [ main:215 ] - [ DEBUG ]  Creating shared instance of singleton bean 'mapperScannerConfigurer'
+2025-09-18 16:58:22  [ main:218 ] - [ DEBUG ]  Creating shared instance of singleton bean 'mybatisJavaConfig'
+2025-09-18 16:58:22  [ main:224 ] - [ DEBUG ]  Logging initialized using 'class org.apache.ibatis.logging.slf4j.Slf4jImpl' adapter.
+2025-09-18 16:58:22  [ main:227 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\mapper\AfterSaleOrderMapper.class]
+2025-09-18 16:58:22  [ main:228 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\mapper\ApprovalOrdersMapper.class]
+2025-09-18 16:58:22  [ main:229 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\mapper\CustomerFollowsMapper.class]
+2025-09-18 16:58:22  [ main:229 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\mapper\CustomerMapper.class]
+2025-09-18 16:58:22  [ main:230 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\mapper\EmergencyCommunicationMapper.class]
+2025-09-18 16:58:22  [ main:231 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\mapper\EmployeeMapper.class]
+2025-09-18 16:58:22  [ main:231 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\mapper\MarketActivitiesMapper.class]
+2025-09-18 16:58:22  [ main:231 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\mapper\OperationLogsMapper.class]
+2025-09-18 16:58:22  [ main:232 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\mapper\OpportunitiesMapper.class]
+2025-09-18 16:58:22  [ main:233 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\mapper\OrdersMapper.class]
+2025-09-18 16:58:22  [ main:234 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\mapper\PromotionPlansMapper.class]
+2025-09-18 16:58:22  [ main:234 ] - [ DEBUG ]  Identified candidate component class: file [D:\JavaProject\moe49xpxn87GM\CRM\target\classes\com\csi\mapper\SalesEmergencyMapper.class]
+2025-09-18 16:58:22  [ main:236 ] - [ DEBUG ]  Creating MapperFactoryBean with name 'afterSaleOrderMapper' and 'com.csi.mapper.AfterSaleOrderMapper' mapperInterface
+2025-09-18 16:58:22  [ main:239 ] - [ DEBUG ]  Enabling autowire by type for MapperFactoryBean with name 'afterSaleOrderMapper'.
+2025-09-18 16:58:22  [ main:240 ] - [ DEBUG ]  Creating MapperFactoryBean with name 'approvalOrdersMapper' and 'com.csi.mapper.ApprovalOrdersMapper' mapperInterface
+2025-09-18 16:58:22  [ main:241 ] - [ DEBUG ]  Enabling autowire by type for MapperFactoryBean with name 'approvalOrdersMapper'.
+2025-09-18 16:58:22  [ main:241 ] - [ DEBUG ]  Creating MapperFactoryBean with name 'customerFollowsMapper' and 'com.csi.mapper.CustomerFollowsMapper' mapperInterface
+2025-09-18 16:58:22  [ main:242 ] - [ DEBUG ]  Enabling autowire by type for MapperFactoryBean with name 'customerFollowsMapper'.
+2025-09-18 16:58:22  [ main:242 ] - [ DEBUG ]  Creating MapperFactoryBean with name 'customerMapper' and 'com.csi.mapper.CustomerMapper' mapperInterface
+2025-09-18 16:58:22  [ main:243 ] - [ DEBUG ]  Enabling autowire by type for MapperFactoryBean with name 'customerMapper'.
+2025-09-18 16:58:22  [ main:243 ] - [ DEBUG ]  Creating MapperFactoryBean with name 'emergencyCommunicationMapper' and 'com.csi.mapper.EmergencyCommunicationMapper' mapperInterface
+2025-09-18 16:58:22  [ main:243 ] - [ DEBUG ]  Enabling autowire by type for MapperFactoryBean with name 'emergencyCommunicationMapper'.
+2025-09-18 16:58:22  [ main:244 ] - [ DEBUG ]  Creating MapperFactoryBean with name 'employeeMapper' and 'com.csi.mapper.EmployeeMapper' mapperInterface
+2025-09-18 16:58:22  [ main:244 ] - [ DEBUG ]  Enabling autowire by type for MapperFactoryBean with name 'employeeMapper'.
+2025-09-18 16:58:22  [ main:244 ] - [ DEBUG ]  Creating MapperFactoryBean with name 'marketActivitiesMapper' and 'com.csi.mapper.MarketActivitiesMapper' mapperInterface
+2025-09-18 16:58:22  [ main:245 ] - [ DEBUG ]  Enabling autowire by type for MapperFactoryBean with name 'marketActivitiesMapper'.
+2025-09-18 16:58:22  [ main:246 ] - [ DEBUG ]  Creating MapperFactoryBean with name 'operationLogsMapper' and 'com.csi.mapper.OperationLogsMapper' mapperInterface
+2025-09-18 16:58:22  [ main:246 ] - [ DEBUG ]  Enabling autowire by type for MapperFactoryBean with name 'operationLogsMapper'.
+2025-09-18 16:58:22  [ main:246 ] - [ DEBUG ]  Creating MapperFactoryBean with name 'opportunitiesMapper' and 'com.csi.mapper.OpportunitiesMapper' mapperInterface
+2025-09-18 16:58:22  [ main:247 ] - [ DEBUG ]  Enabling autowire by type for MapperFactoryBean with name 'opportunitiesMapper'.
+2025-09-18 16:58:22  [ main:247 ] - [ DEBUG ]  Creating MapperFactoryBean with name 'ordersMapper' and 'com.csi.mapper.OrdersMapper' mapperInterface
+2025-09-18 16:58:22  [ main:247 ] - [ DEBUG ]  Enabling autowire by type for MapperFactoryBean with name 'ordersMapper'.
+2025-09-18 16:58:22  [ main:247 ] - [ DEBUG ]  Creating MapperFactoryBean with name 'promotionPlansMapper' and 'com.csi.mapper.PromotionPlansMapper' mapperInterface
+2025-09-18 16:58:22  [ main:248 ] - [ DEBUG ]  Enabling autowire by type for MapperFactoryBean with name 'promotionPlansMapper'.
+2025-09-18 16:58:22  [ main:248 ] - [ DEBUG ]  Creating MapperFactoryBean with name 'salesEmergencyMapper' and 'com.csi.mapper.SalesEmergencyMapper' mapperInterface
+2025-09-18 16:58:22  [ main:249 ] - [ DEBUG ]  Enabling autowire by type for MapperFactoryBean with name 'salesEmergencyMapper'.
+2025-09-18 16:58:22  [ main:251 ] - [ WARN ]  Cannot enhance @Configuration bean definition 'mybatisJavaConfig' since its singleton instance has been created too early. The typical cause is a non-static @Bean method with a BeanDefinitionRegistryPostProcessor return type: Consider declaring such methods as 'static' and/or marking the containing configuration class as 'proxyBeanMethods=false'.
+2025-09-18 16:58:22  [ main:324 ] - [ DEBUG ]  Creating shared instance of singleton bean 'org.springframework.context.event.internalEventListenerProcessor'
+2025-09-18 16:58:22  [ main:326 ] - [ DEBUG ]  Creating shared instance of singleton bean 'org.springframework.context.event.internalEventListenerFactory'
+2025-09-18 16:58:22  [ main:327 ] - [ DEBUG ]  Creating shared instance of singleton bean 'org.springframework.transaction.config.internalTransactionalEventListenerFactory'
+2025-09-18 16:58:22  [ main:329 ] - [ DEBUG ]  Creating shared instance of singleton bean 'org.springframework.context.annotation.internalAutowiredAnnotationProcessor'
+2025-09-18 16:58:22  [ main:330 ] - [ DEBUG ]  Creating shared instance of singleton bean 'org.springframework.context.annotation.internalCommonAnnotationProcessor'
+2025-09-18 16:58:22  [ main:338 ] - [ DEBUG ]  Creating shared instance of singleton bean 'org.springframework.aop.config.internalAutoProxyCreator'
+2025-09-18 16:58:22  [ main:377 ] - [ DEBUG ]  Creating shared instance of singleton bean 'dataSourceConfig'
+2025-09-18 16:58:22  [ main:378 ] - [ DEBUG ]  Creating shared instance of singleton bean 'org.springframework.transaction.config.internalTransactionAdvisor'
+2025-09-18 16:58:22  [ main:379 ] - [ DEBUG ]  Creating shared instance of singleton bean 'org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration'
+2025-09-18 16:58:22  [ main:388 ] - [ DEBUG ]  Creating shared instance of singleton bean 'transactionAttributeSource'
+2025-09-18 16:58:22  [ main:389 ] - [ DEBUG ]  Creating shared instance of singleton bean 'transactionInterceptor'
+2025-09-18 16:58:22  [ main:392 ] - [ DEBUG ]  Autowiring by type from bean name 'transactionInterceptor' via factory method to bean named 'transactionAttributeSource'
+2025-09-18 16:58:22  [ main:395 ] - [ DEBUG ]  Autowiring by type from bean name 'org.springframework.transaction.config.internalTransactionAdvisor' via factory method to bean named 'transactionAttributeSource'
+2025-09-18 16:58:22  [ main:395 ] - [ DEBUG ]  Autowiring by type from bean name 'org.springframework.transaction.config.internalTransactionAdvisor' via factory method to bean named 'transactionInterceptor'
+2025-09-18 16:58:22  [ main:399 ] - [ DEBUG ]  Found key 'jdbc.url' in PropertySource 'class path resource [jdbc.properties]' with value of type String
+2025-09-18 16:58:22  [ main:399 ] - [ DEBUG ]  Found key 'jdbc.driver' in PropertySource 'class path resource [jdbc.properties]' with value of type String
+2025-09-18 16:58:22  [ main:399 ] - [ DEBUG ]  Found key 'jdbc.user' in PropertySource 'class path resource [jdbc.properties]' with value of type String
+2025-09-18 16:58:22  [ main:399 ] - [ DEBUG ]  Found key 'jdbc.password' in PropertySource 'class path resource [jdbc.properties]' with value of type String
+2025-09-18 16:58:22  [ main:401 ] - [ DEBUG ]  Creating shared instance of singleton bean 'serviceJavaConfig'
+2025-09-18 16:58:22  [ main:401 ] - [ DEBUG ]  Creating shared instance of singleton bean 'afterSaleOrderServiceImpl'
+2025-09-18 16:58:22  [ main:402 ] - [ DEBUG ]  Creating shared instance of singleton bean 'afterSaleOrderMapper'
+2025-09-18 16:58:22  [ main:406 ] - [ DEBUG ]  Creating shared instance of singleton bean 'sqlSessionFactoryBean'
+2025-09-18 16:58:22  [ main:406 ] - [ DEBUG ]  Creating shared instance of singleton bean 'dataSource'
+2025-09-18 16:58:22  [ main:451 ] - [ DEBUG ]  Autowiring by type from bean name 'sqlSessionFactoryBean' via factory method to bean named 'dataSource'
+2025-09-18 16:58:22  [ main:502 ] - [ DEBUG ]  Logging initialized using 'class org.apache.ibatis.logging.slf4j.Slf4jImpl' adapter.
+2025-09-18 16:58:22  [ main:526 ] - [ DEBUG ]  Registered plugin: 'com.github.pagehelper.PageInterceptor@33c2bd'
+2025-09-18 16:58:22  [ main:527 ] - [ DEBUG ]  Property 'mapperLocations' was not specified.
+2025-09-18 16:58:22  [ main:622 ] - [ DEBUG ]  Creating shared instance of singleton bean 'ordersServiceImpl'
+2025-09-18 16:58:22  [ main:627 ] - [ DEBUG ]  Creating shared instance of singleton bean 'ordersMapper'
+2025-09-18 16:58:22  [ main:646 ] - [ DEBUG ]  Creating shared instance of singleton bean 'approvalOrdersServiceImpl'
+2025-09-18 16:58:22  [ main:647 ] - [ DEBUG ]  Creating shared instance of singleton bean 'approvalOrdersMapper'
+2025-09-18 16:58:22  [ main:667 ] - [ DEBUG ]  Creating shared instance of singleton bean 'customerFollowsServiceImpl'
+2025-09-18 16:58:22  [ main:668 ] - [ DEBUG ]  Creating shared instance of singleton bean 'customerFollowsMapper'
+2025-09-18 16:58:22  [ main:686 ] - [ DEBUG ]  Creating shared instance of singleton bean 'customerServiceImpl'
+2025-09-18 16:58:22  [ main:690 ] - [ DEBUG ]  Creating shared instance of singleton bean 'customerMapper'
+2025-09-18 16:58:22  [ main:707 ] - [ DEBUG ]  Creating shared instance of singleton bean 'employeeMapper'
+2025-09-18 16:58:22  [ main:723 ] - [ DEBUG ]  Creating shared instance of singleton bean 'employeeServiceImpl'
+2025-09-18 16:58:22  [ main:725 ] - [ DEBUG ]  Creating shared instance of singleton bean 'marketActivitiesServiceImpl'
+2025-09-18 16:58:22  [ main:727 ] - [ DEBUG ]  Creating shared instance of singleton bean 'marketActivitiesMapper'
+2025-09-18 16:58:22  [ main:735 ] - [ DEBUG ]  Creating shared instance of singleton bean 'marketingServiceImpl'
+2025-09-18 16:58:22  [ main:739 ] - [ DEBUG ]  Creating shared instance of singleton bean 'promotionPlansMapper'
+2025-09-18 16:58:22  [ main:748 ] - [ DEBUG ]  Creating shared instance of singleton bean 'moveCustomerServiceImpl'
+2025-09-18 16:58:22  [ main:750 ] - [ DEBUG ]  Creating shared instance of singleton bean 'operationLogsMapper'
+2025-09-18 16:58:22  [ main:760 ] - [ DEBUG ]  Creating shared instance of singleton bean 'operationLogsServiceImpl'
+2025-09-18 16:58:22  [ main:761 ] - [ DEBUG ]  Creating shared instance of singleton bean 'opportunitiesServiceImpl'
+2025-09-18 16:58:22  [ main:763 ] - [ DEBUG ]  Creating shared instance of singleton bean 'opportunitiesMapper'
+2025-09-18 16:58:22  [ main:771 ] - [ DEBUG ]  Creating shared instance of singleton bean 'salesEmergencyServiceImpl'
+2025-09-18 16:58:22  [ main:772 ] - [ DEBUG ]  Creating shared instance of singleton bean 'salesEmergencyMapper'
+2025-09-18 16:58:22  [ main:787 ] - [ DEBUG ]  Creating shared instance of singleton bean 'transactionManager'
+2025-09-18 16:58:22  [ main:788 ] - [ DEBUG ]  Autowiring by type from bean name 'transactionManager' via factory method to bean named 'dataSource'
+2025-09-18 16:58:22  [ main:791 ] - [ DEBUG ]  Creating shared instance of singleton bean 'emergencyCommunicationMapper'
+2025-09-18 16:58:22  [ main:806 ] - [ DEBUG ]  Spring test ApplicationContext cache statistics: [DefaultContextCache@5226e402 size = 1, maxSize = 32, parentContextCount = 0, hitCount = 0, missCount = 1, failureCount = 0]
+2025-09-18 16:58:22  [ main:808 ] - [ DEBUG ]  Spring test ApplicationContext cache statistics: [DefaultContextCache@5226e402 size = 1, maxSize = 32, parentContextCount = 0, hitCount = 1, missCount = 1, failureCount = 0]
+2025-09-18 16:58:22  [ main:812 ] - [ DEBUG ]  Before test method: class [TestOrdersService], method [test], class annotated with @DirtiesContext [false] with mode [null], method annotated with @DirtiesContext [false] with mode [null]
+2025-09-18 16:58:22  [ main:814 ] - [ DEBUG ]  Spring test ApplicationContext cache statistics: [DefaultContextCache@5226e402 size = 1, maxSize = 32, parentContextCount = 0, hitCount = 2, missCount = 1, failureCount = 0]
+2025-09-18 16:58:22  [ main:815 ] - [ DEBUG ]  Spring test ApplicationContext cache statistics: [DefaultContextCache@5226e402 size = 1, maxSize = 32, parentContextCount = 0, hitCount = 3, missCount = 1, failureCount = 0]
+2025-09-18 16:58:22  [ main:824 ] - [ DEBUG ]  Creating new transaction with name [com.csi.service.impl.OrdersServiceImpl.addOrders]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2025-09-18 16:58:22  [ main:907 ] - [ INFO ]  {dataSource-1} inited
+2025-09-18 16:58:23  [ main:1263 ] - [ DEBUG ]  Acquired Connection [com.alibaba.druid.pool.DruidStatementConnection@9255c05] for JDBC transaction
+2025-09-18 16:58:23  [ main:1267 ] - [ DEBUG ]  Switching JDBC Connection [com.alibaba.druid.pool.DruidStatementConnection@9255c05] to manual commit
+2025-09-18 16:58:23  [ main:1273 ] - [ DEBUG ]  Creating a new SqlSession
+2025-09-18 16:58:23  [ main:1283 ] - [ DEBUG ]  Registering transaction synchronization for SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4647881c]
+2025-09-18 16:58:23  [ main:1290 ] - [ DEBUG ]  JDBC Connection [com.alibaba.druid.pool.DruidStatementConnection@9255c05] will be managed by Spring
+2025-09-18 16:58:23  [ main:1293 ] - [ DEBUG ]  ==>  Preparing: INSERT INTO orders ( order_number, file_url, notes, opportunity_id, customer_id, total_amount, signed_date, order_status ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ? )
+2025-09-18 16:58:23  [ main:1314 ] - [ DEBUG ]  ==> Parameters: 1001(String), null, null, 1(Integer), 1(Integer), 200000.0(Double), 2025-09-16(String), null
+2025-09-18 16:58:23  [ main:1349 ] - [ DEBUG ]  <==    Updates: 1
+2025-09-18 16:58:23  [ main:1350 ] - [ DEBUG ]  Releasing transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4647881c]
+2025-09-18 16:58:23  [ main:1350 ] - [ DEBUG ]  Transaction synchronization committing SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4647881c]
+2025-09-18 16:58:23  [ main:1351 ] - [ DEBUG ]  Transaction synchronization deregistering SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4647881c]
+2025-09-18 16:58:23  [ main:1351 ] - [ DEBUG ]  Transaction synchronization closing SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4647881c]
+2025-09-18 16:58:23  [ main:1351 ] - [ DEBUG ]  Initiating transaction commit
+2025-09-18 16:58:23  [ main:1352 ] - [ DEBUG ]  Committing JDBC transaction on Connection [com.alibaba.druid.pool.DruidStatementConnection@9255c05]
+2025-09-18 16:58:23  [ main:1361 ] - [ DEBUG ]  Releasing JDBC Connection [com.alibaba.druid.pool.DruidStatementConnection@9255c05] after transaction
+2025-09-18 16:58:23  [ main:1362 ] - [ DEBUG ]  Spring test ApplicationContext cache statistics: [DefaultContextCache@5226e402 size = 1, maxSize = 32, parentContextCount = 0, hitCount = 4, missCount = 1, failureCount = 0]
+2025-09-18 16:58:23  [ main:1363 ] - [ DEBUG ]  Spring test ApplicationContext cache statistics: [DefaultContextCache@5226e402 size = 1, maxSize = 32, parentContextCount = 0, hitCount = 5, missCount = 1, failureCount = 0]
+2025-09-18 16:58:23  [ main:1363 ] - [ DEBUG ]  After test method: class [TestOrdersService], method [test], class annotated with @DirtiesContext [false] with mode [null], method annotated with @DirtiesContext [false] with mode [null]
+2025-09-18 16:58:23  [ main:1367 ] - [ DEBUG ]  Performing dependency injection for test class com.csi.service.TestOrdersService
+2025-09-18 16:58:23  [ main:1368 ] - [ DEBUG ]  Spring test ApplicationContext cache statistics: [DefaultContextCache@5226e402 size = 1, maxSize = 32, parentContextCount = 0, hitCount = 6, missCount = 1, failureCount = 0]
+2025-09-18 16:58:23  [ main:1368 ] - [ DEBUG ]  Spring test ApplicationContext cache statistics: [DefaultContextCache@5226e402 size = 1, maxSize = 32, parentContextCount = 0, hitCount = 7, missCount = 1, failureCount = 0]
+2025-09-18 16:58:23  [ main:1368 ] - [ DEBUG ]  Before test method: class [TestOrdersService], method [test2], class annotated with @DirtiesContext [false] with mode [null], method annotated with @DirtiesContext [false] with mode [null]
+2025-09-18 16:58:23  [ main:1369 ] - [ DEBUG ]  Spring test ApplicationContext cache statistics: [DefaultContextCache@5226e402 size = 1, maxSize = 32, parentContextCount = 0, hitCount = 8, missCount = 1, failureCount = 0]
+2025-09-18 16:58:23  [ main:1369 ] - [ DEBUG ]  Spring test ApplicationContext cache statistics: [DefaultContextCache@5226e402 size = 1, maxSize = 32, parentContextCount = 0, hitCount = 9, missCount = 1, failureCount = 0]
+2025-09-18 16:58:23  [ main:1369 ] - [ DEBUG ]  Creating new transaction with name [com.csi.service.impl.OrdersServiceImpl.updateOrdersStatus]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2025-09-18 16:58:23  [ main:1371 ] - [ DEBUG ]  Acquired Connection [com.alibaba.druid.pool.DruidStatementConnection@9255c05] for JDBC transaction
+2025-09-18 16:58:23  [ main:1371 ] - [ DEBUG ]  Switching JDBC Connection [com.alibaba.druid.pool.DruidStatementConnection@9255c05] to manual commit
+2025-09-18 16:58:23  [ main:1373 ] - [ DEBUG ]  Creating a new SqlSession
+2025-09-18 16:58:23  [ main:1373 ] - [ DEBUG ]  Registering transaction synchronization for SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@5edf2821]
+2025-09-18 16:58:23  [ main:1373 ] - [ DEBUG ]  JDBC Connection [com.alibaba.druid.pool.DruidStatementConnection@9255c05] will be managed by Spring
+2025-09-18 16:58:23  [ main:1374 ] - [ DEBUG ]  ==>  Preparing: update orders set order_status = ? where id = ?
+2025-09-18 16:58:23  [ main:1375 ] - [ DEBUG ]  ==> Parameters: 1(Integer), 1(Integer)
+2025-09-18 16:58:23  [ main:1382 ] - [ DEBUG ]  <==    Updates: 1
+2025-09-18 16:58:23  [ main:1382 ] - [ DEBUG ]  Releasing transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@5edf2821]
+2025-09-18 16:58:23  [ main:1382 ] - [ DEBUG ]  Transaction synchronization committing SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@5edf2821]
+2025-09-18 16:58:23  [ main:1383 ] - [ DEBUG ]  Transaction synchronization deregistering SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@5edf2821]
+2025-09-18 16:58:23  [ main:1383 ] - [ DEBUG ]  Transaction synchronization closing SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@5edf2821]
+2025-09-18 16:58:23  [ main:1383 ] - [ DEBUG ]  Initiating transaction commit
+2025-09-18 16:58:23  [ main:1383 ] - [ DEBUG ]  Committing JDBC transaction on Connection [com.alibaba.druid.pool.DruidStatementConnection@9255c05]
+2025-09-18 16:58:23  [ main:1387 ] - [ DEBUG ]  Releasing JDBC Connection [com.alibaba.druid.pool.DruidStatementConnection@9255c05] after transaction
+2025-09-18 16:58:23  [ main:1387 ] - [ DEBUG ]  Spring test ApplicationContext cache statistics: [DefaultContextCache@5226e402 size = 1, maxSize = 32, parentContextCount = 0, hitCount = 10, missCount = 1, failureCount = 0]
+2025-09-18 16:58:23  [ main:1388 ] - [ DEBUG ]  Spring test ApplicationContext cache statistics: [DefaultContextCache@5226e402 size = 1, maxSize = 32, parentContextCount = 0, hitCount = 11, missCount = 1, failureCount = 0]
+2025-09-18 16:58:23  [ main:1388 ] - [ DEBUG ]  After test method: class [TestOrdersService], method [test2], class annotated with @DirtiesContext [false] with mode [null], method annotated with @DirtiesContext [false] with mode [null]
+2025-09-18 16:58:23  [ main:1390 ] - [ DEBUG ]  Spring test ApplicationContext cache statistics: [DefaultContextCache@5226e402 size = 1, maxSize = 32, parentContextCount = 0, hitCount = 12, missCount = 1, failureCount = 0]
+2025-09-18 16:58:23  [ main:1391 ] - [ DEBUG ]  After test class: class [TestOrdersService], class annotated with @DirtiesContext [false] with mode [null]
+2025-09-18 16:58:23  [ SpringContextShutdownHook:1393 ] - [ DEBUG ]  Closing org.springframework.context.support.GenericApplicationContext@75437611, started on Thu Sep 18 16:58:22 CST 2025
+2025-09-18 16:58:23  [ SpringContextShutdownHook:1394 ] - [ INFO ]  {dataSource-1} closing ...
+2025-09-18 16:58:23  [ SpringContextShutdownHook:1397 ] - [ INFO ]  {dataSource-1} closed

@@ -39,4 +39,6 @@ public interface CustomerService {
 
     int updateCustomerSdrStatus(Customer customer);//更新客户联系状态
 
+    List<Customer> getCustomerByCondition(String name, String phone, String source, Integer status);//根据条件查询客户信息
+
 }

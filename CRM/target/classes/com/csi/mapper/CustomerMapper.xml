@@ -161,9 +161,31 @@
         where c.sdr_status IN(1,2,3)
     </select>
 
-    <update id="updateCustomerSdrStatus" >
-        UPDATE customers SET sdr_status = #{sdrStatus}, notes = #{notes} WHERE id = #{id}
+    <!-- 修改 updateCustomerSdrStatus 语句，使用 param1, param2, param3 -->
+    <update id="updateCustomerSdrStatus">
+        UPDATE customers SET sdr_status = #{param1}, sdr_notes = #{param2} WHERE id = #{param3}
     </update>
 
-
+    <!-- 添加在 CustomerMapper.xml 中 -->
+    <select id="getCustomerByCondition" resultType="com.csi.domain.Customer">
+        select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,sdr_status,sdr_status_name,
+        sdr_notes,assignee_id,e1.name as name1,creator_id,e2.name as name2,last_follow_up_time,c.create_time,c.update_time
+        from customers c left join status s on c.status = s.status_id
+        left join sdr_status ss on c.sdr_status = ss.sdr_status_id
+        left join employees e1 on c.assignee_id = e1.id
+        left join employees e2 on c.creator_id = e2.id
+        where 1=1
+        <if test="name != null and name != ''">
+            AND c.name LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="phone != null and phone != ''">
+            AND c.phone LIKE CONCAT('%', #{phone}, '%')
+        </if>
+        <if test="source != null and source != ''">
+            AND c.source LIKE CONCAT('%', #{source}, '%')
+        </if>
+        <if test="status != null">
+            AND c.sdr_status = #{status}
+        </if>
+    </select>
 </mapper>

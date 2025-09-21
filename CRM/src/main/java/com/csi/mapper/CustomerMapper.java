@@ -44,4 +44,9 @@ public interface CustomerMapper {
 
     int updateCustomerSdrStatus(@Param("status") int sdrStatus,@Param("notes")String notes,@Param("id") int id);//更新客户联系状态
 
+    //模糊查询
+    List<Customer> getCustomerByCondition(@Param("name") String name,
+                                          @Param("phone") String phone,
+                                          @Param("source") String source,
+                                          @Param("status") Integer status);
 }

@@ -182,6 +182,21 @@ public class CustomerController {
             return R.error();
         }
     }
+    // 在 CustomerController.java 中添加
 
-
+    /**
+     * 根据条件查询客户（支持模糊查询）
+     */
+    @GetMapping("/condition")
+    public R getCustomerByCondition(@RequestParam(value = "name", required = false) String name,
+                                    @RequestParam(value = "phone", required = false) String phone,
+                                    @RequestParam(value = "source", required = false) String source,
+                                    @RequestParam(value = "status", required = false) Integer status) {
+        List<Customer> customers = customerService.getCustomerByCondition(name, phone, source, status);
+        if (customers != null) {
+            return R.ok(customers);
+        } else {
+            return R.error();
+        }
+    }
 }
