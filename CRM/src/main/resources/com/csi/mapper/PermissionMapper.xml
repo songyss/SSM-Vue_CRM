@@ -17,10 +17,10 @@
         <result property="isDelete" column="is_delete"/>
     </resultMap>
 
-    <select id="findAll" resultMap="PermissionResultMap">
-        SELECT id, permission_name, permission_desc, url, model_id, create_time, update_time, is_delete
-        FROM permission
-        WHERE is_delete = 0
+    <select id="findAllByModelId" resultType="com.csi.domain.vo.PermissionVO">
+        SELECT id, permission_name, permission_desc, url
+        FROM permissions
+        WHERE is_delete = 0 and model_id = #{modelId}
     </select>
 
     <select id="findById" parameterType="int" resultMap="PermissionResultMap">

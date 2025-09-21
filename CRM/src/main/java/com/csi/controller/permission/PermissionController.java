@@ -1,7 +1,9 @@
 package com.csi.controller.permission;
 
 
+import com.csi.domain.PermissionTreeNode;
 import com.csi.domain.RolePermission;
+import com.csi.service.PermissionTreeService;
 import com.csi.service.RolePermissionService;
 import com.csi.util.R;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,10 @@ public class PermissionController {
 
     @Autowired
     private RolePermissionService rolePermissionService;
+
+    @Autowired
+    private PermissionTreeService permissionTreeService;
+
 
     @GetMapping("/getPermission")
     public R getPermission(@RequestParam("roleId") int roleId) {
@@ -93,6 +99,12 @@ public class PermissionController {
         }
         return R.okMessage("权限保存成功");
 
+    }
+
+    @GetMapping("/tree")
+    public R getPermissionTree() {
+        List<PermissionTreeNode> tree = permissionTreeService.buildPermissionTree();
+        return R.ok(tree);
     }
 
 }

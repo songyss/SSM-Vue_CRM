@@ -24,7 +24,7 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public List<Permission> findAllPermissions() {
-        return permissionMapper.findAll();
+        return null;
     }
 
     @Override
