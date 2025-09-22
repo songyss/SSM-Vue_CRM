@@ -172,7 +172,8 @@ const loadCustomerData = async () => {
     const response = await request.get('/customer/allList')
     console.log('API响应数据:', response)
 
-    const data = response.data
+    const result = response.data
+    const data =result.data
 
     if (!Array.isArray(data)) {
       throw new Error('API返回数据格式不正确')

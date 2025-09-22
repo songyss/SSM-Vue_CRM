@@ -325,9 +325,9 @@ const fetchAfterSales = async () => {
     // 处理响应数据
     if (data) {
       // 确保数据是数组格式
-      if (Array.isArray(data)) {
-        afterSales.value = data;
-        pagination.value.total = data.length;
+      if (Array.isArray(data.data.data)) {
+        afterSales.value = data.data.data;
+        pagination.value.total = data.data.length;
         ElMessage.success('数据加载成功');
       } else if (data.id) {
         // 如果是单个对象（有id属性），转换为数组

@@ -11,31 +11,32 @@
         ">
         <h2>CRM系统</h2>
       </div>
-      <el-menu :default-active="activeMenu" class="nav-menu" background-color="#304156" text-color="#bfcbd9"
-        active-text-color="#409EFF" router>
-        <!-- 菜单内容保持不变 -->
-        <template v-for="route in $router.options.routes" :key="route.path">
-          <!-- 有子路由的菜单项 -->
-          <template v-if="route.path === '/'">
-            <template v-for="child in route.children" :key="child.path">
-              <el-sub-menu v-if="child.children && child.children.length" :index="child.path">
-                <template #title>
-                  <span>{{ child.meta?.title }}</span>
-                </template>
-                <el-menu-item v-for="grandChild in child.children" :key="grandChild.path"
-                  :index="`${child.path}/${grandChild.path}`">
-                  {{ grandChild.meta?.title }}
-                </el-menu-item>
-              </el-sub-menu>
 
-              <!-- 无子路由的菜单项 -->
-              <el-menu-item v-else :index="child.path">
-                <span>{{ child.meta?.title }}</span>
+      <el-menu
+        :default-active="activeMenu"
+        class="nav-menu"
+        background-color="#304156"
+        text-color="#bfcbd9"
+        active-text-color="#409EFF"
+        router
+      >
+        <!-- 只渲染固定的3个父路由 -->
+        <template v-for="parentRoute in fixedParentRoutes" :key="parentRoute.path">
+          <!-- 父路由菜单 -->
+          <el-sub-menu :index="parentRoute.path">
+            <template #title>
+              <span>{{ parentRoute.meta?.title }}</span>
+            </template>
+            <!-- 动态渲染有权限的子路由 -->
+            <template v-for="childRoute in getAccessibleChildren(parentRoute)" :key="childRoute.path">
+              <el-menu-item :index="`${parentRoute.path}/${childRoute.path}`">
+                {{ childRoute.meta?.title }}
               </el-menu-item>
             </template>
-          </template>
+          </el-sub-menu>
         </template>
       </el-menu>
+
     </el-aside>
 
     <el-container>
@@ -71,10 +72,12 @@ import { ref, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { House, Promotion, Sell, Phone, Setting } from '@element-plus/icons-vue'
-
+import { usePermissionStore } from '@/stores/permission' // 引入权限存储
+import type { RouteRecordRaw } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
 const activeMenu = ref('')
+const permissionStore = usePermissionStore()
 
 // 图标映射
 const iconMap = {
@@ -85,6 +88,30 @@ const iconMap = {
   setting: Setting,
 }
 
+
+// 固定父路由（只保留这3个）
+const fixedParentRoutes = computed(() => {
+  return router.options.routes.find(route => route.path === '/')?.children?.filter(
+    parent => ['/dashboard','/permission', '/operation', '/business'].includes(parent.path)
+  ) || []
+})
+
+
+// 过滤出有权限的子路由
+const getAccessibleChildren = (parentRoute:  RouteRecordRaw) => {
+  // 如果没有子路由，直接返回空
+  if (!parentRoute.children) return []
+
+  // 过滤条件：子路由的moduleId在权限列表中
+  return parentRoute.children.filter((child:RouteRecordRaw) => {
+    // 子路由必须配置了moduleId，且在accessibleModuleIds中
+    return (
+      typeof child.meta?.moduleId=== 'number' &&
+      permissionStore.accessibleModuleIds.includes(child.meta.moduleId)
+  )
+  })
+}
+
 // 监听路由变化
 watch(
   () => route.path,
@@ -93,6 +120,7 @@ watch(
   },
   { immediate: true },
 )
+
 
 // 生成面包屑导航
 // 替换原有 breadcrumbs 计算属性为以下实现：

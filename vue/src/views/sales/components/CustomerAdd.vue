@@ -92,7 +92,7 @@ const submitForm = async () => {
   try {
     // ✅ 注意接口路径要和后端一致
     const res = await request.post('/customer/addCustomer', customerForm)
-    if (res.code === 200) {
+    if (res.data.code === 200) {
       ElMessage.success('客户添加成功')
       resetForm()
     } else {

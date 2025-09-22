@@ -81,15 +81,7 @@
           <template #default="scope">
             <el-button size="small" type="text" @click="handleView(scope.row)">查看</el-button>
             <el-button size="small" type="text" @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button
-              size="small"
-              type="text"
-              text-color="#ff4d4f"
-              @click="handleCancelOrder(scope.row)"
-              v-if="[1, 2].includes(scope.row.orderStatus)"
-            >
-              取消
-            </el-button>
+            <!-- 删除取消订单按钮 -->
           </template>
         </el-table-column>
       </el-table>
@@ -395,8 +387,8 @@ const fetchOrderList = async () => {
 
     // 根据request.js的响应拦截器，需要访问response.data获取实际数据
     if (response && response.data) {
-      orderList.value = response.data.list || []
-      pagination.total = response.data.total || 0
+      orderList.value = response.data.data.list || []
+      pagination.total = response.data.data.total || 0
     } else {
       ElMessage.error('获取订单列表失败: 返回数据为空')
     }
@@ -489,50 +481,17 @@ const confirmEdit = async () => {
     console.log('发送订单更新请求:', orderData);
 
     const response = await request.patch('/orders/update', orderData)
-    if (response && response.code === 200) {
+    if (response && response.data.code === 200) {
       ElMessage.success('订单更新成功')
       editDialogVisible.value = false
       fetchOrderList()
     } else {
-      ElMessage.error('订单更新失败: ' + (response?.message || '未知错误'))
+      ElMessage.error('订单更新失败: ' + (response?.data.message || '未知错误'))
     }
   } catch (error) {
     console.error('更新订单异常:', error)
     ElMessage.error('订单更新失败: ' + (error.message || '网络异常'))
   }
-}
-
-// 取消订单
-const handleCancelOrder = (row: any) => {
-  ElMessageBox.confirm(
-    `确定要取消订单 ${row.orderNumber} 吗？此操作不可恢复`,
-    '确认取消',
-    {
-      confirmButtonText: '确认',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  ).then(async () => {
-    try {
-      const orderData = {
-        id: row.id,
-        orderStatus: 4 // 已退款状态
-      }
-
-      const response = await request.patch('/orders/update', orderData)
-      if (response && response.code === 200) {
-        ElMessage.success('订单取消成功')
-        fetchOrderList()
-      } else {
-        ElMessage.error('订单取消失败: ' + (response?.message || '未知错误'))
-      }
-    } catch (error) {
-      console.error('取消订单异常:', error)
-      ElMessage.error('订单取消失败: ' + (error.message || '网络异常'))
-    }
-  }).catch(() => {
-    // 用户取消操作
-  })
 }
 
 // 新增订单

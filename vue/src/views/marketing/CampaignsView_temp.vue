@@ -362,7 +362,8 @@ const getAllActivities = async () => {
   loading.value = true
   try {
     const response = await request.get('/marketActivity/getAll')
-    if (response.code === 200) {
+    if (response.data.code === 200) {
+      console.log(response.data)
       activities.value = response.data
       pagination.value.total = response.data.length
     } else {
@@ -380,8 +381,8 @@ const getPromotionPlans = async () => {
   loading.value = true
   try {
     const response = await request.get('/marketing/getPromotionPlans')
-    if (response.code === 200) {
-      promotionPlans.value = response.data
+    if (response.data.code === 200) {
+      promotionPlans.value = response.data.data
     } else {
       ElMessage.error('获取推广计划失败')
     }
@@ -410,8 +411,8 @@ const searchActivities = async () => {
       return
     }
 
-    if (response.code === 200) {
-      activities.value = response.data
+    if (response.data.code === 200) {
+      activities.value = response.data.data
       pagination.value.total = response.data.length
     } else {
       ElMessage.error('搜索活动失败')
@@ -486,11 +487,11 @@ const handleDeleteActivity = (row) => {
       const response = await request.delete('/marketActivity/delete', {
         params: { id: row.id }
       })
-      if (response.code === 200) {
+      if (response.data.code === 200) {
         ElMessage.success('删除成功')
         getAllActivities()
       } else {
-        ElMessage.error(response.message || '删除失败')
+        ElMessage.error(response.data.message || '删除失败')
       }
     } catch (error) {
       ElMessage.error('删除失败: ' + error.message)
@@ -517,12 +518,12 @@ const saveActivity = async () => {
       response = await request.post('/marketActivity/add', currentActivity.value)
     }
 
-    if (response.code === 200) {
+    if (response.data.code === 200) {
       ElMessage.success(currentActivity.value.id ? '更新成功' : '添加成功')
       activityDialogVisible.value = false
       getAllActivities()
     } else {
-      ElMessage.error(response.message || (currentActivity.value.id ? '更新失败' : '添加失败'))
+      ElMessage.error(response.data.message || (currentActivity.value.id ? '更新失败' : '添加失败'))
     }
   } catch (error) {
     ElMessage.error((currentActivity.value.id ? '更新失败' : '添加失败') + ': ' + error.message)
@@ -559,15 +560,15 @@ const submitApproval = async () => {
 
     const response = await request.put('/marketing/updatePromotionPlans', requestData)
 
-    if (response.code === 200) {
+    if (response.data.code === 200) {
       ElMessage.success('审批成功')
       approvalDialogVisible.value = false
       getPromotionPlans()
     } else {
-      ElMessage.error(response.message || '审批失败')
+      ElMessage.error(response.data.message || '审批失败')
     }
   } catch (error) {
-    ElMessage.error('审批失败: ' + error.message)
+    ElMessage.error('审批失败: ' + error.data.message)
   }
 }
 
@@ -586,11 +587,11 @@ const handleDeletePlan = (row) => {
       const response = await request.delete('/activityReport/delete', {
         params: { id: row.id }
       })
-      if (response.code === 200) {
+      if (response.data.code === 200) {
         ElMessage.success('删除成功')
         getPromotionPlans()
       } else {
-        ElMessage.error(response.message || '删除失败')
+        ElMessage.error(response.data.message || '删除失败')
       }
     } catch (error) {
       ElMessage.error('删除失败: ' + error.message)

@@ -5,7 +5,7 @@ import com.csi.domain.RolePermission;
 import java.util.List;
 
 public interface RoleService {
-    List<Role> findAllRoles();
+    List<Role> findAllRoles(String roleName,Integer isDelete);
     Role findById(Integer id);
     void saveRole(Role role);
     void updateRole(Role role);

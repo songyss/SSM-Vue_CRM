@@ -1,10 +1,5 @@
 <template>
-  <div class="console">
-    <h1>系统控制台</h1>
-    <div class="settings-area">
-      <p>系统设置和管理区域</p>
-    </div>
-  </div>
+
   <router-view/>
 </template>
 
