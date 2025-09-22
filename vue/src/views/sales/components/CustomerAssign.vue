@@ -2,6 +2,11 @@
   <div class="customer-assign">
     <h3>客户分配</h3>
 
+    <!-- 工具栏 -->
+    <div style="margin-bottom: 15px">
+      <el-button type="primary" @click="refresh">刷新</el-button>
+    </div>
+
     <!-- 待分配客户表格 -->
     <el-table :data="customers" border style="width: 100%">
       <el-table-column prop="name" label="客户姓名" width="120" />
@@ -12,27 +17,41 @@
         </template>
       </el-table-column>
       <el-table-column prop="source" label="客户来源" width="120" />
-      <el-table-column label="操作" width="220">
+      <el-table-column label="操作" width="280">
         <template #default="{ row }">
-          <!-- 分配下拉框 -->
-          <el-select
-            v-model="selectedAssignee[row.id]"
-            placeholder="请选择分配对象"
-            style="width: 150px"
-          >
-            <el-option
-              v-for="emp in employees"
-              :key="emp.id"
-              :label="emp.name"
-              :value="emp.id"
-            />
-          </el-select>
-          <el-button type="primary" size="small" @click="assign(row.id)">
-            分配
-          </el-button>
+          <div class="operation-group">
+            <el-select
+              v-model="selectedAssignee[row.id]"
+              placeholder="请选择分配对象"
+              style="width: 150px"
+            >
+              <el-option
+                v-for="emp in employees"
+                :key="emp.id"
+                :label="emp.name"
+                :value="emp.id"
+              />
+            </el-select>
+            <el-button type="primary" size="small" @click="assign(row.id)">
+              分配
+            </el-button>
+          </div>
         </template>
       </el-table-column>
     </el-table>
+
+    <!-- 分页 -->
+    <div class="pagination">
+      <el-pagination
+        background
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+        v-model:current-page="pageNum"
+        v-model:page-size="pageSize"
+        @current-change="fetchCustomers"
+        @size-change="fetchCustomers"
+      />
+    </div>
 
     <!-- 查看客户详情对话框 -->
     <el-dialog v-model="dialogVisible" title="客户详情" width="50%">
@@ -51,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 
@@ -64,14 +83,25 @@ const selectedAssignee = reactive<Record<number, number | null>>({})
 // 客户详情对话框
 const dialogVisible = ref(false)
 const detail = reactive<any>({})
+// 定时器 ID
+let refreshTimer: number | null = null
 
-// 获取待分配客户（assigneeId为空 且 isPool=0）
+// 分页参数
+const pageNum = ref(1)
+const pageSize = ref(10)
+const total = ref(0)
+
+// 获取待分配客户（assignee_id = null）
 const fetchCustomers = async () => {
   try {
-    const res = await axios.get('http://localhost:8080/customer/unAssigned', {
-      params: { status: 1 } // 有意向客户
+    const res = await axios.get('http://localhost:8080/customer/unAssignedList', {
+      params: {
+        pageNum: pageNum.value,
+        pageSize: pageSize.value
+      }
     })
-    customers.value = res.data
+    customers.value = res.data.data?.list || res.data.data || []
+    total.value = res.data.data?.total || customers.value.length
   } catch (e) {
     console.error('获取客户失败:', e)
   }
@@ -113,14 +143,42 @@ const showDetail = (row: any) => {
   dialogVisible.value = true
 }
 
+// 刷新按钮方法
+const refresh = () => {
+  pageNum.value = 1
+  fetchCustomers()
+}
+
 onMounted(() => {
   fetchCustomers()
   fetchEmployees()
+
+  // 自动刷新，每 30 秒执行一次
+  refreshTimer = window.setInterval(() => {
+    fetchCustomers()
+  }, 30000)
+})
+
+onUnmounted(() => {
+  if (refreshTimer) {
+    clearInterval(refreshTimer)
+  }
 })
 </script>
 
 <style scoped>
 .customer-assign {
   padding: 20px;
+}
+
+.operation-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagination {
+  margin-top: 20px;
+  text-align: right;
 }
 </style>

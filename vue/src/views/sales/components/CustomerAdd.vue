@@ -68,29 +68,30 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { ElMessage } from 'element-plus'
-import request from '@/utils/request' // 你的 axios 封装
+import request from '@/utils/request' // 你自己封装的 axios
 
 // 表单对象
 const customerForm = reactive({
   name: '',
-  sex: '',
+  sex: null, // 改成数字，避免后端报错
   phone: '',
   borndate: '',
   company: '',
   position: '',
   source: '',
-  status: ''
+  status: null
 })
 
 // 提交表单
 const submitForm = async () => {
-  if (!customerForm.name || customerForm.sex === '' || !customerForm.phone || customerForm.status === '') {
+  if (!customerForm.name || customerForm.sex === null || !customerForm.phone || customerForm.status === null) {
     ElMessage.error('请填写完整的必填信息')
     return
   }
 
   try {
-    const res = await request.put('/customer/add5Customer', customerForm)
+    // ✅ 注意接口路径要和后端一致
+    const res = await request.post('/customer/addCustomer', customerForm)
     if (res.code === 200) {
       ElMessage.success('客户添加成功')
       resetForm()
@@ -98,6 +99,7 @@ const submitForm = async () => {
       ElMessage.error(res.message || '添加失败')
     }
   } catch (error) {
+    console.error('提交客户失败:', error)
     ElMessage.error('服务器请求失败，请稍后重试')
   }
 }
@@ -105,7 +107,7 @@ const submitForm = async () => {
 // 重置表单
 const resetForm = () => {
   Object.keys(customerForm).forEach((key) => {
-    customerForm[key] = ''
+    customerForm[key] = (key === 'sex' || key === 'status') ? null : ''
   })
 }
 </script>
@@ -114,5 +116,7 @@ const resetForm = () => {
 .customer-add {
   padding: 20px;
   max-width: 600px;
+  background: #fff;
+  border-radius: 8px;
 }
 </style>

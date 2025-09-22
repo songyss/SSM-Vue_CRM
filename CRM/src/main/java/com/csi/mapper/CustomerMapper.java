@@ -54,4 +54,7 @@ public interface CustomerMapper {
 
     void assignCustomers(@Param("employeeId") Integer employeeId,
                          @Param("customerIds") List<Integer> customerIds);
+
+    List<Customer> selectUnAssignedList();
+
 }

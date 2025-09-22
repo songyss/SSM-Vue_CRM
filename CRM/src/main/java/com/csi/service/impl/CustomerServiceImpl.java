@@ -167,4 +167,9 @@ public class CustomerServiceImpl implements CustomerService {
     public void assignCustomers(Integer employeeId, List<Integer> customerIds) {
         customerMapper.assignCustomers(employeeId, customerIds);
     }
+
+    @Override
+    public List<Customer> getUnAssignedList() {
+        return customerMapper.selectUnAssignedList();
+    }
 }

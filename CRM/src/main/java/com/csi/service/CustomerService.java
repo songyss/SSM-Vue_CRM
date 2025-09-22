@@ -46,4 +46,6 @@ public interface CustomerService {
     List<Customer> getUnAssignedCustomerList(Integer status);
 
     void assignCustomers(Integer employeeId, List<Integer> customerIds);
+
+    List<Customer> getUnAssignedList();
 }
