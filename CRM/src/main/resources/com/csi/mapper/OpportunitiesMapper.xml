@@ -1,46 +1,106 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper
-        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.csi.mapper.OpportunitiesMapper">
-    <cache/>
 
-    <select id="getOpportunities" resultType="com.csi.domain.Opportunities">
-        SELECT
-        *
-        FROM
-        opportunities
-    </select>
+  <select id="getOpportunities" resultType="com.csi.domain.Opportunities">
+    SELECT * FROM opportunities
+  </select>
 
-    <insert id="addOpportunities" parameterType="com.csi.domain.Opportunities">
-        INSERT INTO opportunities(
-        customer_id,
-        name,
-        amount,
-        stage,
-        probability,
-        expected_close_date,
-        assignee_id,
-        description
-        ) VALUES (
-        #{customerId},
-        #{name},
-        #{amount},
-        #{stage},
-        #{probability},
-        #{expectedCloseDate},
-        #{assigneeId},
-        #{description}
-        )
-    </insert>
+  <select id="getOpportunityById" resultType="com.csi.domain.Opportunities">
+    SELECT
+      o.id,
+      o.customer_id AS customerId,
+      o.name,
+      o.amount,
+      o.stage,
+      o.probability,
+      o.expected_close_date AS expectedCloseDate,
+      o.assignee_id AS assigneeId,
+      o.description,
+      o.create_time AS createTime,
+      o.update_time AS updateTime,
+      c.name AS customerName,
+      e.name AS assigneeName
+    FROM opportunities o
+    LEFT JOIN customers c ON o.customer_id = c.id
+    LEFT JOIN employees e ON o.assignee_id = e.id
+    WHERE o.id = #{id}
+  </select>
 
-    <update id="updateOpportunities" parameterType="com.csi.domain.Opportunities">
-        UPDATE
-        opportunities
-        SET
-        customer_id = #{customerId}, name = #{name}, amount = #{amount}, stage = #{stage}, probability = #{probability}, expected_close_date = #{expectedCloseDate}, assignee_id = #{assigneeId}, description = #{description}
-        WHERE id = #{id}
-    </update>
+  <select id="selectOpportunitiesByCondition" resultType="com.csi.domain.Opportunities">
+    SELECT
+      o.id,
+      o.customer_id AS customerId,
+      o.name,
+      o.amount,
+      o.stage,
+      o.probability,
+      o.expected_close_date AS expectedCloseDate,
+      o.assignee_id AS assigneeId,
+      o.description,
+      o.create_time AS createTime,
+      o.update_time AS updateTime,
+      c.name AS customerName,
+      e.name AS assigneeName
+    FROM opportunities o
+    LEFT JOIN customers c ON o.customer_id = c.id
+    LEFT JOIN employees e ON o.assignee_id = e.id
+    <where>
+      <if test="customerName != null and customerName != ''">
+        AND c.name LIKE CONCAT('%', #{customerName}, '%')
+      </if>
+      <if test="stage != null">
+        AND o.stage = #{stage}
+      </if>
+      <if test="startDate != null and startDate != ''">
+        AND o.expected_close_date &gt;= #{startDate}
+      </if>
+      <if test="endDate != null and endDate != ''">
+        AND o.expected_close_date &lt;= #{endDate}
+      </if>
+    </where>
+    ORDER BY o.create_time DESC
+  </select>
 
+  <insert id="addOpportunities" parameterType="com.csi.domain.Opportunities">
+    INSERT INTO opportunities (
+      customer_id,
+      name,
+      amount,
+      stage,
+      probability,
+      expected_close_date,
+      assignee_id,
+      description,
+      create_time,
+      update_time
+    ) VALUES (
+      #{customerId},
+      #{name},
+      #{amount},
+      #{stage},
+      #{probability},
+      #{expectedCloseDate},
+      #{assigneeId},
+      #{description},
+      #{createTime},
+      #{updateTime}
+    )
+  </insert>
+
+  <update id="updateOpportunities" parameterType="com.csi.domain.Opportunities">
+    UPDATE opportunities
+    SET
+      customer_id = #{customerId},
+      name = #{name},
+      amount = #{amount},
+      stage = #{stage},
+      probability = #{probability},
+      expected_close_date = #{expectedCloseDate},
+      assignee_id = #{assigneeId},
+      description = #{description},
+      update_time = #{updateTime}
+    WHERE id = #{id}
+  </update>
 
 </mapper>

@@ -16,4 +16,10 @@ public interface OrdersMapper {
     
     // 查询所有订单
     List<Orders> selectAllOrders();
+    
+    // 根据条件查询订单
+    List<Orders> selectOrdersByCondition(@Param("orderNo") String orderNo, 
+                                        @Param("status") String status,
+                                        @Param("startDate") String startDate,
+                                        @Param("endDate") String endDate);
 }

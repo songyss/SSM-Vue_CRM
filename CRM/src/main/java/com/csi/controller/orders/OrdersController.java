@@ -3,6 +3,7 @@ package com.csi.controller.orders;
 import com.csi.domain.Orders;
 import com.csi.service.OrdersService;
 import com.csi.util.R;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,7 +38,7 @@ public class OrdersController {
     }
 
     @GetMapping("/personalList")
-    public R selectPersonalOrders(int id) {
+    public R selectPersonalOrders(@RequestParam("id") int id) {
         List<Orders> orders = ordersService.selectPersonalOrders(id);
         if (orders.size() > 0) {
             return R.ok(orders) ;
@@ -55,6 +56,40 @@ public class OrdersController {
         if (orders.size() > 0) {
             return R.ok(orders);
         } else {
+            return R.error();
+        }
+    }
+    
+    /**
+     * 分页查询订单列表
+     */
+    @GetMapping("/page")
+    public R selectOrdersByPage(@RequestParam(value = "page", defaultValue = "1") int page,
+                                @RequestParam(value = "size", defaultValue = "10") int size) {
+        try {
+            PageInfo<Orders> pageInfo = ordersService.selectOrdersByPage(page, size);
+            return R.ok(pageInfo);
+        } catch (Exception e) {
+            return R.error();
+        }
+    }
+    
+    /**
+     * 根据条件分页查询订单列表
+     */
+    @GetMapping("/pageByCondition")
+    public R selectOrdersByCondition(@RequestParam(value = "orderNo", required = false) String orderNo,
+                                     @RequestParam(value = "status", required = false) String status,
+                                     @RequestParam(value = "startDate", required = false) String startDate,
+                                     @RequestParam(value = "endDate", required = false) String endDate,
+                                     @RequestParam(value = "page", defaultValue = "1") int page,
+                                     @RequestParam(value = "size", defaultValue = "10") int size) {
+        try {
+            PageInfo<Orders> pageInfo = ordersService.selectOrdersByCondition(
+                orderNo, status, startDate, endDate, page, size);
+            return R.ok(pageInfo);
+        } catch (Exception e) {
+            e.printStackTrace();
             return R.error();
         }
     }
