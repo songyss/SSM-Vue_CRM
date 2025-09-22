@@ -137,7 +137,7 @@
         INSERT INTO customers (name, phone, sex,borndate, company, position, source, status, assignee_id,creator_id,is_pool,activity_id)
         VALUES (#{name}, #{phone}, #{sex},#{borndate}, #{company}, #{position}, #{source},#{status},#{assigneeId},#{creatorId},#{isPool},#{activityId});
     </insert>
-    
+
     <select id="getCustomerBySdrStatus" resultType="com.csi.domain.Customer">
         select
             c.id,
@@ -188,4 +188,53 @@
             AND c.sdr_status = #{status}
         </if>
     </select>
+
+    <select id="getPoolCustomer" resultType="com.csi.domain.Customer">
+        SELECT
+        c.id,
+        c.name,
+        c.phone,
+        c.sex,
+        c.pool_time       AS poolTime,
+        c.last_follow_up_time AS lastFollowUPTime,
+        c.create_time     AS createTime,
+        c.update_time     AS updateTime,
+        c.notes           AS notes,
+        c.company         AS company,
+        c.position
+        FROM customers c
+        WHERE c.is_pool = 1
+    </select>
+
+    <select id="getUnAssignedCustomerList" resultType="com.csi.domain.Customer">
+        select
+        c.id,
+        c.name,
+        c.phone,
+        c.sex,
+        c.company,
+        c.position,
+        c.source,
+        c.sdr_status as sdrStatus,
+        ss.sdr_status_name as sdrStatusName,
+        c.is_pool as isPool
+        from customers c
+        left join sdr_status ss on c.sdr_status = ss.sdr_status_id
+        where c.assignee_id is null
+        and c.is_pool = 0
+        <if test="status != null">
+            and c.sdr_status = #{status}
+        </if>
+    </select>
+
+    <update id="assignCustomers">
+        update customers
+        set assignee_id = #{employeeId}
+        where id in
+        <foreach collection="customerIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+
 </mapper>

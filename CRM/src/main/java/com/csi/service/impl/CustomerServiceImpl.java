@@ -151,4 +151,20 @@ public class CustomerServiceImpl implements CustomerService {
     public List<Customer> getCustomerByCondition(String name, String phone, String source, Integer status) {
         return customerMapper.getCustomerByCondition(name, phone, source, status);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Customer> getPoolCustomer() {
+        return customerMapper.getPoolCustomer();
+    }
+
+    @Override
+    public List<Customer> getUnAssignedCustomerList(Integer status) {
+        return customerMapper.getUnAssignedCustomerList(status);
+    }
+
+    @Override
+    public void assignCustomers(Integer employeeId, List<Integer> customerIds) {
+        customerMapper.assignCustomers(employeeId, customerIds);
+    }
 }

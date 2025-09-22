@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin
@@ -199,4 +200,35 @@ public class CustomerController {
             return R.error();
         }
     }
+
+    /**
+     * 查询客户池客户
+     */
+    @GetMapping("/poolList")
+    public R getPoolCustomerList(){
+        List<Customer> poolCustomer = customerService.getPoolCustomer();
+        if (poolCustomer != null){
+            return R.ok(poolCustomer);
+        } else {
+            return R.error();
+        }
+    }
+
+    // 获取待分配客户（is_pool=0）
+    @GetMapping("/unAssigned")
+    public List<Customer> getUnAssignedCustomerList(
+            @RequestParam(value = "status", required = false) Integer status) {
+        return customerService.getUnAssignedCustomerList(status);
+    }
+
+    // 分配客户
+    @PostMapping("/assign")
+    public String assignCustomers(@RequestBody Map<String, Object> params) {
+        Integer employeeId = (Integer) params.get("employeeId");
+        List<Integer> customerIds = (List<Integer>) params.get("customerIds");
+        customerService.assignCustomers(employeeId, customerIds);
+        return "success";
+    }
+
+
 }

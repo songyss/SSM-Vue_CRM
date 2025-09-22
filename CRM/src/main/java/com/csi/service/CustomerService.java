@@ -41,4 +41,9 @@ public interface CustomerService {
 
     List<Customer> getCustomerByCondition(String name, String phone, String source, Integer status);//根据条件查询客户信息
 
+    List<Customer> getPoolCustomer();
+
+    List<Customer> getUnAssignedCustomerList(Integer status);
+
+    void assignCustomers(Integer employeeId, List<Integer> customerIds);
 }

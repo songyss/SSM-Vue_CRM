@@ -150,8 +150,11 @@ const searchForm = reactive({
 const loadCustomerData = async () => {
   try {
     loading.value = true
-    const data = await request.get('/customer/allList')
-    console.log('API响应数据:', data)
+    const response = await request.get('/customer/allList')
+    console.log('API响应数据:', response)
+
+    // 正确地从响应中提取data数组
+    const data = response.data
 
     if (!Array.isArray(data)) {
       throw new Error('API返回数据格式不正确')
@@ -180,6 +183,7 @@ const loadCustomerData = async () => {
     loading.value = false
   }
 }
+
 
 const handleSearch = () => {
   if (!customerData.value || customerData.value.length === 0) {
