@@ -42,7 +42,6 @@
               range-separator="至"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
-              value-format="YYYY-MM-DD"
               format="YYYY-MM-DD"
               clearable
             />
@@ -123,15 +122,30 @@
       width="600px"
       @close="handleDialogClose"
     >
-      <el-form :model="currentLead" :rules="formRules" ref="leadForm" label-width="100px">
+      <el-form
+        :model="currentLead"
+        :rules="formRules"
+        ref="leadForm"
+        label-width="100px"
+        :disabled="!isEdit"
+      >
         <el-form-item label="商机名称" prop="name">
           <el-input v-model="currentLead.name" />
         </el-form-item>
         <el-form-item label="客户名称" prop="customerId">
-          <el-select v-model="currentLead.customerId" placeholder="请选择客户" style="width: 100%">
-            <el-option label="客户A" :value="101" />
-            <el-option label="客户B" :value="102" />
-            <el-option label="客户C" :value="103" />
+          <el-select
+            v-model="currentLead.customerId"
+            placeholder="请选择客户"
+            style="width: 100%"
+            filterable
+            clearable
+          >
+            <el-option
+              v-for="customer in customers"
+              :key="customer.id"
+              :label="customer.name"
+              :value="customer.id"
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="预估金额" prop="amount">
@@ -155,16 +169,24 @@
             v-model="currentLead.expectedCloseDate"
             type="date"
             placeholder="请选择预计成交日期"
-            value-format="YYYY-MM-DD"
             format="YYYY-MM-DD"
             style="width: 100%"
           />
         </el-form-item>
         <el-form-item label="负责人" prop="assigneeId">
-          <el-select v-model="currentLead.assigneeId" placeholder="请选择负责人" style="width: 100%">
-            <el-option label="张三" :value="1001" />
-            <el-option label="李四" :value="1002" />
-            <el-option label="王五" :value="1003" />
+          <el-select
+            v-model="currentLead.assigneeId"
+            placeholder="请选择负责人"
+            style="width: 100%"
+            filterable
+            clearable
+          >
+            <el-option
+              v-for="employee in employees"
+              :key="employee.id"
+              :label="employee.name"
+              :value="employee.id"
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="描述" prop="description">
@@ -174,7 +196,7 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="saveLead">确 定</el-button>
+          <el-button v-if="isEdit" type="primary" @click="saveLead">确 定</el-button>
         </span>
       </template>
     </el-dialog>
@@ -218,6 +240,10 @@ const sortParams = reactive({
 
 // 商机列表数据
 const leadsList = ref([])
+
+// 客户和员工数据
+const customers = ref([])
+const employees = ref([])
 
 // 对话框相关
 const dialogVisible = ref(false)
@@ -272,8 +298,29 @@ const fetchLeadsList = async () => {
 
     // 处理日期范围参数
     if (searchForm.dateRange && searchForm.dateRange.length === 2) {
-      params.startDate = searchForm.dateRange[0];
-      params.endDate = searchForm.dateRange[1];
+      // 格式化日期范围
+      const startDate = searchForm.dateRange[0];
+      const endDate = searchForm.dateRange[1];
+
+      if (startDate) {
+        if (startDate instanceof Date) {
+          params.startDate = startDate.toISOString().split('T')[0];
+        } else if (typeof startDate === 'string' && startDate.includes('T')) {
+          params.startDate = startDate.split('T')[0];
+        } else {
+          params.startDate = startDate;
+        }
+      }
+
+      if (endDate) {
+        if (endDate instanceof Date) {
+          params.endDate = endDate.toISOString().split('T')[0];
+        } else if (typeof endDate === 'string' && endDate.includes('T')) {
+          params.endDate = endDate.split('T')[0];
+        } else {
+          params.endDate = endDate;
+        }
+      }
     }
 
     // 添加排序参数
@@ -302,6 +349,36 @@ const fetchLeadsList = async () => {
     ElMessage.error('获取商机列表失败: ' + (error.message || '网络异常'))
     leadsList.value = [];
     pagination.total = 0;
+  }
+}
+
+// 获取客户列表数据
+const fetchCustomers = async () => {
+  try {
+    const response = await request.get('/customer/allList')
+    if (response && response.code === 200) {
+      customers.value = response.data || []
+    } else {
+      ElMessage.error('获取客户列表失败: ' + (response?.message || '未知错误'))
+    }
+  } catch (error) {
+    console.error('获取客户列表异常:', error)
+    ElMessage.error('获取客户列表失败: ' + (error.message || '网络异常'))
+  }
+}
+
+// 获取员工列表数据
+const fetchEmployees = async () => {
+  try {
+    const response = await request.get('/employee/allOnList')
+    if (response && response.code === 200) {
+      employees.value = response.data || []
+    } else {
+      ElMessage.error('获取员工列表失败: ' + (response?.message || '未知错误'))
+    }
+  } catch (error) {
+    console.error('获取员工列表异常:', error)
+    ElMessage.error('获取员工列表失败: ' + (error.message || '网络异常'))
   }
 }
 
@@ -344,7 +421,7 @@ const handleCurrentChange = (val: number) => {
 // 操作按钮事件处理函数
 const handleAddLead = () => {
   dialogTitle.value = '新增商机'
-  isEdit.value = false
+  isEdit.value = true  // 修改为true，允许编辑和保存
   Object.assign(currentLead.value, {
     id: null,
     name: '',
@@ -367,7 +444,7 @@ const handleAddLead = () => {
 const handleView = (row: any) => {
   dialogTitle.value = '查看商机'
   Object.assign(currentLead.value, row)
-  isEdit.value = true
+  isEdit.value = false  // 查看模式
   dialogVisible.value = true
 }
 
@@ -409,32 +486,67 @@ const handleDialogClose = () => {
 // 保存商机
 const saveLead = async () => {
   try {
+    // 格式化日期字段
+    const leadToSave = { ...currentLead.value };
+
+    // 处理预计成交日期格式
+    if (leadToSave.expectedCloseDate) {
+      if (leadToSave.expectedCloseDate instanceof Date) {
+        // 如果是Date对象，格式化为YYYY-MM-DD
+        leadToSave.expectedCloseDate = leadToSave.expectedCloseDate.toISOString().split('T')[0];
+      } else if (typeof leadToSave.expectedCloseDate === 'string' && leadToSave.expectedCloseDate.includes('T')) {
+        // 如果是ISO字符串，提取日期部分
+        leadToSave.expectedCloseDate = leadToSave.expectedCloseDate.split('T')[0];
+      }
+    }
+
+    // 处理创建时间和更新时间格式（仅在新增时设置创建时间）
+    const now = new Date();
+    const formattedNow = now.toISOString().split('T')[0] + ' ' + now.toTimeString().split(' ')[0].split('.')[0];
+
+    if (!leadToSave.id) {
+      // 新增时设置创建时间
+      if (!leadToSave.createTime) {
+        leadToSave.createTime = formattedNow;
+      }
+    }
+
+    // 更新时总是设置更新时间
+    leadToSave.updateTime = formattedNow;
+
     // 检查是否从其他阶段更新为"赢单"
-    const isStageChangedToWin = isEdit.value &&
-      currentLead.value.stage === 5 &&
-      leadsList.value.find((item: any) => item.id === currentLead.value.id)?.stage !== 5;
+    const isStageChangedToWin = leadToSave.id && // 确保是更新操作（有ID）
+      leadToSave.stage === 5 &&
+      leadsList.value.find((item: any) => item.id === leadToSave.id)?.stage !== 5;
 
     let response;
-    if (isEdit.value) {
+    if (leadToSave.id) {
       // 更新商机
-      response = await request.patch('/opportunities/update', currentLead.value)
+      response = await request.patch('/opportunities/update', leadToSave)
     } else {
       // 新增商机
-      response = await request.put('/opportunities/add', currentLead.value)
+      response = await request.put('/opportunities/add', leadToSave)
     }
 
-    if (response && response.code === 200) {
-      ElMessage.success(isEdit.value ? '更新成功' : '新增成功')
-      // 如果是从其他阶段更新为"赢单"，提示用户订单已自动创建
-      if (isStageChangedToWin) {
-        ElMessage.success('商机已更新为赢单，系统已自动创建订单');
+    // 确保响应存在并具有code属性
+    if (response && typeof response === 'object' && 'code' in response) {
+      if (response.code === 200) {
+        ElMessage.success(response.message || (leadToSave.id ? '更新成功' : '新增成功'))
+        // 如果是从其他阶段更新为"赢单"，提示用户订单已自动创建
+        if (isStageChangedToWin) {
+          ElMessage.success('商机已更新为赢单，系统已自动创建订单');
+        }
+        dialogVisible.value = false
+        fetchLeadsList()
+      } else {
+        ElMessage.error('保存失败: ' + (response.message || '未知错误'))
       }
-      dialogVisible.value = false
-      fetchLeadsList()
     } else {
-      ElMessage.error('保存失败: ' + (response?.message || '未知错误'))
+      // 处理响应格式不正确的情况
+      ElMessage.error('保存失败: 服务器响应格式不正确')
     }
-  } catch (error) {
+  } catch (error: any) {
+    console.error('保存商机异常:', error)
     ElMessage.error('保存失败: ' + (error.message || '网络异常'))
   }
 }
@@ -442,6 +554,8 @@ const saveLead = async () => {
 // 组件挂载时获取数据
 onMounted(() => {
   fetchLeadsList()
+  fetchCustomers()
+  fetchEmployees()
 })
 
 // 根据商机阶段ID获取阶段名称

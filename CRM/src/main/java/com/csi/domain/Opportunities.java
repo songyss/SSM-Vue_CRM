@@ -72,8 +72,15 @@ public class Opportunities implements Serializable {
      * 更新时间
      */
     private String updateTime;
-
-
-
+    
+    /**
+     * 客户名称
+     */
+    private String customerName;
+    
+    /**
+     * 负责人名称
+     */
+    private String assigneeName;
 }
 

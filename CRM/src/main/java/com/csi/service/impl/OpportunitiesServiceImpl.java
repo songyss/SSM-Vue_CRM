@@ -53,25 +53,35 @@ public class OpportunitiesServiceImpl implements OpportunitiesService {
     @Override
     @Transactional
     public int addOpportunities(Opportunities opportunities) {
-        return opportunitiesMapper.addOpportunities(opportunities);
+        try {
+            return opportunitiesMapper.addOpportunities(opportunities);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("添加商机失败: " + e.getMessage());
+        }
     }
 
     @Override
     @Transactional
     public int updateOpportunities(Opportunities opportunities) {
-        // 获取更新前的商机信息
-        Opportunities oldOpportunity = opportunitiesMapper.getOpportunityById(opportunities.getId());
-        
-        // 更新商机
-        int result = opportunitiesMapper.updateOpportunities(opportunities);
-        
-        // 检查是否从其他阶段更新为"赢单"(阶段5)
-        if (oldOpportunity != null && oldOpportunity.getStage() != 5 && opportunities.getStage() == 5) {
-            // 创建订单
-            createOrderFromOpportunity(opportunities);
+        try {
+            // 获取更新前的商机信息
+            Opportunities oldOpportunity = opportunitiesMapper.getOpportunityById(opportunities.getId());
+            
+            // 更新商机
+            int result = opportunitiesMapper.updateOpportunities(opportunities);
+            
+            // 检查是否从其他阶段更新为"赢单"(阶段5)
+            if (result > 0 && oldOpportunity != null && oldOpportunity.getStage() != 5 && opportunities.getStage() == 5) {
+                // 创建订单
+                createOrderFromOpportunity(opportunities);
+            }
+            
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("更新商机失败: " + e.getMessage());
         }
-        
-        return result;
     }
     
     /**
@@ -88,6 +98,7 @@ public class OpportunitiesServiceImpl implements OpportunitiesService {
             order.setSignedDate(new SimpleDateFormat("yyyy-MM-dd").format(new Date())); // 签约日期
             order.setOrderStatus(1); // 默认订单状态为"待支付"
             order.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())); // 创建时间
+            order.setNotes("由商机赢单自动生成"); // 添加备注
             
             // 调用订单服务创建订单
             ordersMapper.addOrders(order);

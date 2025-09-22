@@ -28,12 +28,38 @@ public class OrdersController {
     }
 
     @PatchMapping("/update")
-    public R updateOrdersStatus(Orders order) {
-        int i = ordersService.updateOrdersStatus(order);
-        if (i > 0) {
-            return R.ok(i) ;
-        } else {
-            return R.error() ;
+    public R updateOrdersStatus(@RequestBody Orders order) {
+        try {
+            // 添加日志以便调试
+            System.out.println("接收到订单更新请求: " + order);
+            
+            // 检查必要字段
+            if (order == null) {
+                return R.message("订单对象不能为空");
+            }
+            
+            if (order.getId() == null) {
+                return R.message("订单ID不能为空");
+            }
+            
+            if (order.getOrderStatus() == null) {
+                return R.message("订单状态不能为空");
+            }
+            
+            int i = ordersService.updateOrdersStatus(order);
+            if (i > 0) {
+                return R.ok(i);
+            } else {
+                return R.message("订单更新失败");
+            }
+        } catch (IllegalArgumentException e) {
+            System.err.println("参数错误: " + e.getMessage());
+            e.printStackTrace();
+            return R.message(e.getMessage());
+        } catch (Exception e) {
+            System.err.println("更新订单时发生错误: " + e.getMessage());
+            e.printStackTrace();
+            return R.message("更新订单时发生错误: " + e.getMessage());
         }
     }
 

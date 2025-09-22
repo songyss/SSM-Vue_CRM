@@ -341,11 +341,22 @@ const addFormRules = {
 const addFormRef = ref()
 
 // 模拟商机数据（实际项目中应从接口获取）
-const opportunities = ref([
-  { id: 1, name: '商机一' },
-  { id: 2, name: '商机二' },
-  { id: 3, name: '商机三' }
-])
+const opportunities = ref([])
+
+// 获取商机列表数据
+const fetchOpportunitiesList = async () => {
+  try {
+    const response = await request.get('/opportunities/allList')
+    if (response && response.data) {
+      opportunities.value = response.data
+    } else {
+      ElMessage.error('获取商机列表失败: 返回数据为空')
+    }
+  } catch (error) {
+    console.error('获取商机列表异常:', error)
+    ElMessage.error('获取商机列表失败: ' + (error.message || '网络异常'))
+  }
+}
 
 // 表格行样式函数，为已退款和已驳回的订单添加特殊样式
 const tableRowClassName = ({ row }: { row: any }) => {
@@ -464,10 +475,18 @@ const confirmEdit = async () => {
   try {
     const orderData = {
       id: editForm.value.id,
-      orderStatus: parseInt(editForm.value.orderStatus),
+      orderStatus: parseInt(editForm.value.orderStatus) || 0, // 确保转换为整数，避免NaN
       fileUrl: editForm.value.fileUrl,
       notes: editForm.value.notes
     }
+
+    // 确保orderStatus是有效的整数
+    if (isNaN(orderData.orderStatus)) {
+      ElMessage.error('订单状态必须是有效的数字');
+      return;
+    }
+
+    console.log('发送订单更新请求:', orderData);
 
     const response = await request.patch('/orders/update', orderData)
     if (response && response.code === 200) {
@@ -571,6 +590,7 @@ const confirmAdd = async () => {
 onMounted(() => {
   fetchOrderList()
   fetchCustomerList()
+  fetchOpportunitiesList() // 获取商机列表数据
 })
 
 // 根据订单状态ID获取状态名称

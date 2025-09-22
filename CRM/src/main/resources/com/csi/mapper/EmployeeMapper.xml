@@ -58,7 +58,7 @@
         e.update_time
         from employees e
         join departments d on e.department = d.department_id
-        join roles r on e.role = r.role_id
+        join roles r on e.role = r.id
         where e.is_delete = 0
     </select>
 
@@ -79,7 +79,7 @@
         e.update_time
         from employees e
         join departments d on e.department = d.department_id
-        join roles r on e.role = r.role_id
+        join roles r on e.role = r.id
         where e.is_delete = 1
     </select>
 

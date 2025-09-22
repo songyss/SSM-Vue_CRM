@@ -48,9 +48,23 @@ public class OrdersServiceImpl implements OrdersService {
      */
     @Override
     public int updateOrdersStatus(Orders order) {
-        int i = ordersMapper.updateOrdersStatus(order.getOrderStatus(),order.getId());
+        // 添加详细的空值检查，避免空指针异常
+        if (order == null) {
+            throw new IllegalArgumentException("订单对象不能为空");
+        }
+        
+        if (order.getId() == null) {
+            throw new IllegalArgumentException("订单ID不能为空");
+        }
+        
+        if (order.getOrderStatus() == null) {
+            throw new IllegalArgumentException("订单状态不能为空");
+        }
+        
+        int i = ordersMapper.updateOrdersStatus(order.getOrderStatus(), order.getId());
+        
         // 如果订单状态为已完成(3)，则创建售后订单
-        if (order.getOrderStatus()==3) {
+        if (order.getOrderStatus() == 3) {
             AfterSaleOrder afterSaleOrder = new AfterSaleOrder();
             afterSaleOrder.setOrderNumber(order.getOrderNumber());
             afterSaleOrder.setCustomerId(order.getCustomerId());

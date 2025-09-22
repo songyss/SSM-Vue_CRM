@@ -3,10 +3,10 @@
 <mapper namespace="com.csi.mapper.AfterSaleOrderMapper">
     <!--获取售后订单信息-->
     <insert id="saveAfterSaleOrder">
-        insert into after_sale_order(order_number, customer_id, opportunity_id, total_amount, signed_date,
-                                     order_status, file_url, notes, create_time)
-        values (#{orderNumber}, #{customerId}, #{opportunityId}, #{totalAmount}, #{signedDate}, #{orderStatus},
-                #{fileUrl}, #{notes}, #{createTime})
+        insert into after_sale_order(order_number, customer_id, total_amount, signed_date,
+                                 after_sale_status, file_url, notes, create_time)
+        values (#{orderNumber}, #{customerId}, #{totalAmount}, #{signedDate},
+                #{afterSaleStatus}, #{fileUrl}, #{notes}, #{createTime})
     </insert>
     <!--    根据售后状态查询-->
 
