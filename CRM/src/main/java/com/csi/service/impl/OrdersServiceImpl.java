@@ -63,13 +63,14 @@ public class OrdersServiceImpl implements OrdersService {
         
         int i = ordersMapper.updateOrdersStatus(order.getOrderStatus(), order.getId());
         
-        // 如果订单状态为已完成(3)，则创建售后订单
-        if (order.getOrderStatus() == 3) {
+        // 仅当订单状态为申请售后(5)时，创建售后订单
+        if (order.getOrderStatus() == 5) {
             AfterSaleOrder afterSaleOrder = new AfterSaleOrder();
             afterSaleOrder.setOrderNumber(order.getOrderNumber());
             afterSaleOrder.setCustomerId(order.getCustomerId());
             afterSaleOrder.setTotalAmount(order.getTotalAmount());
             afterSaleOrder.setSignedDate(order.getSignedDate());
+            // 使用正确的字段名afterSaleStatus而不是orderStatus
             afterSaleOrder.setAfterSaleStatus(order.getOrderStatus());
             afterSaleOrder.setFileUrl(order.getFileUrl());
             afterSaleOrder.setNotes(order.getNotes());

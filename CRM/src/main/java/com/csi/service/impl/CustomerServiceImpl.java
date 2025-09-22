@@ -2,11 +2,11 @@ package com.csi.service.impl;
 
 import com.csi.domain.Customer;
 import com.csi.domain.CustomerFollows;
-import com.csi.domain.CustomerFollows;
-import com.csi.domain.Opportunities;
 import com.csi.mapper.CustomerMapper;
 import com.csi.mapper.EmployeeMapper;
 import com.csi.service.CustomerService;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -100,8 +100,25 @@ public class CustomerServiceImpl implements CustomerService {
     @Transactional(readOnly = true)
     public List<Customer> getPersonalCustomer(int id) {
         List<Customer> customers = customerMapper.getPersonalCustomer(id);
-
         return customers;
+    }
+    
+    /**
+     * 分页查询个人客户
+     * @param employeeId 员工ID
+     * @param page 页码
+     * @param size 每页大小
+     * @return 分页结果
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public PageInfo<Customer> getPersonalCustomerByPage(Integer employeeId, int page, int size) {
+        // 开启分页
+        PageHelper.startPage(page, size);
+        // 查询数据，使用assigneeId作为筛选条件
+        List<Customer> customers = customerMapper.getPersonalCustomer(employeeId);
+        // 封装分页结果
+        return new PageInfo<>(customers);
     }
 
     /*@Override

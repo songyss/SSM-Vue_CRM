@@ -58,15 +58,21 @@
         <!-- 表格列定义 -->
         <el-table-column type="selection" width="55" />
 
-        <el-table-column prop="orderNumber" label="订单编号" width="180" sortable />
-        <el-table-column prop="customerName" label="客户名称" width="160" />
-        <el-table-column prop="signedDate" label="下单日期" width="160" sortable />
-        <el-table-column prop="totalAmount" label="订单金额" width="140" sortable>
+        <el-table-column prop="orderNumber" label="订单编号" width="150">
           <template #default="scope">
-            <span class="amount">¥{{ scope.row.totalAmount }}</span>
+            <div class="order-no-cell">
+              {{ scope.row.orderNumber }}
+            </div>
           </template>
         </el-table-column>
-        <el-table-column prop="orderStatusName" label="订单状态" width="140">
+        <el-table-column prop="customerName" label="客户名称" width="120" />
+        <el-table-column prop="signedDate" label="下单日期" width="120" sortable />
+        <el-table-column prop="totalAmount" label="订单金额" width="120" sortable>
+          <template #default="scope">
+            <span class="amount-text">¥{{ scope.row.totalAmount }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="orderStatusName" label="订单状态" width="120">
           <template #default="scope">
             <el-tag
               :type="statusTagType[scope.row.orderStatus]"
@@ -76,11 +82,18 @@
             </el-tag>
           </template>
         </el-table-column>
-
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column prop="notes" label="订单备注" min-width="150">
           <template #default="scope">
-            <el-button size="small" type="text" @click="handleView(scope.row)">查看</el-button>
-            <el-button size="small" type="text" @click="handleEdit(scope.row)">编辑</el-button>
+            <div class="remark-cell">
+              {{ scope.row.notes || '-' }}
+            </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="操作" width="120" fixed="right">
+          <template #default="scope">
+            <el-button size="small" type="primary" link @click="handleView(scope.row)">查看</el-button>
+            <el-button size="small" type="primary" link @click="handleEdit(scope.row)">编辑</el-button>
             <!-- 删除取消订单按钮 -->
           </template>
         </el-table-column>
@@ -483,6 +496,10 @@ const confirmEdit = async () => {
     const response = await request.patch('/orders/update', orderData)
     if (response && response.data.code === 200) {
       ElMessage.success('订单更新成功')
+      // 如果订单状态更新为"申请售后"(5)，提示用户已自动生成售后单
+      if (orderData.orderStatus === 5) {
+        ElMessage.success('订单状态已更新为申请售后，系统已自动生成售后单');
+      }
       editDialogVisible.value = false
       fetchOrderList()
     } else {
@@ -588,61 +605,20 @@ const getStatusName = (statusId: number): string => {
   margin-bottom: 20px;
 }
 
-.header h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.filter-card {
-  margin-bottom: 20px;
-}
-
-.demo-form-inline {
-  margin: 20px auto;
-  width: 80%;
-  max-width: 1200px;
-  padding: 20px;
-  background-color: #f5f7fa;
-  border-radius: 8px;
-}
-
-.el-form-item {
-  margin-right: 20px;
-  margin-bottom: 10px;
-}
-
-.el-form-item:last-child {
-  margin-right: 0;
-}
-
-.el-form-item .el-input,
-.el-form-item .el-select,
-.el-form-item .el-date-editor {
-  width: 200px;
-}
-
-.el-form-item .el-button {
-  margin-left: 10px;
-}
-
-/* 页面主容器样式 */
-.orders-container {
-  padding: 20px;
-}
-
-/* 页面头部样式 */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
 /* 筛选卡片样式 */
 .filter-card {
   margin-bottom: 20px;
   padding: 15px;
+}
+
+/* 筛选表单样式 */
+:deep(.demo-form-inline .el-form-item) {
+  margin-right: 20px;
+  margin-bottom: 10px;
+}
+
+:deep(.demo-form-inline .el-form-item:last-child) {
+  margin-right: 0;
 }
 
 /* 筛选操作按钮容器样式 */
@@ -669,6 +645,28 @@ const getStatusName = (statusId: number): string => {
   font-weight: 500;
 }
 
+/* 订单编号单元格样式 */
+.order-no-cell {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* 订单金额样式 */
+.amount-text {
+  color: #30b6a8;
+  font-weight: bold;
+}
+
+/* 订单备注单元格样式 */
+.remark-cell {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
 /* 取消订单行样式 */
 :deep(.row-cancelled) {
   opacity: 0.7;
@@ -676,5 +674,31 @@ const getStatusName = (statusId: number): string => {
 
 :deep(.row-cancelled td) {
   text-decoration: line-through;
+}
+
+/* 操作按钮样式 */
+:deep(.el-table .el-button--small) {
+  padding: 0;
+  margin-right: 10px;
+}
+
+:deep(.el-table .el-button--small:last-child) {
+  margin-right: 0;
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+  :deep(.demo-form-inline .el-form-item) {
+    width: 100%;
+    margin-right: 0;
+  }
+
+  :deep(.demo-form-inline .el-form-item__content) {
+    width: 100%;
+  }
+
+  :deep(.demo-form-inline .el-input, .demo-form-inline .el-select) {
+    width: 100%;
+  }
 }
 </style>

@@ -16,6 +16,57 @@
         style="margin-bottom: 20px;"
       />
 
+      <!-- 客户跟进信息表 -->
+      <el-card class="customer-followup-card" style="margin-bottom: 20px;">
+        <template #header>
+          <div class="card-header">
+            <span>我的客户跟进</span>
+            <el-button class="button" type="text" @click="fetchMyCustomers">刷新</el-button>
+          </div>
+        </template>
+        <el-table
+          :data="myCustomers"
+          style="width: 100%"
+          max-height="300"
+          :loading="customerLoading"
+        >
+          <el-table-column prop="name" label="客户名称" width="150" />
+          <el-table-column prop="position" label="职位" width="120" />
+          <el-table-column prop="phone" label="联系电话" width="120" />
+          <el-table-column prop="company" label="公司" width="150" />
+          <el-table-column prop="status" label="状态" width="120">
+            <template #default="scope">
+              <el-tag :type="getStatusTagType(scope.row.status)">
+                {{ getStatusName(scope.row.status) }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="lastFollowUPTime" label="最后联系时间" width="120">
+            <template #default="scope">
+              {{ formatDateTime(scope.row.lastFollowUPTime) }}
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="180" fixed="right">
+            <template #default="scope">
+              <el-button size="small" type="primary" link @click="handleCustomerView(scope.row)">查看</el-button>
+              <el-button size="small" type="primary" link @click="handleViewFollowUps(scope.row)">跟进记录</el-button>
+              <el-button size="small" type="primary" link @click="handleCustomerEdit(scope.row)">跟进</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <div class="pagination-container" style="margin-top: 15px; display: flex; justify-content: flex-end;">
+          <el-pagination
+            v-model:current-page="customerPagination.currentPage"
+            v-model:page-size="customerPagination.pageSize"
+            :page-sizes="[5, 10, 20]"
+            :total="customerPagination.total"
+            layout="total, sizes, prev, pager, next, jumper"
+            @size-change="handleCustomerSizeChange"
+            @current-change="handleCustomerCurrentChange"
+          />
+        </div>
+      </el-card>
+
       <!-- 搜索筛选区域 -->
       <el-card class="filter-card">
         <el-form :inline="true" :model="searchForm" class="demo-form-inline">
@@ -64,14 +115,14 @@
         <!-- 表格列定义 -->
         <el-table-column type="selection" width="55" />
 
-        <el-table-column prop="name" label="商机名称" width="180" sortable="custom" />
-        <el-table-column prop="customerName" label="客户名称" width="160" sortable="custom" />
-        <el-table-column prop="amount" label="预估金额" width="140" sortable="custom">
+        <el-table-column prop="name" label="商机名称" width="150" sortable="custom" />
+        <el-table-column prop="customerName" label="客户名称" width="120" sortable="custom" />
+        <el-table-column prop="amount" label="预估金额" width="120" sortable="custom">
           <template #default="scope">
             <span class="amount">¥{{ scope.row.amount }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="stage" label="商机阶段" width="140" sortable="custom">
+        <el-table-column prop="stage" label="商机阶段" width="120" sortable="custom">
           <template #default="scope">
             <el-tag
               :type="stageTagType[scope.row.stage]"
@@ -90,14 +141,14 @@
             />
           </template>
         </el-table-column>
-        <el-table-column prop="expectedCloseDate" label="预计成交日期" width="160" sortable="custom" />
-        <el-table-column prop="assigneeName" label="负责人" width="120" sortable="custom" />
+        <el-table-column prop="expectedCloseDate" label="预计成交日期" width="130" sortable="custom" />
+        <el-table-column prop="assigneeName" label="负责人" width="100" sortable="custom" />
 
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="150" fixed="right">
           <template #default="scope">
-            <el-button size="small" type="text" @click="handleView(scope.row)">查看</el-button>
-            <el-button size="small" type="text" @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button size="small" type="text" @click="handleDelete(scope.row)">删除</el-button>
+            <el-button size="small" type="primary" link @click="handleView(scope.row)">查看</el-button>
+            <el-button size="small" type="primary" link @click="handleEdit(scope.row)">编辑</el-button>
+            <el-button size="small" type="danger" link @click="handleDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -200,6 +251,219 @@
         </span>
       </template>
     </el-dialog>
+
+    <!-- 客户详情对话框 -->
+    <el-dialog
+      title="客户详情"
+      v-model="customerDialogVisible"
+      width="600px"
+    >
+      <el-form :model="currentCustomer" label-width="100px">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="客户名称：">
+              <span>{{ currentCustomer.name }}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="性别：">
+              <span>{{ currentCustomer.sex === 1 ? '男' : '女' }}</span>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="联系电话：">
+              <span>{{ currentCustomer.phone }}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="出生日期：">
+              <span>{{ currentCustomer.borndate }}</span>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="公司：">
+              <span>{{ currentCustomer.company }}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="职位：">
+              <span>{{ currentCustomer.position }}</span>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-form-item label="来源：">
+          <span>{{ currentCustomer.source }}</span>
+        </el-form-item>
+
+        <el-form-item label="备注：">
+          <span>{{ currentCustomer.notes }}</span>
+        </el-form-item>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="状态：">
+              <span>{{ getStatusName(currentCustomer.status) }}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="最后联系时间：">
+              <span>{{ formatDateTime(currentCustomer.lastFollowUPTime) }}</span>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="customerDialogVisible = false">关闭</el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+      <!-- 客户跟进对话框 -->
+      <el-dialog
+        title="客户跟进"
+        v-model="followUpDialogVisible"
+        width="800px"
+        @close="handleFollowUpClose"
+      >
+        <el-form
+          :model="followUpForm"
+          :rules="followUpRules"
+          ref="followUpFormRef"
+          label-width="120px"
+          label-position="left"
+          class="follow-up-form"
+        >
+          <el-row :gutter="20">
+            <!-- 第一行：客户名称和当前状态 -->
+            <el-col :span="12">
+              <el-form-item label="客户名称：">
+                <el-input v-model="followUpForm.customerName" disabled />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="客户当前状态：">
+                <el-tag :type="getStatusTagType(followUpForm.customerStatus)">
+                  {{ getStatusName(followUpForm.customerStatus) }}
+                </el-tag>
+              </el-form-item>
+            </el-col>
+
+            <!-- 第二行：更新客户状态 -->
+            <el-col :span="24">
+              <el-form-item label="更新客户状态：">
+                <el-select v-model="followUpForm.newCustomerStatus" placeholder="请选择客户状态" style="width: 100%">
+                  <el-option label="无效" :value="0" />
+                  <el-option label="新客户" :value="1" />
+                  <el-option label="有意向" :value="2" />
+                  <el-option label="已成交" :value="3" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+
+            <!-- 第三行：跟进方式 -->
+            <el-col :span="24">
+              <el-form-item label="跟进方式：" prop="type">
+                <el-select v-model="followUpForm.type" placeholder="请选择跟进方式" style="width: 100%">
+                  <el-option label="电话" :value="1" />
+                  <el-option label="面谈" :value="2" />
+                  <el-option label="邮件" :value="3" />
+                  <el-option label="微信" :value="4" />
+                  <el-option label="其他" :value="5" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+
+            <!-- 第四行：跟进内容 -->
+            <el-col :span="24">
+              <el-form-item label="跟进内容：" prop="content">
+                <el-input
+                  v-model="followUpForm.content"
+                  type="textarea"
+                  :rows="6"
+                  placeholder="请输入跟进内容"
+                  style="width: 100%"
+                />
+              </el-form-item>
+            </el-col>
+
+            <!-- 第五行：下次计划 -->
+            <el-col :span="24">
+              <el-form-item label="下次计划：">
+                <el-input
+                  v-model="followUpForm.nextPlan"
+                  type="textarea"
+                  :rows="3"
+                  placeholder="请输入下次计划"
+                  style="width: 100%"
+                />
+              </el-form-item>
+            </el-col>
+
+            <!-- 第六行：下次联系时间 -->
+            <el-col :span="24">
+              <el-form-item label="下次联系时间：" prop="nextContactTime">
+                <el-date-picker
+                  v-model="followUpForm.nextContactTime"
+                  type="datetime"
+                  value-format="YYYY-MM-DD HH:mm:ss"
+                  format="YYYY-MM-DD HH:mm:ss"
+                  placeholder="请选择下次联系时间"
+                  style="width: 100%"
+                />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="followUpDialogVisible = false">取消</el-button>
+            <el-button type="primary" @click="submitFollowUp">提交</el-button>
+          </span>
+        </template>
+      </el-dialog>
+
+      <!-- 跟进记录对话框 -->
+      <el-dialog
+        title="客户跟进记录"
+        v-model="followUpRecordsDialogVisible"
+        width="800px"
+      >
+        <el-table :data="followUpRecords" style="width: 100%" max-height="400">
+          <el-table-column prop="type" label="跟进方式" width="100">
+            <template #default="scope">
+              {{ getFollowUpTypeName(scope.row.type) }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="content" label="跟进内容" min-width="200" show-overflow-tooltip />
+          <el-table-column prop="nextPlan" label="下次计划" min-width="150" show-overflow-tooltip />
+          <el-table-column prop="nextContactTime" label="下次联系时间" width="150">
+            <template #default="scope">
+              {{ formatDateTime(scope.row.nextContactTime) }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="createTime" label="创建时间" width="150">
+            <template #default="scope">
+              {{ formatDateTime(scope.row.createTime) }}
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="followUpRecordsDialogVisible = false">关闭</el-button>
+          </span>
+        </template>
+      </el-dialog>
   </div>
 </template>
 
@@ -382,7 +646,251 @@ const fetchEmployees = async () => {
   }
 }
 
+// 客户跟进相关数据
+const myCustomers = ref([])
+const customerLoading = ref(false)
+const customerPagination = reactive({
+  currentPage: 1,
+  pageSize: 5,
+  total: 0
+})
 
+// 获取我的客户列表
+const fetchMyCustomers = async () => {
+  try {
+    customerLoading.value = true
+    console.log('开始获取客户列表...')
+
+    // 这里需要根据实际的用户信息获取当前员工ID
+    // 暂时使用模拟数据，实际项目中应从用户信息中获取
+    const userInfoStr = localStorage.getItem('crm_userInfo')
+    let employeeId = 1 // 默认值
+
+    if (userInfoStr) {
+      const userInfo = JSON.parse(userInfoStr)
+      employeeId = userInfo.id || 1
+    }
+
+    const params = {
+      page: customerPagination.currentPage,
+      size: customerPagination.pageSize,
+      employeeId: employeeId // 根据当前员工ID获取分配的客户
+    }
+
+    console.log('请求参数:', params)
+
+    // 调用后端接口获取分配给当前员工的客户列表
+    const response = await request.get('/customer/myCustomers', { params })
+
+    console.log('响应数据:', response)
+
+    if (response && response.data.code === 200) {
+      myCustomers.value = response.data.data.list || []
+      customerPagination.total = response.data.data.total || 0
+      console.log('成功获取客户列表:', myCustomers.value)
+    } else {
+      ElMessage.error('获取客户列表失败: ' + (response?.data.message || '未知错误'))
+      myCustomers.value = []
+      customerPagination.total = 0
+    }
+  } catch (error) {
+    console.error('获取客户列表异常:', error)
+    ElMessage.error('获取客户列表失败: ' + (error.message || '网络异常'))
+    myCustomers.value = []
+    customerPagination.total = 0
+  } finally {
+    customerLoading.value = false
+  }
+}
+
+// 客户分页相关方法
+const handleCustomerSizeChange = (val: number) => {
+  customerPagination.pageSize = val
+  customerPagination.currentPage = 1
+  fetchMyCustomers()
+}
+
+const handleCustomerCurrentChange = (val: number) => {
+  customerPagination.currentPage = val
+  fetchMyCustomers()
+}
+
+// 客户详情对话框相关数据
+const customerDialogVisible = ref(false)
+const currentCustomer = ref({} as any)
+
+// 客户操作方法
+const handleCustomerView = (row: any) => {
+  currentCustomer.value = { ...row }
+  customerDialogVisible.value = true
+}
+
+// 客户跟进对话框相关数据
+const followUpDialogVisible = ref(false)
+const followUpForm = ref({
+  customerId: 0,
+  customerName: '',
+  customerStatus: 1, // 客户当前状态
+  newCustomerStatus: null, // 新的客户状态
+  executorId: 0, // 跟进人ID
+  type: '', // 跟进方式（1-电话，2-面谈，3-邮件，4-微信，5-其他）
+  content: '', // 跟进内容
+  nextPlan: '', // 下次计划
+  nextContactTime: '' // 下次联系时间
+})
+
+// 跟进记录相关数据
+const followUpRecordsDialogVisible = ref(false)
+const followUpRecords = ref([])
+
+const followUpFormRef = ref()
+
+// 跟进表单验证规则
+const followUpRules = {
+  type: [{ required: true, message: '请选择跟进方式', trigger: 'change' }],
+  content: [{ required: true, message: '请输入跟进内容', trigger: 'blur' }],
+  nextContactTime: [{ required: true, message: '请选择下次联系时间', trigger: 'change' }]
+}
+
+// 客户操作方法
+
+const handleCustomerEdit = (row: any) => {
+  // 获取当前用户ID（实际项目中应从用户信息中获取）
+  const userInfoStr = localStorage.getItem('crm_userInfo')
+  let userId = 1 // 默认值
+
+  if (userInfoStr) {
+    try {
+      const userInfo = JSON.parse(userInfoStr)
+      userId = userInfo.id || 1
+    } catch (e) {
+      console.error('解析用户信息失败:', e)
+      userId = 1 // 使用默认值
+    }
+  }
+
+  followUpForm.value = {
+    customerId: row.id,
+    customerName: row.name,
+    customerStatus: row.status || 1, // 客户当前状态
+    newCustomerStatus: null, // 新的客户状态
+    executorId: userId, // 设置当前用户为跟进人
+    type: '',
+    content: '',
+    nextPlan: '',
+    nextContactTime: ''
+  }
+  followUpDialogVisible.value = true
+}
+
+// 跟进对话框关闭处理
+const handleFollowUpClose = () => {
+  // 重置表单
+  followUpForm.value = {
+    customerId: 0,
+    executorId: 0,
+    type: '',
+    content: '',
+    nextPlan: '',
+    nextContactTime: ''
+  }
+
+  // 清除表单验证
+  if (followUpFormRef.value) {
+    followUpFormRef.value.resetFields()
+  }
+}
+
+// 提交跟进记录
+const submitFollowUp = async () => {
+  if (!followUpFormRef.value) return
+
+  await followUpFormRef.value.validate(async (valid: boolean) => {
+    if (valid) {
+      try {
+        // 确保必填字段都有值
+        if (!followUpForm.value.executorId) {
+          ElMessage.error('无法获取当前用户信息，请重新登录')
+          return
+        }
+
+        // 创建要提交的数据对象，只包含必要的字段
+        const formData = {
+          customerId: followUpForm.value.customerId,
+          executorId: followUpForm.value.executorId,
+          type: followUpForm.value.type,
+          content: followUpForm.value.content,
+          nextPlan: followUpForm.value.nextPlan,
+          nextContactTime: followUpForm.value.nextContactTime
+        }
+
+        // 调用后端接口保存跟进记录
+        const followUpResponse = await request.put('/customerFollows/add', formData)
+
+        if (followUpResponse && followUpResponse.data.code !== 200) {
+          ElMessage.error('跟进记录提交失败: ' + (followUpResponse?.data.message || '未知错误'))
+          return
+        }
+
+        // 如果选择了新的客户状态，则更新客户状态
+        if (followUpForm.value.newCustomerStatus !== null &&
+            followUpForm.value.newCustomerStatus !== undefined &&
+            followUpForm.value.newCustomerStatus !== followUpForm.value.customerStatus) {
+
+          const statusUpdateResponse = await request.patch('/customer/status', {
+            id: followUpForm.value.customerId,
+            status: followUpForm.value.newCustomerStatus
+          })
+
+          if (statusUpdateResponse && statusUpdateResponse.data.code === 200) {
+            ElMessage.success('跟进记录提交成功，客户状态更新成功')
+          } else {
+            ElMessage.success('跟进记录提交成功，但客户状态更新失败: ' + (statusUpdateResponse?.data.message || '未知错误'))
+          }
+        } else {
+          ElMessage.success('跟进记录提交成功')
+        }
+
+        followUpDialogVisible.value = false
+        // 刷新客户列表
+        fetchMyCustomers()
+      } catch (error) {
+        console.error('提交跟进记录异常:', error)
+        ElMessage.error('跟进记录提交失败: ' + (error.message || '网络异常'))
+      }
+    }
+  })
+}
+
+// 查看客户跟进记录
+const handleViewFollowUps = async (row: any) => {
+  try {
+    // 获取客户的跟进记录
+    const response = await request.get(`/customerFollows/customer/${row.id}`)
+
+    if (response && response.data.code === 200) {
+      followUpRecords.value = response.data.data || []
+      followUpRecordsDialogVisible.value = true
+    } else {
+      ElMessage.error('获取跟进记录失败: ' + (response?.data.message || '未知错误'))
+    }
+  } catch (error) {
+    console.error('获取跟进记录异常:', error)
+    ElMessage.error('获取跟进记录失败: ' + (error.message || '网络异常'))
+  }
+}
+
+// 根据跟进方式ID获取名称
+const getFollowUpTypeName = (typeId: number): string => {
+  const typeMap: Record<number, string> = {
+    1: '电话',
+    2: '面谈',
+    3: '邮件',
+    4: '微信',
+    5: '其他'
+  }
+  return typeMap[typeId] || '未知'
+}
 
 // 处理排序变化
 const handleSortChange = (sortInfo: { prop: string; order: string }) => {
@@ -558,6 +1066,7 @@ onMounted(() => {
   fetchLeadsList()
   fetchCustomers()
   fetchEmployees()
+  fetchMyCustomers() // 获取我的客户列表
 })
 
 // 根据商机阶段ID获取阶段名称
@@ -573,12 +1082,65 @@ const getStageName = (stageId: number): string => {
   return stageMap[stageId] || '未知阶段'
 }
 
+// 根据状态获取状态标签类型
+const getStatusTagType = (status: number): string => {
+  switch (status) {
+    case 0: // 无效
+      return 'danger'
+    case 1: // 新客户
+      return 'info'
+    case 2: // 有意向
+      return 'warning'
+    case 3: // 已成交
+      return 'success'
+    default:
+      return 'info'
+  }
+}
+
+// 根据状态获取状态名称
+const getStatusName = (status: number): string => {
+  switch (status) {
+    case 0:
+      return '无效'
+    case 1:
+      return '新客户'
+    case 2:
+      return '有意向'
+    case 3:
+      return '已成交'
+    default:
+      return '未知'
+  }
+}
+
 // 根据赢率获取进度条状态
 const getProgressStatus = (probability: number): string => {
   if (probability < 0.3) return 'exception'
   if (probability < 0.7) return 'warning'
   return 'success'
 }
+
+// 格式化日期时间
+const formatDateTime = (dateTime: string) => {
+  if (!dateTime) return '-'
+  // 如果是日期字符串，直接返回
+  if (typeof dateTime === 'string') {
+    return dateTime.split('.')[0] // 移除毫秒部分
+  }
+  // 如果是Date对象，格式化为YYYY-MM-DD HH:mm:ss
+  if (dateTime instanceof Date) {
+    const year = dateTime.getFullYear()
+    const month = String(dateTime.getMonth() + 1).padStart(2, '0')
+    const day = String(dateTime.getDate()).padStart(2, '0')
+    const hours = String(dateTime.getHours()).padStart(2, '0')
+    const minutes = String(dateTime.getMinutes()).padStart(2, '0')
+    const seconds = String(dateTime.getSeconds()).padStart(2, '0')
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+  }
+  return '-'
+}
+
 </script>
 
 <style scoped>
@@ -601,61 +1163,32 @@ const getProgressStatus = (probability: number): string => {
   margin-bottom: 20px;
 }
 
-.header h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.filter-card {
-  margin-bottom: 20px;
-}
-
-.demo-form-inline {
-  margin: 20px auto;
-  width: 80%;
-  max-width: 1200px;
-  padding: 20px;
-  background-color: #f5f7fa;
+/* 客户跟进卡片样式 */
+.customer-followup-card {
+  border: 1px solid #ebeef5;
   border-radius: 8px;
 }
 
-.el-form-item {
-  margin-right: 20px;
-  margin-bottom: 10px;
-}
-
-.el-form-item:last-child {
-  margin-right: 0;
-}
-
-.el-form-item .el-input,
-.el-form-item .el-select,
-.el-form-item .el-date-editor {
-  width: 200px;
-}
-
-.el-form-item .el-button {
-  margin-left: 10px;
-}
-
-/* 页面主容器样式 */
-.leads-container {
-  padding: 20px;
-}
-
-/* 页面头部样式 */
-.page-header {
+.card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
 }
 
 /* 筛选卡片样式 */
 .filter-card {
   margin-bottom: 20px;
   padding: 15px;
+}
+
+/* 筛选表单样式 */
+:deep(.demo-form-inline .el-form-item) {
+  margin-right: 20px;
+  margin-bottom: 10px;
+}
+
+:deep(.demo-form-inline .el-form-item:last-child) {
+  margin-right: 0;
 }
 
 /* 筛选操作按钮容器样式 */
@@ -680,5 +1213,181 @@ const getProgressStatus = (probability: number): string => {
 .amount {
   color: #27ae60;
   font-weight: 500;
+}
+
+/* 操作按钮样式 */
+:deep(.el-table .el-button--small) {
+  padding: 0;
+  margin-right: 10px;
+}
+
+:deep(.el-table .el-button--small:last-child) {
+  margin-right: 0;
+}
+
+/* 订单编号单元格样式 */
+.order-no-cell {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* 订单金额样式 */
+.amount-text {
+  color: #30b6a8;
+  font-weight: bold;
+}
+
+/* 订单备注单元格样式 */
+.remark-cell {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* 订单状态标签样式 */
+.order-status-tag {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* 不同状态的颜色 */
+.order-status-pending-pay {
+  background-color: #f5f5f5;
+  color: #999;
+  border: 1px solid #ddd;
+}
+
+.order-status-after-sales {
+  background-color: #e6f7ff;
+  color: #1890ff;
+  border: 1px solid #91d5ff;
+}
+
+.order-status-refunded {
+  background-color: #fff1f0;
+  color: #f5222d;
+  border: 1px solid #ffe5e5;
+}
+
+.order-status-executing {
+  background-color: #f5f5f5;
+  color: #999;
+  border: 1px solid #ddd;
+}
+
+.order-status-completed {
+  background-color: #f0f9fb;
+  color: #52c414;
+  border: 1px solid #b3e5fc;
+}
+
+/* 跟进表单样式 */
+.follow-up-form {
+  padding: 20px;
+}
+
+/* 表单标签样式 */
+.follow-up-form .el-form-item__label {
+  font-weight: 500;
+  color: #303133;
+}
+
+/* 表单输入框样式 */
+.follow-up-form .el-form-item__content {
+  margin-left: 0;
+}
+
+/* 输入框容器样式 */
+.follow-up-form .el-input,
+.follow-up-form .el-select {
+  border-radius: 4px;
+}
+
+/* 文本区域样式 */
+.follow-up-form .el-textarea {
+  border-radius: 4px;
+}
+
+/* 日期选择器样式 */
+.follow-up-form .el-date-editor {
+  border-radius: 4px;
+}
+
+/* 标签样式 */
+.follow-up-form .el-tag {
+  margin-top: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* 按钮容器样式 */
+.dialog-footer {
+  text-align: right;
+  padding: 20px 0;
+}
+
+/* 按钮样式 */
+.dialog-footer .el-button {
+  padding: 8px 16px;
+  border-radius: 4px;
+}
+
+/* 优化表单整体布局 */
+.follow-up-form .el-form-item {
+  margin-bottom: 15px;
+}
+
+/* 优化表单标签宽度 */
+.follow-up-form .el-form-item__label {
+  width: 120px !important;
+  text-align: right;
+  padding-right: 10px;
+}
+
+/* 优化输入框宽度 */
+.follow-up-form .el-form-item__content {
+  flex: 1;
+}
+
+/* 优化文本区域样式 */
+.follow-up-form .el-textarea__inner {
+  border-radius: 4px;
+  resize: none;
+}
+
+/* 优化对话框样式 */
+.el-dialog__body {
+  padding: 20px;
+}
+
+/* 优化对话框标题 */
+.el-dialog__header {
+  padding: 20px 20px 10px;
+}
+
+/* 优化对话框底部按钮间距 */
+.dialog-footer {
+  padding: 20px 20px 20px;
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+  :deep(.demo-form-inline .el-form-item) {
+    width: 100%;
+    margin-right: 0;
+  }
+
+  :deep(.demo-form-inline .el-form-item__content) {
+    width: 100%;
+  }
+
+  :deep(.demo-form-inline .el-input, .demo-form-inline .el-select) {
+    width: 100%;
+  }
 }
 </style>

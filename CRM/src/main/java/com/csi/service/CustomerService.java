@@ -3,6 +3,7 @@ package com.csi.service;
 import com.csi.domain.Customer;
 import com.csi.domain.CustomerFollows;
 import com.csi.domain.Opportunities;
+import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -28,6 +29,9 @@ public interface CustomerService {
     Customer findById(int id);
 
     List<Customer> getPersonalCustomer(int id);//销售获取接受分配
+
+    // 添加分页查询个人客户的方法
+    PageInfo<Customer> getPersonalCustomerByPage(Integer employeeId, int page, int size);
 
     int add5Customer(Customer customer);//销售新增客户
 

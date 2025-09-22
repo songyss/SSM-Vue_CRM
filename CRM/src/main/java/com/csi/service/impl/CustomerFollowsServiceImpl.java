@@ -40,4 +40,9 @@ public class CustomerFollowsServiceImpl implements CustomerFollowsService {
         int i = customerFollowsMapper.updateCustomerFollows(customerFollows);
         return i;
     }
+
+    @Override
+    public List<CustomerFollows> getCustomerFollowsByCustomerId(Integer customerId) {
+        return customerFollowsMapper.getCustomerFollowsByCustomerId(customerId);
+    }
 }

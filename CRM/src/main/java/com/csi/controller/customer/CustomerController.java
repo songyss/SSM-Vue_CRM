@@ -3,6 +3,7 @@ package com.csi.controller.customer;
 import com.csi.domain.Customer;
 import com.csi.service.CustomerService;
 import com.csi.util.R;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -96,6 +97,22 @@ public class CustomerController {
     public R getPersonalCustomer(@RequestParam("id") int id) {
         List<Customer> customers = customerService.getPersonalCustomer(id);
         return customers != null ? R.ok(customers) : R.error();
+    }
+
+    /**
+     * 分页查询当前销售负责的客户
+     */
+    @GetMapping("/myCustomers")
+    public R getMyCustomers(@RequestParam(value = "page", defaultValue = "1") int page,
+                           @RequestParam(value = "size", defaultValue = "10") int size,
+                           @RequestParam(value = "employeeId", required = false) Integer employeeId) {
+        try {
+            PageInfo<Customer> pageInfo = customerService.getPersonalCustomerByPage(employeeId, page, size);
+            return R.ok(pageInfo);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return R.error();
+        }
     }
 
     /**

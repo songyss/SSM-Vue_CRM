@@ -38,6 +38,17 @@ public class CustomerFollowsController {
         }
     }
 
+    // 根据客户ID获取跟进记录
+    @GetMapping("/customer/{customerId}")
+    public R getCustomerFollowsByCustomerId(@PathVariable("customerId") Integer customerId) {
+        List<CustomerFollows> customerFollows = customerFollowsService.getCustomerFollowsByCustomerId(customerId);
+        if (customerFollows != null) {
+            return R.ok(customerFollows);
+        } else {
+            return R.error();
+        }
+    }
+
     @PutMapping("/add")
     public R addCustomerFollows(@RequestBody CustomerFollows customerFollows) {
         int i = customerFollowsService.addCustomerFollows(customerFollows);

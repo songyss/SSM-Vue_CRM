@@ -124,7 +124,7 @@
 
     <!-- 查询某个销售负责的客户 -->
     <select id="getPersonalCustomer" resultType="com.csi.domain.Customer">
-        SELECT * FROM customers WHERE assignee_id = #{id}
+        SELECT * FROM customers WHERE assignee_id = #{assigneeId}
     </select>
 
     <!-- 查询当日跟进的客户 -->

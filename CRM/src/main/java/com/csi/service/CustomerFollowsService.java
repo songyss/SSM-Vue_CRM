@@ -11,8 +11,9 @@ public interface CustomerFollowsService {
 
     List<CustomerFollows> getPersonalCustomerByTime(@Param("startTime") String startTime, @Param("endTime") String endTime);//根据跟进时间筛选客户
 
-    int addCustomerFollows(@Param("customerFollows") CustomerFollows customerFollows);//新建商机
+    int addCustomerFollows(CustomerFollows customerFollows);//新建商机
 
-    int updateCustomerFollows(@Param("customerFollows") CustomerFollows customerFollows);//更改商机
+    int updateCustomerFollows(CustomerFollows customerFollows);//更改商机
 
+    List<CustomerFollows> getCustomerFollowsByCustomerId(Integer customerId); // 根据客户ID获取跟进记录
 }
