@@ -382,35 +382,7 @@ const fetchEmployees = async () => {
   }
 }
 
-// 获取客户列表数据
-const fetchCustomers = async () => {
-  try {
-    const response = await request.get('/customer/allList')
-    if (response && response.code === 200) {
-      customers.value = response.data || []
-    } else {
-      ElMessage.error('获取客户列表失败: ' + (response?.message || '未知错误'))
-    }
-  } catch (error) {
-    console.error('获取客户列表异常:', error)
-    ElMessage.error('获取客户列表失败: ' + (error.message || '网络异常'))
-  }
-}
 
-// 获取员工列表数据
-const fetchEmployees = async () => {
-  try {
-    const response = await request.get('/employee/allOnList')
-    if (response && response.code === 200) {
-      employees.value = response.data || []
-    } else {
-      ElMessage.error('获取员工列表失败: ' + (response?.message || '未知错误'))
-    }
-  } catch (error) {
-    console.error('获取员工列表异常:', error)
-    ElMessage.error('获取员工列表失败: ' + (error.message || '网络异常'))
-  }
-}
 
 // 处理排序变化
 const handleSortChange = (sortInfo: { prop: string; order: string }) => {

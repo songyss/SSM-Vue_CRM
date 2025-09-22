@@ -153,11 +153,12 @@
   </div>
 </template>
 
+<!-- src/views/console/DepartmentsView.vue -->
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { ElForm, ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance } from 'element-plus'
-import axios from 'axios'
+import request from '@/utils/request'  // 替换 axios 导入
 
 // 定义数据类型
 interface Dept {
@@ -237,57 +238,62 @@ const queryRef = ref<FormInstance>()
 // 表单引用
 const deptRef = ref<FormInstance>()
 
+// 解析后端返回的部门数据
+const parseDepartmentData = (rawData: any): Dept[] => {
+  const processedData: Dept[] = []
+
+  // 遍历返回的对象，将键值对转换为树形结构
+  for (const key in rawData) {
+    if (rawData.hasOwnProperty(key)) {
+      // 从键中提取父部门信息
+      const match = key.match(/Department\((.*?)\)/)
+      if (match) {
+        const props = match[1].split(', ').reduce((acc: any, prop) => {
+          const [propName, propValue] = prop.split('=')
+          acc[propName] = propName.includes('Id') || propName === 'isDelete' ?
+            (propValue === 'null' ? null : Number(propValue)) : propValue
+          return acc
+        }, {})
+
+        // 创建父部门对象
+        const parentDept: Dept = {
+          department_id: props.departmentId,
+          department_name: props.departmentName,
+          phone: props.phone,
+          super_depart_id: props.superDepartId,
+          is_delete: props.isDelete,
+          create_time: props.createTime,
+          modify_time: props.modifyTime,
+          children: rawData[key].map((child: any) => ({
+            department_id: child.departmentId,
+            department_name: child.departmentName,
+            phone: child.phone,
+            super_depart_id: child.superDepartId,
+            is_delete: child.isDelete,
+            create_time: child.createTime,
+            modify_time: child.modifyTime
+          }))
+        }
+
+        processedData.push(parentDept)
+      }
+    }
+  }
+
+  return processedData
+}
+
 // 查询部门列表
 const getList = async () => {
   loading.value = true
   try {
-    const response = await axios.get('/department/list', {
+    // 将 axios.get 替换为 request.get
+    const response = await request.get('/department/list', {
       params: queryParams
     })
 
     // 处理后端返回的数据结构
-    const rawData = response.data.data
-    const processedData: Dept[] = []
-
-    // 遍历返回的对象，将键值对转换为树形结构
-    for (const key in rawData) {
-      if (rawData.hasOwnProperty(key)) {
-        // 从键中提取父部门信息
-        const match = key.match(/Department\((.*?)\)/)
-        if (match) {
-          const props = match[1].split(', ').reduce((acc: any, prop) => {
-            const [propName, propValue] = prop.split('=')
-            acc[propName] = propName.includes('Id') || propName === 'isDelete' ?
-              (propValue === 'null' ? null : Number(propValue)) : propValue
-            return acc
-          }, {})
-
-          // 创建父部门对象
-          const parentDept: Dept = {
-            department_id: props.departmentId,
-            department_name: props.departmentName,
-            phone: props.phone,
-            super_depart_id: props.superDepartId,
-            is_delete: props.isDelete,
-            create_time: props.createTime,
-            modify_time: props.modifyTime,
-            children: rawData[key].map((child: any) => ({
-              department_id: child.departmentId,
-              department_name: child.departmentName,
-              phone: child.phone,
-              super_depart_id: child.superDepartId,
-              is_delete: child.isDelete,
-              create_time: child.createTime,
-              modify_time: child.modifyTime
-            }))
-          }
-
-          processedData.push(parentDept)
-        }
-      }
-    }
-
-    deptList.value = processedData
+    deptList.value = parseDepartmentData(response.data.data)
   } catch (error) {
     ElMessage.error('获取部门数据失败')
     console.error(error)
@@ -299,51 +305,11 @@ const getList = async () => {
 // 获取部门下拉树列表
 const getTreeselect = async () => {
   try {
-    const response = await axios.get('/department/tree')
+    // 将 axios.get 替换为 request.get
+    const response = await request.get('/department/tree')
 
     // 处理后端返回的数据结构
-    const rawData = response.data.data
-    const processedData: Dept[] = []
-
-    // 遍历返回的对象，将键值对转换为树形结构
-    for (const key in rawData) {
-      if (rawData.hasOwnProperty(key)) {
-        // 从键中提取父部门信息
-        const match = key.match(/Department\((.*?)\)/)
-        if (match) {
-          const props = match[1].split(', ').reduce((acc: any, prop) => {
-            const [propName, propValue] = prop.split('=')
-            acc[propName] = propName.includes('Id') || propName === 'isDelete' ?
-              (propValue === 'null' ? null : Number(propValue)) : propValue
-            return acc
-          }, {})
-
-          // 创建父部门对象
-          const parentDept: Dept = {
-            department_id: props.departmentId,
-            department_name: props.departmentName,
-            phone: props.phone,
-            super_depart_id: props.superDepartId,
-            is_delete: props.isDelete,
-            create_time: props.createTime,
-            modify_time: props.modifyTime,
-            children: rawData[key].map((child: any) => ({
-              department_id: child.departmentId,
-              department_name: child.departmentName,
-              phone: child.phone,
-              super_depart_id: child.superDepartId,
-              is_delete: child.isDelete,
-              create_time: child.createTime,
-              modify_time: child.modifyTime
-            }))
-          }
-
-          processedData.push(parentDept)
-        }
-      }
-    }
-
-    deptOptions.value = processedData
+    deptOptions.value = parseDepartmentData(response.data.data)
   } catch (error) {
     ElMessage.error('获取部门选项失败')
     console.error(error)
@@ -439,12 +405,12 @@ const submitForm = () => {
           }
 
           if (form.department_id) {
-            // 修改操作
-            await axios.put('/department', submitData)
+            // 将 axios.put 替换为 request.put
+            await request.put('/department', submitData)
             ElMessage.success("修改成功")
           } else {
-            // 添加操作
-            await axios.post('/department', submitData)
+            // 将 axios.post 替换为 request.post
+            await request.post('/department', submitData)
             ElMessage.success("新增成功")
           }
           open.value = false
@@ -470,8 +436,8 @@ const handleDelete = (row: Dept) => {
     }
   ).then(async () => {
     try {
-      // 执行删除操作
-      await axios.delete(`/department/${row.department_id}`)
+      // 将 axios.delete 替换为 request.delete
+      await request.delete(`/department/${row.department_id}`)
       ElMessage.success("删除成功")
       getList()
     } catch (error) {

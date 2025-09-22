@@ -248,7 +248,8 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElForm, ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance } from 'element-plus'
-import axios from 'axios'
+import request from '@/utils/request'
+
 
 // 定义数据类型
 interface User {
@@ -394,9 +395,10 @@ const userRef = ref<FormInstance>()
 const getList = async () => {
   loading.value = true
   try {
-    const response = await axios.get('/employee/list', {
+    const response = await request.get('/employee/list', {
       params: queryParams
     })
+    console.log(response)
     userList.value = response.data.rows
     total.value = response.data.total
   } catch (error) {
@@ -480,11 +482,11 @@ const submitForm = () => {
         try {
           if (form.id) {
             // 修改操作
-            await axios.put('/employee', form)
+            await request.put('/employee', form)
             ElMessage.success("修改成功")
           } else {
             // 添加操作
-            await axios.post('/employee', form)
+            await request.post('/employee', form)
             ElMessage.success("新增成功")
           }
           open.value = false
@@ -511,7 +513,7 @@ const handleDelete = (row: User) => {
   ).then(async () => {
     try {
       // 执行删除操作
-      await axios.delete(`/employee/${userIds}`)
+      await request.delete(`/employee/${userIds}`)
       ElMessage.success("删除成功")
       getList()
     } catch (error) {
@@ -529,7 +531,7 @@ const handleResetPwd = (row: User) => {
     inputPattern: /^.{5,20}$/,
     inputErrorMessage: "用户密码长度必须介于 5 和 20 之间"
   }).then(({ value }) => {
-    axios.put('/employee/resetPwd', {
+    request.put('/employee/resetPwd', {
       id: row.id,
       password: value
     }).then(() => {
