@@ -38,7 +38,7 @@ const router = createRouter({
           path: '/permission',
           name: 'permission',
           component: () => import('../views/ConsoleView.vue'),
-          meta: { title: '权限管理', icon: 'lock', requiresAuth: true },
+          meta: { title: '权限管理', icon: 'setting', requiresAuth: true },
           children: [
              // 动态关联子路由
             moduleRouteMap[1],  // 用户管理
@@ -63,7 +63,7 @@ const router = createRouter({
           path: '/business',
           name: 'business',
           component: () => import('../views/SalesView.vue'),
-          meta: { title: '业务管理', icon: 'business', requiresAuth: true },
+          meta: { title: '业务管理', icon: 'promotion', requiresAuth: true },
           children: [
             moduleRouteMap[8],  // 订单管理
             moduleRouteMap[9],  // 突发事件
@@ -91,6 +91,9 @@ router.beforeEach(async (to, from, next) => {
       next('/login')
       return
     }
+
+     
+
 
   // 权限检查 (已登录状态)
   const permissionStore = usePermissionStore()

@@ -19,7 +19,7 @@ export const moduleRouteMap: Record<number, RouteRecordRaw>  = {
     component: () => import('../views/console/RolesView.vue'),
     meta: {
       title: '角色管理',
-      icon: 'user-filling',
+      icon: 'connection',
       permission: 'role:module',
       moduleId: 2
     },
@@ -30,7 +30,7 @@ export const moduleRouteMap: Record<number, RouteRecordRaw>  = {
     component: () => import('../views/console/DepartmentsView.vue'),
     meta: {
       title: '部门管理',
-      icon: 'user-filling',
+      icon: 'menu',
       permission: 'department:module',
       moduleId: 3
     },
@@ -41,7 +41,7 @@ export const moduleRouteMap: Record<number, RouteRecordRaw>  = {
     component: () => import('../views/console/LogsView.vue'),
     meta: {
       title: '日志管理',
-      icon: 'file-text',
+      icon: 'notification',
       permission: 'log:module',
       moduleId: 4
     },
@@ -52,7 +52,7 @@ export const moduleRouteMap: Record<number, RouteRecordRaw>  = {
     component: () => import('../views/sales/CustomersView.vue'),
     meta: {
       title: '客户管理',
-      icon: 'people',
+      icon: 'avatar',
       permission: 'customer:module',
       moduleId: 5
     },
@@ -74,7 +74,7 @@ export const moduleRouteMap: Record<number, RouteRecordRaw>  = {
     component: () => import('../views/marketing/LeadsView.vue'),
     meta: {
       title: '商机管理',
-      icon: 'lightbulb',
+      icon: 'coin',
       permission: 'opportunity:module',
       moduleId: 7
     },
@@ -85,7 +85,7 @@ export const moduleRouteMap: Record<number, RouteRecordRaw>  = {
     component: () => import('../views/sales/OrdersView.vue'),
     meta: {
       title: '订单管理',
-      icon: 'shopping-cart',
+      icon: 'shoppingBag',
       permission: 'order:module',
       moduleId: 8
     },
@@ -96,7 +96,7 @@ export const moduleRouteMap: Record<number, RouteRecordRaw>  = {
     component: () => import('../views/sales/EmergenciesView.vue'),
     meta: {
       title: '突发事件',
-      icon: 'alert-circle',
+      icon: 'management',
       permission: 'emergency:module',
       moduleId: 9
     },
