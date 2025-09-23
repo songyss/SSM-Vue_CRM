@@ -25,7 +25,7 @@ public interface CustomerMapper {
 
     int changeCustomerStatus(@Param("id") int id,@Param("status") int status);//销售更改客户状态
 
-    List<Customer> getPersonalCustomer(int id);//销售获取接受分配
+    List<Customer> getPersonalCustomer(int assigneeId);//销售获取接受分配
 
     int add5Customer(Customer customer);//销售新增客户
 
