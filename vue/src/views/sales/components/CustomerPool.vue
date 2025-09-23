@@ -49,54 +49,47 @@
         </el-button>
       </div>
 
-      <!-- 使用 el-table -->
       <div class="table-wrapper">
         <el-table
           :data="paginatedCustomers"
           border
           stripe
           height="500"
-          style="width: 100%; min-width: 1200px;"
+          style="width: 100%; min-width: 1000px;"
         >
           <el-table-column prop="name" label="客户姓名" width="120" fixed="left" />
           <el-table-column prop="phone" label="手机号" width="150" fixed="left" />
-          <el-table-column prop="sex" label="性别" width="80">
-            <template #default="scope">
-            <span :class="scope.row.sex === 1 ? 'male' : 'female'">
-              {{ scope.row.sex === 1 ? '男' : (scope.row.sex === 0 ? '女' : '-') }}
-            </span>
-            </template>
-          </el-table-column>
+          <el-table-column prop="sex" label="性别" width="80" />
           <el-table-column prop="companyName" label="公司名称" width="200" />
           <el-table-column prop="position" label="职位" width="150" />
-          <el-table-column prop="poolTime" label="进入客户池时间" width="180">
-            <template #default="scope">{{ formatDate(scope.row.poolTime) }}</template>
-          </el-table-column>
-          <el-table-column prop="lastFollowTime" label="最后跟进时间" width="180">
-            <template #default="scope">{{ formatDate(scope.row.lastFollowTime) }}</template>
-          </el-table-column>
-          <el-table-column prop="createTime" label="创建时间" width="180">
-            <template #default="scope">{{ formatDate(scope.row.createTime) }}</template>
-          </el-table-column>
-          <el-table-column prop="updateTime" label="更新时间" width="180">
-            <template #default="scope">{{ formatDate(scope.row.updateTime) }}</template>
-          </el-table-column>
-          <el-table-column prop="salesRemark" label="销售备注" width="250">
+
+          <!-- 放入原因 -->
+          <el-table-column prop="reason" label="原因" width="250">
             <template #default="scope">
-            <span class="notes-cell" :title="scope.row.salesRemark">
-              {{ scope.row.salesRemark || '-' }}
-            </span>
+              <span class="notes-cell" :title="scope.row.reason">
+                {{ scope.row.reason || '-' }}
+              </span>
             </template>
           </el-table-column>
+
+          <!-- 销售备注 -->
+          <el-table-column prop="salesRemark" label="销售备注" width="250">
+            <template #default="scope">
+              <span class="notes-cell" :title="scope.row.salesRemark">
+                {{ scope.row.salesRemark || '-' }}
+              </span>
+            </template>
+          </el-table-column>
+
+          <!-- 操作 -->
           <el-table-column label="操作" width="120" fixed="right">
             <template #default="scope">
-              <el-button type="primary" size="small" @click="handleAssign(scope.row)">分配</el-button>
+              <el-button type="primary" size="small" @click="handleLock(scope.row)">锁定</el-button>
             </template>
           </el-table-column>
         </el-table>
       </div>
 
-      <!-- 分页 -->
       <div class="pagination-wrapper">
         <el-pagination
           v-model:current-page="pagination.currentPage"
@@ -116,6 +109,18 @@ import { ref, reactive, computed, onMounted } from "vue";
 import { ElMessage, ElMessageBox, ElNotification } from "element-plus";
 import axios from "axios";
 
+// ================== 登录用户信息 ==================
+let userInfo = {};
+try {
+  userInfo = JSON.parse(localStorage.getItem("user") || "{}");
+} catch (e) {
+  console.error("解析 user 出错", e);
+}
+if (!userInfo.userId) {
+  userInfo = { userId: 2, role: 4, name: "李销售" }; // 默认一个用户
+}
+
+// ================== 数据状态 ==================
 const customerData = ref([]);
 const filteredCustomers = ref([]);
 const loading = ref(false);
@@ -130,12 +135,6 @@ const pagination = reactive({
   pageSize: 10
 });
 
-// 格式化日期显示
-const formatDate = (dateString) => {
-  if (!dateString) return "-";
-  return dateString.length > 10 ? dateString.substring(0, 10) : dateString;
-};
-
 // 计算分页后的数据
 const paginatedCustomers = computed(() => {
   const start = (pagination.currentPage - 1) * pagination.pageSize;
@@ -143,49 +142,30 @@ const paginatedCustomers = computed(() => {
   return filteredCustomers.value.slice(start, end);
 });
 
-// 加载客户池数据
+// ================== 加载客户池数据 ==================
 const loadCustomerData = async () => {
   try {
     loading.value = true;
-    const response = await axios.get("http://localhost:8080/customer/poolList");
+    const response = await axios.get("http://localhost:8080/customer/poolListAdd");
     const data = response.data;
 
     if (data.code === 200 && Array.isArray(data.data)) {
       customerData.value = data.data;
       filteredCustomers.value = [...customerData.value];
-      pagination.currentPage = 1; // 重置页码
-      ElNotification.success({
-        title: "成功",
-        message: "数据加载成功"
-      });
+      pagination.currentPage = 1;
+      ElNotification.success({ title: "成功", message: "数据加载成功" });
     } else {
       throw new Error("API返回数据格式不正确");
     }
   } catch (error) {
     console.error("获取客户池数据失败:", error);
     ElMessage.error("获取客户池数据失败");
-
-    // 模拟数据
-    customerData.value = Array.from({ length: 35 }).map((_, index) => ({
-      name: `客户${index + 1}`,
-      phone: "1380000" + (1000 + index),
-      sex: index % 2,
-      poolTime: "2023-07-15 14:30:22",
-      lastFollowTime: "2023-08-20 09:45:11",
-      createTime: "2023-06-10 10:20:33",
-      updateTime: "2023-08-20 09:45:11",
-      salesRemark: "测试数据-" + (index + 1),
-      companyName: "公司-" + (index + 1),
-      position: "职位-" + (index + 1)
-    }));
-    filteredCustomers.value = [...customerData.value];
-    pagination.currentPage = 1;
   } finally {
     loading.value = false;
   }
 };
 
-// 查询
+// ================== 查询 ==================
 const handleSearch = () => {
   filteredCustomers.value = customerData.value.filter((customer) => {
     const nameMatch = searchForm.name
@@ -197,11 +177,11 @@ const handleSearch = () => {
     return nameMatch && phoneMatch;
   });
 
-  pagination.currentPage = 1; // 重置页码
+  pagination.currentPage = 1;
   ElMessage.success(`找到 ${filteredCustomers.value.length} 条记录`);
 };
 
-// 重置
+// ================== 重置 ==================
 const handleReset = () => {
   searchForm.name = "";
   searchForm.phone = "";
@@ -210,19 +190,32 @@ const handleReset = () => {
   ElMessage.info("已重置搜索条件");
 };
 
-// 分配客户
-const handleAssign = (row) => {
-  ElMessageBox.confirm("确定要分配该客户吗?", "分配客户", {
+// ================== 锁定客户 ==================
+const handleLock = (row) => {
+  ElMessageBox.confirm("确定要锁定该客户吗?", "锁定客户", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
-    type: "info"
+    type: "warning"
   })
-    .then(() => {
-      ElMessage.success("分配成功");
+    .then(async () => {
+      try {
+        const res = await axios.post(`http://localhost:8080/customer/lock/${row.id}`, {
+          employeeId: userInfo.userId
+        });
+        if (res.data.code === 200) {
+          ElMessage.success("锁定成功");
+          // 移除该客户（前端立即消失）
+          filteredCustomers.value = filteredCustomers.value.filter(c => c.id !== row.id);
+          customerData.value = customerData.value.filter(c => c.id !== row.id);
+        } else {
+          ElMessage.error(res.data.message || "锁定失败");
+        }
+      } catch (e) {
+        console.error(e);
+        ElMessage.error("锁定失败");
+      }
     })
-    .catch(() => {
-      // 取消操作
-    });
+    .catch(() => {});
 };
 
 onMounted(() => {
@@ -236,13 +229,6 @@ onMounted(() => {
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
-}
-
-@media (min-width: 768px) {
-  .customer-pool-container {
-    padding: 16px;
-    max-width: 1200px;
-  }
 }
 
 .header {
@@ -276,12 +262,6 @@ onMounted(() => {
   align-items: center;
 }
 
-@media (min-width: 768px) {
-  .filter-container {
-    gap: 12px;
-  }
-}
-
 .filter-item {
   display: flex;
   align-items: center;
@@ -299,12 +279,6 @@ onMounted(() => {
   width: 120px;
 }
 
-@media (min-width: 768px) {
-  .compact-input {
-    width: 140px;
-  }
-}
-
 .table-card {
   background: white;
   border-radius: 6px;
@@ -319,14 +293,6 @@ onMounted(() => {
   overflow-x: auto;
   width: 100%;
   -webkit-overflow-scrolling: touch;
-}
-
-@media (min-width: 768px) {
-  .table-card {
-    padding: 16px;
-    margin: 0;
-    width: 100%;
-  }
 }
 
 .table-header {
@@ -354,19 +320,5 @@ onMounted(() => {
   text-overflow: ellipsis;
   white-space: nowrap;
   display: inline-block;
-}
-
-@media (min-width: 768px) {
-  .notes-cell {
-    max-width: 200px;
-  }
-}
-
-.male {
-  color: #409eff;
-}
-
-.female {
-  color: #f672b5;
 }
 </style>

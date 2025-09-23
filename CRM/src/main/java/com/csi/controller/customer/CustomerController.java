@@ -1,10 +1,18 @@
 package com.csi.controller.customer;
 
 import com.csi.domain.Customer;
+import com.csi.domain.PublicCustomerPool;
+import com.csi.domain.vo.CustomerDetailVO;
+import com.csi.domain.vo.CustomerPoolVO;
+import com.csi.domain.vo.CustomerVO;
+import com.csi.domain.vo.LockCustomerRequest;
 import com.csi.service.CustomerService;
 import com.csi.util.R;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -75,11 +83,12 @@ public class CustomerController {
     /**
      * 根据来源查询客户
      */
-    @GetMapping("/{source}")
+    @GetMapping("/bySource/{source}")
     public R getCustomerListBySource(@PathVariable("source") String source) {
         List<Customer> CustomerBySource = customerService.getCustomerBySource(source);
         return CustomerBySource != null ? R.ok(CustomerBySource) : R.error();
     }
+
 
     /**
      * 销售对客户状态进行更改
@@ -97,22 +106,6 @@ public class CustomerController {
     public R getPersonalCustomer(@RequestParam("id") int id) {
         List<Customer> customers = customerService.getPersonalCustomer(id);
         return customers != null ? R.ok(customers) : R.error();
-    }
-
-    /**
-     * 分页查询当前销售负责的客户
-     */
-    @GetMapping("/myCustomers")
-    public R getMyCustomers(@RequestParam(value = "page", defaultValue = "1") int page,
-                           @RequestParam(value = "size", defaultValue = "10") int size,
-                           @RequestParam(value = "employeeId", required = false) Integer employeeId) {
-        try {
-            PageInfo<Customer> pageInfo = customerService.getPersonalCustomerByPage(employeeId, page, size);
-            return R.ok(pageInfo);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return R.error();
-        }
     }
 
     /**
@@ -193,4 +186,103 @@ public class CustomerController {
         customerService.assignCustomers(employeeId, customerIds);
         return R.ok("分配成功");
     }
+
+    /**
+     * 更新客户（标准接口，含订单 & 商机）
+     */
+    @PostMapping("/update")
+    public R update(@RequestBody Customer customer) {
+        int i = customerService.updateCustomer(customer);
+        return i == 1 ? R.ok(i) : R.error();
+    }
+
+    /**
+     * 根据销售ID分页查询客户（支持模糊查询）
+     */
+    @GetMapping("/listByEmployee")
+    public R listByEmployee(
+            @RequestParam("employeeId") Integer employeeId,
+            @RequestParam("pageNum") int pageNum,
+            @RequestParam("pageSize") int pageSize,
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "phone", required = false) String phone) {
+
+        PageInfo<CustomerVO> pageInfo = customerService.listByEmployee(employeeId, pageNum, pageSize, name, phone);
+        return R.ok(pageInfo);
+    }
+
+
+    /**
+     * 锁定客户（加入客户池的客户分配给当前销售）
+     */
+    @PostMapping("/lock/{id}")
+    public R lockCustomer(@PathVariable("id") Integer customerId,
+                          @RequestBody(required = false) Map<String, Object> body) {
+        try {
+            Integer employeeId = null;
+            if (body != null && body.containsKey("employeeId")) {
+                employeeId = (Integer) body.get("employeeId");
+            }
+
+            if (employeeId == null) {
+                return R.error();
+            }
+
+            boolean success = customerService.lockCustomer(customerId, employeeId);
+            return success ? R.ok("锁定成功") : R.error();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return R.error();
+        }
+    }
+
+    /**
+     * 加入客户池（含原因）
+     */
+    @PostMapping("/addToPool")
+    public R addToPool(@RequestBody PublicCustomerPool pool) {
+        int res = customerService.addToPool(pool.getCustomerId(), pool.getReason(), pool.getOperatorId());
+        return res > 0 ? R.ok("success") : R.error();
+    }
+
+    /**
+     * 分页查询客户（支持模糊查询）
+     */
+    @GetMapping("/list")
+    public R getCustomerList(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "phone", required = false) String phone,
+            @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
+
+        PageHelper.startPage(pageNum, pageSize);
+        List<Customer> list = customerService.getCustomerByCondition(name, phone, null, null);
+        PageInfo<Customer> pageInfo = new PageInfo<>(list);
+
+        return R.ok(pageInfo);
+    }
+
+
+
+    @GetMapping("/detail/{id}")
+    public R detail(@PathVariable("id") Long id) {
+        CustomerDetailVO detail = customerService.getCustomerDetail(id);
+        return R.ok(detail);
+    }
+
+    /**
+     * 锁定客户
+     */
+    @PostMapping("/lock")
+    public String lockCustomer(@RequestBody LockCustomerRequest request) {
+        customerService.lockCustomer(request);
+        return "锁定成功";
+    }
+
+
+    @GetMapping("/poolListAdd")
+    public R getCustomerPoolList() {
+        return R.ok(customerService.getCustomerPoolList());
+    }
 }
+

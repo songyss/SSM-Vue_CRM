@@ -24,7 +24,7 @@ public class PublicCustomerPool implements Serializable {
 /**
      * 客户ID
      */
-    private Integer customerId;
+    private Long customerId;
 
 /**
      * 放入原因
@@ -51,7 +51,7 @@ public class PublicCustomerPool implements Serializable {
      */
     private String createTime;
 
-
+    private Long operatorId;
 
 }
 

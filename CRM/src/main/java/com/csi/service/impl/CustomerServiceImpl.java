@@ -1,7 +1,8 @@
 package com.csi.service.impl;
 
 import com.csi.domain.Customer;
-import com.csi.domain.CustomerFollows;
+import com.csi.domain.PublicCustomerPool;
+import com.csi.domain.vo.*;
 import com.csi.mapper.CustomerMapper;
 import com.csi.mapper.EmployeeMapper;
 import com.csi.service.CustomerService;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -20,10 +22,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     private CustomerMapper customerMapper;
-
-    @Autowired
     private EmployeeMapper employeeMapper;
 
+    // ================== 客户基础查询 ==================
     @Override
     @Transactional(readOnly = true)
     public List<Customer> getAllCustomer() {
@@ -68,8 +69,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public int changeCustomerStatus(@Param("id") int id, @Param("status") int status) {
-        int i = customerMapper.changeCustomerStatus(id, status);
-        return i;
+        return customerMapper.changeCustomerStatus(id, status);
     }
 
     @Override
@@ -77,68 +77,41 @@ public class CustomerServiceImpl implements CustomerService {
         return customerMapper.findById(id);
     }
 
+    // ================== 客户新增 ==================
     @Override
-    public int addCustomer(Customer customer){
-        Customer result=customerMapper.checkCustomerPhone(customer.getPhone());
-        if(result!=null){
+    public int addCustomer(Customer customer) {
+        Customer result = customerMapper.checkCustomerPhone(customer.getPhone());
+        if (result != null) {
             return 0;
-        }else {
+        } else {
             customer.setIsPool(0);
             customer.setStatus(1);
-            //前提是扫码自动绑定此员工id
+            // 前提：扫码自动绑定此员工id
             customer.setCreatorId(2002);
-            //根据市场部员工id找到市场部经理id
+            // 根据市场部员工id找到市场部经理id
             customer.setAssigneeId(employeeMapper.findLeaderIdByEmployeeId(customer.getCreatorId()));
 
             customerMapper.addCustomer(customer);
-
             return 1;
         }
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Customer> getPersonalCustomer(int assigneeId) {
-        List<Customer> customers = customerMapper.getPersonalCustomer(assigneeId);
-        return customers;
+    public List<Customer> getPersonalCustomer(int id) {
+        return customerMapper.getPersonalCustomer(id);
     }
-    
-    /**
-     * 分页查询个人客户
-     * @param employeeId 员工ID
-     * @param page 页码
-     * @param size 每页大小
-     * @return 分页结果
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public PageInfo<Customer> getPersonalCustomerByPage(Integer employeeId, int page, int size) {
-        // 开启分页
-        PageHelper.startPage(page, size);
-        // 查询数据，使用assigneeId作为筛选条件
-        List<Customer> customers = customerMapper.getPersonalCustomer(employeeId);
-        // 封装分页结果
-        return new PageInfo<>(customers);
-    }
-
-    /*@Override
-    public List<CustomerFollows> getPersonalCustomerByTime(String time) {
-        List<CustomerFollows> customer = customerMapper.getPersonalCustomerByTime(time);
-        return customer;
-    }*/
 
     @Override
     public int add5Customer(Customer customer) {
-        int i = customerMapper.addCustomer(customer);
-        return i;
+        return customerMapper.addCustomer(customer);
     }
 
+    // ================== 客户更新 ==================
     @Override
     public int updateCustomer(Customer customer) {
-        int i = customerMapper.updateCustomer(customer);
-        return i;
+        return customerMapper.updateCustomer(customer);
     }
-
 
     @Override
     public List<Customer> getCustomerBySdrStatus() {
@@ -147,22 +120,20 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public int updateCustomerSdrStatus(Customer customer) {
-        // 修复空指针异常：添加空值检查
         Integer sdrStatus = customer.getSdrStatus();
         String sdrNotes = customer.getSdrNotes();
 
         if (sdrStatus == null) {
-            sdrStatus = 1; // 默认设为1（未联系）
+            sdrStatus = 1; // 默认未联系
         }
         if (sdrNotes == null) {
-            sdrNotes = ""; // 避免空字符串
+            sdrNotes = "";
         }
 
-        // 确保参数顺序和命名与Mapper一致
-        int i = customerMapper.updateCustomerSdrStatus(sdrStatus, sdrNotes, customer.getId());
-        return i;
+        return customerMapper.updateCustomerSdrStatus(sdrStatus, sdrNotes, customer.getId());
     }
-    // 添加客户查询功能
+
+    // ================== 条件查询 / 客户池 ==================
     @Override
     @Transactional(readOnly = true)
     public List<Customer> getCustomerByCondition(String name, String phone, String source, Integer status) {
@@ -189,4 +160,98 @@ public class CustomerServiceImpl implements CustomerService {
     public List<Customer> getUnAssignedList() {
         return customerMapper.selectUnAssignedList();
     }
+
+    // ================== 分页查询 ==================
+    @Override
+    public PageInfo<CustomerVO> getCustomersByEmployee(Long employeeId, int pageNum, int pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        return new PageInfo<>(customerMapper.findByEmployee(employeeId));
+    }
+
+    @Override
+    public PageInfo<CustomerVO> getAllCustomers(int pageNum, int pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        return new PageInfo<>(customerMapper.findAll());
+    }
+
+    // ================== 客户详情 ==================
+
+    @Override
+    public PageInfo<CustomerVO> listByEmployee(int employeeId, int pageNum, int pageSize, String name, String phone) {
+        int offset = (pageNum - 1) * pageSize;
+        List<CustomerVO> customers = customerMapper.listByEmployee(employeeId, name, phone, offset, pageSize);
+        return new PageInfo<>(customers);
+    }
+
+    @Override
+    public int addToPool(Long id, String reason) {
+        // 1. 置空客户负责人 & 标记进入客户池
+        customerMapper.updateIsPoolAndClearAssignee(id);
+
+        // 2. 保存放入客户池的原因
+        customerMapper.insertPoolReason(id, reason);
+
+        return 1;
+    }
+
+
+    @Override
+    public boolean lockCustomer(Integer customerId, Integer employeeId) {
+        int rows = customerMapper.updateAssignee(customerId, employeeId);
+        return rows > 0;
+    }
+
+
+
+    @Override
+    public int addToPool(Long customerId, String reason, Long operatorId) {
+        // 1. 置空 assigneeId
+        customerMapper.updateIsPoolAndClearAssignee(customerId);
+
+        // 2. 插入原因
+        PublicCustomerPool pool = new PublicCustomerPool();
+        pool.setCustomerId(customerId);
+        pool.setReason(reason);
+        pool.setOperatorId(operatorId);
+        pool.setCreateTime(LocalDateTime.now().toString());
+
+        return customerMapper.insertPoolReason(pool);
+    }
+
+    @Override
+    public List<Customer> getCustomerList(String name, String phone) {
+        return customerMapper.selectCustomerList(name, phone);
+    }
+
+    @Override
+    public CustomerDetailVO getCustomerDetail(Long customerId) {
+        CustomerDetailVO detail = customerMapper.findDetail(customerId);
+        if (detail != null) {
+            List<OrderVO> orders = customerMapper.getOrdersByCustomerId(customerId);
+            List<OpportunityVO> opps = customerMapper.getOpportunitiesByCustomerId(customerId);
+            detail.setOrders(orders);
+            detail.setOpportunities(opps);
+        }
+        return detail;
+    }
+    @Override
+    @Transactional
+    public void lockCustomer(LockCustomerRequest request) {
+        Long customerId = request.getCustomerId();
+        Long employeeId = request.getEmployeeId();
+        Integer days = request.getDays();
+
+        // 1. 更新客户表，分配给员工
+        customerMapper.updateAssigneeAndPool(customerId, employeeId);
+
+        // 2. 更新公共池表，设置锁定人和截止时间
+        LocalDateTime lockedUntil = LocalDateTime.now().plusDays(days);
+        customerMapper.lockCustomer(customerId, employeeId, lockedUntil);
+    }
+
+    @Override
+    public List<CustomerPoolVO> getCustomerPoolList() {
+        return customerMapper.selectCustomerPoolList();
+    }
+
 }

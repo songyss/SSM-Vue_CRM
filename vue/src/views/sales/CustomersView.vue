@@ -6,8 +6,9 @@
         <span>客户管理</span>
       </h1>
     </div>
-    
+
     <div class="customer-layout">
+      <!-- 左侧菜单 -->
       <el-menu
         class="customer-menu"
         :default-active="activeTab"
@@ -31,13 +32,19 @@
           <el-icon><Plus /></el-icon>
           <span>新增客户</span>
         </el-menu-item>
+        <el-menu-item index="list">
+          <el-icon><User /></el-icon>
+          <span>客户详情</span>
+        </el-menu-item>
       </el-menu>
-      
+
+      <!-- 右侧内容区域 -->
       <div class="customer-content">
         <CustomerFilter v-if="activeTab === 'filter'" />
         <CustomerAssign v-if="activeTab === 'assign'" />
         <CustomerPool v-if="activeTab === 'pool'" />
         <CustomerAdd v-if="activeTab === 'add'" />
+        <CustomerList v-if="activeTab === 'list'" />
       </div>
     </div>
   </div>
@@ -45,11 +52,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { Search, Share, Box, Plus } from '@element-plus/icons-vue'
+import { Search, Share, Box, Plus, User } from '@element-plus/icons-vue'
 import CustomerFilter from './components/CustomerFilter.vue'
 import CustomerAssign from './components/CustomerAssign.vue'
 import CustomerPool from './components/CustomerPool.vue'
 import CustomerAdd from './components/CustomerAdd.vue'
+import CustomerList from './components/CustomerList.vue'  // ✅ 新增导入
 
 onMounted(() => {
   console.log('CustomersView组件已加载')

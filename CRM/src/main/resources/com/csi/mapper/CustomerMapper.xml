@@ -3,83 +3,103 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.csi.mapper.CustomerMapper">
-    <cache/>
 
-    <!-- 查询全部的客户信息 -->
+    <!-- ================== 基础查询 ================== -->
     <select id="getAllCustomer" resultType="com.csi.domain.Customer">
-        select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,
-        sdr_status,sdr_status_name,sdr_notes,assignee_id,e1.name as assigneeName,
-        creator_id,e2.name as creatorName,last_follow_up_time,c.create_time,c.update_time
-        from customers c
-        left join status s on c.status = s.status_id
-        left join sdr_status ss on c.sdr_status = ss.sdr_status_id
-        left join employees e1 on c.assignee_id = e1.id
-        left join employees e2 on c.creator_id = e2.id
+        SELECT
+        c.id,
+        c.name,
+        c.phone,
+        c.sex,
+        c.borndate,
+        c.company,
+        c.position,
+        c.source AS source,
+        c.status,
+        s.status_name AS statusName,
+        c.notes,
+        c.sdr_status,
+        ss.sdr_status_name AS sdrStatusName,
+        c.sdr_notes,
+        c.assignee_id AS assigneeId,
+        e1.name AS name1,
+        c.creator_id AS creatorId,
+        e2.name AS name2,
+        c.last_follow_up_time AS lastFollowUpTime,
+        c.create_time AS createTime,
+        c.update_time AS updateTime,
+        c.is_pool AS isPool,
+        c.pool_time AS poolTime,
+        c.activity_id AS activityId
+        FROM customers c
+        LEFT JOIN status s ON c.status = s.status_id
+        LEFT JOIN sdr_status ss ON c.sdr_status = ss.sdr_status_id
+        LEFT JOIN employees e1 ON c.assignee_id = e1.id
+        LEFT JOIN employees e2 ON c.creator_id = e2.id
+        WHERE c.assignee_id IS NULL
+        AND COALESCE(c.is_pool, 0) = 0
     </select>
 
-    <!-- 销售经理查看除未联系之外的所有客户信息 -->
+
+    <!-- 销售经理查看除未联系之外的客户 -->
     <select id="getAllSaleCustomer" resultType="com.csi.domain.Customer">
-        select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,
-        sdr_status,sdr_status_name,sdr_notes,assignee_id,e1.name as assigneeName,
-        creator_id,e2.name as creatorName,last_follow_up_time,c.create_time,c.update_time
-        from customers c
-        left join status s on c.status = s.status_id
-        left join sdr_status ss on c.sdr_status = ss.sdr_status_id
-        left join employees e1 on c.assignee_id = e1.id
-        left join employees e2 on c.creator_id = e2.id
-        where sdr_status != 1
+        SELECT c.*, s.status_name, ss.sdr_status_name,
+        e1.name AS assigneeName, e2.name AS creatorName
+        FROM customers c
+        LEFT JOIN status s ON c.status = s.status_id
+        LEFT JOIN sdr_status ss ON c.sdr_status = ss.sdr_status_id
+        LEFT JOIN employees e1 ON c.assignee_id = e1.id
+        LEFT JOIN employees e2 ON c.creator_id = e2.id
+        WHERE c.sdr_status != 1
     </select>
 
-    <!-- 查看有意向已分配客户 -->
+    <!-- 已分配且有意向客户 -->
     <select id="getAssignedCustomer" resultType="com.csi.domain.Customer">
-        select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,
-        sdr_status,sdr_status_name,sdr_notes,assignee_id,e1.name as assigneeName,
-        creator_id,e2.name as creatorName,last_follow_up_time,c.create_time,c.update_time
-        from customers c
-        left join status s on c.status = s.status_id
-        left join sdr_status ss on c.sdr_status = ss.sdr_status_id
-        left join employees e1 on c.assignee_id = e1.id
-        left join employees e2 on c.creator_id = e2.id
-        where c.assignee_id is not null and sdr_status = 3
+        SELECT c.*, s.status_name, ss.sdr_status_name,
+        e1.name AS assigneeName, e2.name AS creatorName
+        FROM customers c
+        LEFT JOIN status s ON c.status = s.status_id
+        LEFT JOIN sdr_status ss ON c.sdr_status = ss.sdr_status_id
+        LEFT JOIN employees e1 ON c.assignee_id = e1.id
+        LEFT JOIN employees e2 ON c.creator_id = e2.id
+        WHERE c.assignee_id IS NOT NULL
+        AND c.sdr_status = 3
     </select>
 
-    <!-- 查看无意向客户 -->
+    <!-- 无意向客户 -->
     <select id="getNoIntentionCustomer" resultType="com.csi.domain.Customer">
-        select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,
-        sdr_status,sdr_status_name,sdr_notes,assignee_id,e1.name as assigneeName,
-        creator_id,e2.name as creatorName,last_follow_up_time,c.create_time,c.update_time
-        from customers c
-        left join status s on c.status = s.status_id
-        left join sdr_status ss on c.sdr_status = ss.sdr_status_id
-        left join employees e1 on c.assignee_id = e1.id
-        left join employees e2 on c.creator_id = e2.id
-        where sdr_status = 2
+        SELECT c.*, s.status_name, ss.sdr_status_name,
+        e1.name AS assigneeName, e2.name AS creatorName
+        FROM customers c
+        LEFT JOIN status s ON c.status = s.status_id
+        LEFT JOIN sdr_status ss ON c.sdr_status = ss.sdr_status_id
+        LEFT JOIN employees e1 ON c.assignee_id = e1.id
+        LEFT JOIN employees e2 ON c.creator_id = e2.id
+        WHERE c.sdr_status = 2
     </select>
 
-    <!-- 查看信息有误客户 -->
+    <!-- 信息有误客户 -->
     <select id="getInfoIncorrectCustomer" resultType="com.csi.domain.Customer">
-        select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,
-        sdr_status,sdr_status_name,sdr_notes,assignee_id,e1.name as assigneeName,
-        creator_id,e2.name as creatorName,last_follow_up_time,c.create_time,c.update_time
-        from customers c
-        left join status s on c.status = s.status_id
-        left join sdr_status ss on c.sdr_status = ss.sdr_status_id
-        left join employees e1 on c.assignee_id = e1.id
-        left join employees e2 on c.creator_id = e2.id
-        where sdr_status = 4
+        SELECT c.*, s.status_name, ss.sdr_status_name,
+        e1.name AS assigneeName, e2.name AS creatorName
+        FROM customers c
+        LEFT JOIN status s ON c.status = s.status_id
+        LEFT JOIN sdr_status ss ON c.sdr_status = ss.sdr_status_id
+        LEFT JOIN employees e1 ON c.assignee_id = e1.id
+        LEFT JOIN employees e2 ON c.creator_id = e2.id
+        WHERE c.sdr_status = 4
     </select>
 
-    <!-- 根据来源筛选客户 -->
+    <!-- 根据来源筛选 -->
     <select id="getCustomerBySource" resultType="com.csi.domain.Customer">
-        select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,
-        sdr_status,sdr_status_name,sdr_notes,assignee_id,e1.name as assigneeName,
-        creator_id,e2.name as creatorName,last_follow_up_time,c.create_time,c.update_time
-        from customers c
-        left join status s on c.status = s.status_id
-        left join sdr_status ss on c.sdr_status = ss.sdr_status_id
-        left join employees e1 on c.assignee_id = e1.id
-        left join employees e2 on c.creator_id = e2.id
-        where source like concat('%',#{source},'%')
+        SELECT c.*, s.status_name, ss.sdr_status_name,
+        e1.name AS assigneeName, e2.name AS creatorName
+        FROM customers c
+        LEFT JOIN status s ON c.status = s.status_id
+        LEFT JOIN sdr_status ss ON c.sdr_status = ss.sdr_status_id
+        LEFT JOIN employees e1 ON c.assignee_id = e1.id
+        LEFT JOIN employees e2 ON c.creator_id = e2.id
+        WHERE c.source LIKE CONCAT('%', #{source}, '%')
     </select>
 
     <!-- 修改客户状态 -->
@@ -87,7 +107,7 @@
         UPDATE customers SET status = #{status} WHERE id = #{id}
     </update>
 
-    <!-- 新增客户：默认 sdr_status=1 -->
+    <!-- 新增客户 -->
     <insert id="addCustomer" parameterType="com.csi.domain.Customer">
         INSERT INTO customers (
         name, phone, sex, borndate,
@@ -98,15 +118,14 @@
         #{name}, #{phone}, #{sex}, #{borndate},
         #{company}, #{position}, #{source},
         #{status}, #{notes}, #{assigneeId},
-        #{creatorId}, 0, #{activityId}, 1
-        );
+        #{creatorId}, #{isPool}, #{activityId}, #{sdrStatus}
+        )
     </insert>
 
-    <!-- 更新客户信息 -->
+    <!-- 更新客户 -->
     <update id="updateCustomer" parameterType="com.csi.domain.Customer">
         UPDATE customers
-        SET
-        name = #{name},
+        SET name = #{name},
         phone = #{phone},
         sex = #{sex},
         borndate = #{borndate},
@@ -116,62 +135,54 @@
         status = #{status},
         notes = #{notes},
         assignee_id = #{assigneeId},
-        last_follow_up_time = #{lastFollowUPTime},
+        last_follow_up_time = #{lastFollowUpTime},
         is_pool = #{isPool},
         pool_time = #{poolTime}
         WHERE id = #{id}
     </update>
 
-    <!-- 查询某个销售负责的客户 -->
+    <!-- 员工负责客户 -->
     <select id="getPersonalCustomer" resultType="com.csi.domain.Customer">
         SELECT * FROM customers WHERE assignee_id = #{assigneeId}
     </select>
 
-    <!-- 查询当日跟进的客户 -->
-    <select id="getPersonalCustomerByTime" resultType="com.csi.domain.CustomerFollows">
-        SELECT * FROM customer_follows WHERE DATE(create_time) = DATE(#{date})
-    </select>
-
     <!-- 检查手机号是否存在 -->
     <select id="checkCustomerPhone" resultType="com.csi.domain.Customer">
-        SELECT phone FROM customers WHERE phone=#{phone}
+        SELECT * FROM customers WHERE phone = #{phone}
     </select>
 
     <!-- 根据 ID 查询客户 -->
     <select id="findById" resultType="com.csi.domain.Customer">
-        select * from customers where id = #{id}
+        SELECT * FROM customers WHERE id = #{id}
     </select>
 
-    <!-- 查询 SDR 状态的客户 -->
+    <!-- SDR 状态客户 -->
     <select id="getCustomerBySdrStatus" resultType="com.csi.domain.Customer">
-        select
-        c.id,c.name,c.phone,c.sex,c.borndate,
-        c.company,c.position,c.source,
-        s.status_name,c.notes,
-        ss.sdr_status_name,c.sdr_notes,
-        c.last_follow_up_time,c.create_time,c.update_time
-        from customers c
-        left join status s on c.status = s.status_id
-        left join sdr_status ss on c.sdr_status = ss.sdr_status_id
-        where c.sdr_status IN(1,2,3)
+        SELECT c.*, s.status_name, ss.sdr_status_name
+        FROM customers c
+        LEFT JOIN status s ON c.status = s.status_id
+        LEFT JOIN sdr_status ss ON c.sdr_status = ss.sdr_status_id
+        WHERE c.sdr_status IN (1, 2, 3)
     </select>
 
-    <!-- 更新客户 SDR 状态 -->
+    <!-- 更新 SDR 状态 -->
     <update id="updateCustomerSdrStatus">
-        UPDATE customers SET sdr_status = #{param1}, sdr_notes = #{param2} WHERE id = #{param3}
+        UPDATE customers
+        SET sdr_status = #{param1},
+        sdr_notes = #{param2}
+        WHERE id = #{param3}
     </update>
 
-    <!-- 条件查询客户 -->
+    <!-- 条件查询 -->
     <select id="getCustomerByCondition" resultType="com.csi.domain.Customer">
-        select c.id,c.name,c.phone,c.sex,c.borndate,company,position,source,status,status_name,notes,
-        sdr_status,sdr_status_name,sdr_notes,assignee_id,e1.name as assigneeName,
-        creator_id,e2.name as creatorName,last_follow_up_time,c.create_time,c.update_time
-        from customers c
-        left join status s on c.status = s.status_id
-        left join sdr_status ss on c.sdr_status = ss.sdr_status_id
-        left join employees e1 on c.assignee_id = e1.id
-        left join employees e2 on c.creator_id = e2.id
-        where 1=1
+        SELECT c.*, s.status_name, ss.sdr_status_name,
+        e1.name AS assigneeName, e2.name AS creatorName
+        FROM customers c
+        LEFT JOIN status s ON c.status = s.status_id
+        LEFT JOIN sdr_status ss ON c.sdr_status = ss.sdr_status_id
+        LEFT JOIN employees e1 ON c.assignee_id = e1.id
+        LEFT JOIN employees e2 ON c.creator_id = e2.id
+        WHERE 1=1
         <if test="name != null and name != ''">
             AND c.name LIKE CONCAT('%', #{name}, '%')
         </if>
@@ -182,32 +193,26 @@
             AND c.source LIKE CONCAT('%', #{source}, '%')
         </if>
         <if test="status != null">
-            AND c.sdr_status = #{status}
+            AND c.status = #{status}
         </if>
     </select>
 
-    <!-- 查询客户池 -->
+    <!-- 客户池 -->
     <select id="getPoolCustomer" resultType="com.csi.domain.Customer">
-        SELECT
-        c.id,c.name,c.phone,c.sex,
+        SELECT c.id, c.name, c.phone, c.sex,
         c.pool_time AS poolTime,
-        c.last_follow_up_time AS lastFollowUPTime,
+        c.last_follow_up_time AS lastFollowUpTime,
         c.create_time AS createTime,
         c.update_time AS updateTime,
-        c.notes,c.company,c.position
+        c.notes, c.company, c.position
         FROM customers c
         WHERE c.is_pool = 1
     </select>
 
-    <!-- 获取待分配客户 -->
+    <!-- 待分配客户 -->
     <select id="getUnAssignedCustomer" resultType="com.csi.domain.Customer">
-        SELECT
-        c.id,c.name,c.phone,c.sex,c.borndate,
-        c.company,c.position,c.source,c.status,s.status_name,
-        c.notes,c.sdr_status,ss.sdr_status_name,c.sdr_notes,
-        c.assignee_id,e1.name AS assigneeName,
-        c.creator_id,e2.name AS creatorName,
-        c.last_follow_up_time,c.create_time,c.update_time
+        SELECT c.*, s.status_name, ss.sdr_status_name,
+        e1.name AS assigneeName, e2.name AS creatorName
         FROM customers c
         LEFT JOIN status s ON c.status = s.status_id
         LEFT JOIN sdr_status ss ON c.sdr_status = ss.sdr_status_id
@@ -216,7 +221,7 @@
         WHERE c.assignee_id IS NULL
         AND c.is_pool = 0
         <if test="status != null">
-            AND c.sdr_status = #{status}
+            AND c.status = #{status}
         </if>
     </select>
 
@@ -229,5 +234,255 @@
             #{id}
         </foreach>
     </update>
+
+    <!-- 员工分配的客户 -->
+    <select id="findByEmployee" resultType="com.csi.domain.vo.CustomerVO">
+        SELECT * FROM public_customer_pool
+        WHERE assignee_id = #{employeeId}
+    </select>
+
+    <!-- 所有客户 -->
+    <select id="findAll" resultType="com.csi.domain.vo.CustomerVO">
+        SELECT * FROM public_customer_pool
+    </select>
+
+    <!-- 客户详情（含订单、商机，一对多映射） -->
+    <resultMap id="CustomerDetailMap" type="com.csi.domain.vo.CustomerDetailVO">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="phone" column="phone"/>
+        <result property="sex" column="sex"/>
+        <result property="companyName" column="companyName"/>
+        <result property="position" column="position"/>
+        <result property="salesRemark" column="salesRemark"/>
+
+        <!-- 订单集合 -->
+        <collection property="orders" ofType="com.csi.domain.vo.OrderVO">
+            <id property="id" column="orderId"/>
+            <result property="orderNumber" column="orderNumber"/>
+            <result property="createTime" column="orderCreateTime"/>
+        </collection>
+
+        <!-- 商机集合 -->
+        <collection property="opportunities" ofType="com.csi.domain.vo.OpportunityVO">
+            <id property="id" column="opportunityId"/>
+            <result property="name" column="opportunityName"/>
+            <result property="stage" column="opportunityStage"/>
+        </collection>
+    </resultMap>
+
+    <select id="getCustomerDetail" resultType="com.csi.domain.Customer">
+        SELECT c.id, c.name, c.phone, c.sex,
+        c.company, c.position, c.source, c.notes,
+        c.status, s.status_name AS statusName,
+        c.sdr_status, ss.sdr_status_name AS sdrStatusName, c.sdr_notes,
+        c.assignee_id, e1.name AS assigneeName,
+        c.creator_id, e2.name AS creatorName,
+        c.last_follow_up_time AS lastFollowUpTime,
+        c.create_time AS createTime, c.update_time AS updateTime
+        FROM customers c
+        LEFT JOIN status s ON c.status = s.status_id
+        LEFT JOIN sdr_status ss ON c.sdr_status = ss.sdr_status_id
+        LEFT JOIN employees e1 ON c.assignee_id = e1.id
+        LEFT JOIN employees e2 ON c.creator_id = e2.id
+        WHERE c.id = #{id}
+    </select>
+
+
+    <select id="listByEmployee" resultType="com.csi.domain.vo.CustomerVO">
+        SELECT c.*, e1.name AS assigneeName, e2.name AS creatorName
+        FROM customers c
+        LEFT JOIN employees e1 ON c.assignee_id = e1.id
+        LEFT JOIN employees e2 ON c.creator_id = e2.id
+        WHERE c.assignee_id = #{employeeId}
+        <if test="name != null and name != ''">
+            AND c.name LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="phone != null and phone != ''">
+            AND c.phone LIKE CONCAT('%', #{phone}, '%')
+        </if>
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countByEmployee" resultType="int">
+        SELECT COUNT(*)
+        FROM customers c
+        WHERE c.assignee_id = #{employeeId}
+        AND COALESCE(c.is_pool, 0) = 0
+        <if test="name != null and name != ''">
+            AND c.name LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="phone != null and phone != ''">
+            AND c.phone LIKE CONCAT('%', #{phone}, '%')
+        </if>
+    </select>
+
+    <update id="updateIsPool">
+        UPDATE customers
+        SET is_pool = 1,
+        update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 更新客户为客户池，并清空分配人 -->
+    <update id="updateIsPoolAndClearAssignee" parameterType="long">
+        UPDATE customers
+        SET is_pool = 1,
+        assignee_id = NULL,
+        update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 插入客户池原因 -->
+    <insert id="insertPoolReason">
+        INSERT INTO public_customer_pool (
+        customer_id, reason, release_time, locked_until, locked_by, create_time
+        ) VALUES (
+        #{customerId}, #{reason}, #{releaseTime},
+        DATE_ADD(NOW(), INTERVAL 7 DAY),   -- 默认锁定 7 天
+        IFNULL(#{lockedBy}, 0),            -- 如果传 null，就存 0
+        NOW()
+        )
+        ON DUPLICATE KEY UPDATE
+        reason = VALUES(reason),
+        release_time = VALUES(release_time),
+        locked_until = VALUES(locked_until),
+        locked_by = VALUES(locked_by),
+        create_time = NOW()
+    </insert>
+
+
+
+
+    <select id="selectCustomerList" resultType="com.csi.domain.Customer">
+        SELECT c.*, s.status_name, ss.sdr_status_name,
+        e1.name AS assigneeName, e2.name AS creatorName
+        FROM customers c
+        LEFT JOIN status s ON c.status = s.status_id
+        LEFT JOIN sdr_status ss ON c.sdr_status = ss.sdr_status_id
+        LEFT JOIN employees e1 ON c.assignee_id = e1.id
+        LEFT JOIN employees e2 ON c.creator_id = e2.id
+        <where>
+            <if test="name != null and name != ''">
+                AND c.name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="phone != null and phone != ''">
+                AND c.phone LIKE CONCAT('%', #{phone}, '%')
+            </if>
+        </where>
+    </select>
+    <!-- 客户详情 -->
+    <select id="findDetail" parameterType="long" resultType="com.csi.domain.vo.CustomerDetailVO">
+        SELECT
+        c.id,
+        c.name,
+        c.phone,
+        c.sex,
+        c.borndate,
+        c.company AS companyName,
+        c.position,
+        c.source,
+        c.status,
+        c.notes AS salesRemark,
+        c.sdr_status AS sdrStatus,
+        c.sdr_notes AS sdrNotes,
+        c.assignee_id AS assigneeId,
+        c.creator_id AS creatorId,
+        c.last_follow_up_time AS lastFollowUpTime,
+        c.create_time AS createTime,
+        c.update_time AS updateTime,
+        c.is_pool AS isPool,
+        c.pool_time AS poolTime,
+        c.activity_id AS activityId
+        FROM customers c
+        WHERE c.id = #{customerId}
+    </select>
+
+
+    <!-- 根据客户ID查询订单 -->
+    <select id="getOrdersByCustomerId" parameterType="long" resultType="com.csi.domain.vo.OrderVO">
+        SELECT
+        o.id,
+        o.customer_id AS customerId,
+        o.order_number AS orderNumber,
+        o.opportunity_id AS opportunityId,
+        o.total_amount AS totalAmount,
+        o.signed_date AS signedDate,
+        o.order_status AS orderStatus,
+        o.file_url AS fileUrl,
+        o.notes,
+        o.create_time AS createTime
+        FROM orders o
+        WHERE o.customer_id = #{customerId}
+    </select>
+
+
+    <!-- 根据客户ID查询商机 -->
+    <select id="getOpportunitiesByCustomerId" parameterType="long" resultType="com.csi.domain.vo.OpportunityVO">
+        SELECT
+        op.id,
+        op.customer_id AS customerId,
+        op.name AS name,                       -- 商机名称
+        op.amount,
+        op.stage,
+        op.probability,                        -- 赢率
+        op.expected_close_date AS expectedCloseDate, -- 预计成交日期
+        op.assignee_id AS assigneeId,
+        op.description,
+        op.create_time AS createTime,
+        op.update_time AS updateTime
+        FROM opportunities op
+        WHERE op.customer_id = #{customerId}
+    </select>
+
+    <!-- 更新客户表，分配给员工 -->
+    <update id="updateAssigneeAndPool">
+        UPDATE customers
+        SET is_pool = 0,
+        assignee_id = #{employeeId},
+        update_time = NOW()
+        WHERE id = #{customerId}
+    </update>
+
+    <!-- 更新公共客户池，锁定客户 -->
+    <update id="lockCustomer">
+        UPDATE public_customer_pool
+        SET locked_by = #{employeeId},
+        locked_until = #{lockedUntil},
+        release_time = NULL,
+        create_time = NOW()
+        WHERE customer_id = #{customerId}
+    </update>
+
+    <select id="selectCustomerPoolList" resultType="com.csi.domain.vo.CustomerPoolVO">
+        SELECT
+        c.id,
+        c.name,
+        c.phone,
+        CASE c.sex WHEN '1' THEN '男' WHEN '0' THEN '女' ELSE '未知' END AS sex,
+        c.company AS companyName,
+        c.position,
+        p.reason AS reason,
+        c.notes AS salesRemark,
+        p.create_time AS poolCreateTime,
+        c.last_follow_up_time AS lastFollowTime,
+        c.create_time,
+        c.update_time
+        FROM customers c
+        JOIN public_customer_pool p ON c.id = p.customer_id
+        ORDER BY p.create_time DESC
+    </select>
+
+
+
+
+    <update id="updateAssignee" parameterType="map">
+        UPDATE customers
+        SET assignee_id = #{employeeId},
+        update_time = NOW()
+        WHERE id = #{customerId}
+    </update>
+
+
 
 </mapper>

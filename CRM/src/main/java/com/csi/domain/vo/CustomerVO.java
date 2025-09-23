@@ -1,50 +1,27 @@
 package com.csi.domain.vo;
 
-import com.csi.domain.MarketingActivities;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 public class CustomerVO implements Serializable {
-
-    //客户id
-    private Integer id;
-    //客户名称
+    private Long id;
     private String name;
-    //客户手机号
     private String phone;
-    //客户性别
     private Integer sex;
-    //客户生日
-    private String borndate;
-    //客户所在公司
-    private String company;
-    //客户职位
-    private String position;
-    //客户来源
-    private String source;
-    //销售更改状态
     private Integer status;
-    private String statusName;
-    //销售备注
-    private String notes;
-    //电话销售更改状态
-    private Integer sdrStatus;
-    private String sdrStatusName;
-    //电话销售备注
-    private String sdrNotes;
-    //负责的销售
-    private Integer assigneeId;
-    private String name1;
-    //创建人
-    private Integer creatorId;
-    private String name2;
-    //最后跟进时间
-    private String lastFollowUPTime;
-    //关联活动id
-    private Integer activityId;
-    private MarketingActivities marketingActivities;
+    private String company;
+    private String position;
+    private String remark;
 
+    // 单个订单号和商机名
+    private String orderNumber;
+    private String opportunityName;
+
+    // 一对多关系（备用）
+    private List<OrderVO> orders;
+    private List<OpportunityVO> opportunities;
 
 }
