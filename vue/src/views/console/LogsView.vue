@@ -206,9 +206,9 @@ const searchLogs = async () => {
     console.log('搜索返回的数据:', response)
 
     // 处理分页数据
-    if (response && response.code === 200) {
-      logs.value = response.data || []
-      total.value = response.total || 0
+    if (response && response.data.code === 200) {
+      logs.value = response.data.data || []
+      total.value = response.data.total || 0
 
       // 搜索操作：无论是否翻页，都显示总条数（符合需求）
       ElMessage.success(`搜索完成，共${total.value}条记录，当前页显示${logs.value.length}条`)

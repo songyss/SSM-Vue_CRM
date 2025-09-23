@@ -30,6 +30,7 @@ public class Employee implements Serializable {
     private String roleName;
     //上级领导
     private Integer superiorId;
+    private String superiorName;
     private String createTime;
     private String updateTime;
 

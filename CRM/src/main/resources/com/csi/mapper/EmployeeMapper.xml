@@ -21,6 +21,7 @@
         <result property="updateTime" column="update_time" />
     </resultMap>
 
+<!--    经理查询下属员工-->
     <select id="getAllEmployees" resultType="com.csi.domain.Employee">
         select e.id as id,
         e.username,
@@ -34,10 +35,58 @@
         e.role,
         r.role_name,
         e.create_time,
-        e.update_time
+        e.update_time,
+        e.superior_id,
+        sup.name as superiorName
         from employees e
         join departments d on e.department = d.department_id
         join roles r on e.role = r.id
+        left join employees sup on e.superior_id = sup.id
+        where 1=1
+        <if test="superiorId != null">
+            AND superior_id = #{superiorId}
+        </if>
+
+    </select>
+
+    <select id="getAllEmployeesWithConditions" parameterType="map" resultType="com.csi.domain.Employee">
+        select e.id as id,
+        e.username,
+        e.name,
+        e.phone,
+        e.sex,
+        e.borndate,
+        e.email,
+        e.department,
+        d.department_name,
+        e.role,
+        r.role_name,
+        e.create_time,
+        e.update_time,
+        e.superior_id,
+        sup.name as superiorName
+        from employees e
+        join departments d on e.department = d.department_id
+        join roles r on e.role = r.id
+        left join employees sup on e.superior_id = sup.id
+        <where>
+            <if test="superiorId != null">
+                AND e.superior_id = #{superiorId}
+            </if>
+            <if test="conditions.username != null and conditions.username != ''">
+                AND e.username LIKE CONCAT('%', #{conditions.username}, '%')
+            </if>
+            <if test="conditions.name != null and conditions.name != ''">
+                AND e.name LIKE CONCAT('%', #{conditions.name}, '%')
+            </if>
+            <if test="conditions.phone != null and conditions.phone != ''">
+                AND e.phone LIKE CONCAT('%', #{conditions.phone}, '%')
+            </if>
+            <if test="conditions.email != null and conditions.email != ''">
+                AND e.email LIKE CONCAT('%', #{conditions.email}, '%')
+            </if>
+            AND e.is_delete = 0
+        </where>
     </select>
 
 
@@ -107,12 +156,12 @@
 
     <!-- 根据员工姓名查询 -->
     <select id="findByUsername" parameterType="string" resultMap="EmployeesResultMap">
-        SELECT * FROM employees WHERE username = #{username} AND is_delete = 0
+        SELECT * FROM employees WHERE username = #{username}
     </select>
 
     <!-- 根据id查询 -->
     <select id="findById" parameterType="int" resultMap="EmployeesResultMap">
-        SELECT * FROM employees WHERE id = #{id} AND is_delete = 0
+        SELECT * FROM employees WHERE id = #{id}
     </select>
 
     <select id="findLeaderIdByEmployeeId" resultType="java.lang.Integer">
@@ -122,6 +171,16 @@
     <select id="login" resultType="com.csi.domain.Employee">
         select * from employees where username = #{username} and password = #{password}
     </select>
+    <!-- 重置员工密码 -->
+    <update id="updatePassword" parameterType="map">
+        UPDATE employees
+        SET password = #{password},
+        update_time = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+
+
 
     <!-- 新增员工 -->
     <insert id="save" parameterType="com.csi.domain.Employee">
@@ -135,23 +194,50 @@
     </insert>
 
     <!-- 更新员工信息 -->
+    <!-- 动态更新员工信息 -->
     <update id="update" parameterType="com.csi.domain.Employee">
         UPDATE employees
-        SET username   = #{username},
-        name       = #{name},
-        sex        = #{sex},
-        phone      = #{phone},
-        borndate   = #{borndate},
-        email      = #{email},
-        department = #{department},
-        role       = #{role},
-        superior_id = #{superiorId},
-        update_time = CURRENT_TIMESTAMP
+        <set>
+            <if test="username != null and username != ''">
+                username = #{username},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="sex != null and sex != ''">
+                sex = #{sex},
+            </if>
+            <if test="phone != null and phone != ''">
+                phone = #{phone},
+            </if>
+            <if test="borndate != null">
+                borndate = #{borndate},
+            </if>
+            <if test="email != null and email != ''">
+                email = #{email},
+            </if>
+            <if test="department != null">
+                department = #{department},
+            </if>
+            <if test="role != null">
+                role = #{role},
+            </if>
+            <if test="superiorId != null">
+                superior_id = #{superiorId},
+            </if>
+            update_time = CURRENT_TIMESTAMP
+        </set>
         WHERE id = #{id}
     </update>
+
 
     <delete id="deleteById" parameterType="int">
         DELETE FROM employees WHERE id = #{id}
     </delete>
+
+
 
 </mapper>

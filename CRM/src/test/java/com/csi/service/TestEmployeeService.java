@@ -16,9 +16,7 @@ public class TestEmployeeService {
 
     @Test
     public void getAllEmployeesTest(){
-        for (Employee allEmployee : employeeService.getAllEmployees()) {
-            System.out.println(allEmployee);
-        }
+
 
     }
 

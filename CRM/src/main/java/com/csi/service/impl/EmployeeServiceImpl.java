@@ -19,9 +19,31 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Employee> getAllEmployees() {
-        return employeeMapper.getAllEmployees();
+    public List<Employee> getAllEmployees(Integer superiorId) {
+        return employeeMapper.getAllEmployees(superiorId);
     }
+
+    @Override
+    public void resetPassword(Integer id, String password) {
+        // 参数校验
+        if (id == null) {
+            throw new IllegalArgumentException("员工ID不能为空");
+        }
+        if (password == null || password.isEmpty()) {
+            throw new IllegalArgumentException("密码不能为空");
+        }
+
+        // 检查员工是否存在
+        Employee employee = employeeMapper.findById(id);
+        if (employee == null) {
+            throw new RuntimeException("员工不存在");
+        }
+
+        // 更新密码
+        employee.setPassword(password);
+        employeeMapper.updatePassword(id, password);
+    }
+
 
     @Override
     public List<Employee> getAllOnEmployees() {
@@ -42,6 +64,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public int findLeaderIdByEmployeeId(int id) {
         return employeeMapper.findLeaderIdByEmployeeId(id);
+    }
+
+    @Override
+    public List<Employee> getAllEmployeesWithConditions(Integer superiorId, Employee conditions) {
+        return employeeMapper.getAllEmployeesWithConditions(superiorId, conditions);
     }
 
     @Override
@@ -97,23 +124,23 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public void update(Employee employee) {
-        // 参数校验
-        if (employee == null || employee.getId() == null) {
-            throw new IllegalArgumentException("员工信息或ID不能为空");
-        }
-
-        // 检查员工是否存在
-        Employee existing = employeeMapper.findById(employee.getId());
-        if (existing == null) {
-            throw new RuntimeException("员工不存在，ID: " + employee.getId());
-        }
-
-        // 如果修改了用户名，检查新用户名是否唯一
-        if (!Objects.equals(existing.getUsername(), employee.getUsername())) {
-            if (!isUsernameUnique(employee.getUsername())) {
-                throw new RuntimeException("用户名已存在: " + employee.getUsername());
-            }
-        }
+//        // 参数校验
+//        if (employee == null || employee.getId() == null) {
+//            throw new IllegalArgumentException("员工信息或ID不能为空");
+//        }
+//
+//        // 检查员工是否存在
+//        Employee existing = employeeMapper.findById(employee.getId());
+//        if (existing == null) {
+//            throw new RuntimeException("员工不存在，ID: " + employee.getId());
+//        }
+//
+//        // 如果修改了用户名，检查新用户名是否唯一
+//        if (!Objects.equals(existing.getUsername(), employee.getUsername())) {
+//            if (!isUsernameUnique(employee.getUsername())) {
+//                throw new RuntimeException("用户名已存在: " + employee.getUsername());
+//            }
+//        }
 
         employeeMapper.update(employee);
     }
@@ -137,6 +164,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Employee login(String username, String password) {
         return employeeMapper.login(username, password);
     }
+
+
 
     /**
      * 检查用户名是否唯一
