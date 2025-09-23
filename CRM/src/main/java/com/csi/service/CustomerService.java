@@ -35,6 +35,8 @@ public interface CustomerService {
 
     List<Customer> getPoolCustomer(); // 客户池
 
+    PageInfo<Customer> getPersonalCustomerByPage(Integer employeeId, int page, int size);
+
     List<Customer> getUnAssignedCustomerList(Integer status); // 获取待分配客户（可按状态过滤）
 
     List<Customer> getUnAssignedList(); // 备用：未分配客户

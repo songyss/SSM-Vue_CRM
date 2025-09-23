@@ -98,6 +98,17 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional(readOnly = true)
+    public PageInfo<Customer> getPersonalCustomerByPage(Integer employeeId, int page, int size) {
+        // 开启分页
+        PageHelper.startPage(page, size);
+        // 查询数据，使用assigneeId作为筛选条件
+        List<Customer> customers = customerMapper.getPersonalCustomer(employeeId);
+        // 封装分页结果
+        return new PageInfo<>(customers);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<Customer> getPersonalCustomer(int id) {
         return customerMapper.getPersonalCustomer(id);
     }

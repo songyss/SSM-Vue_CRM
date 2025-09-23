@@ -1,5 +1,6 @@
 package com.csi.controller.customer;
 
+import com.csi.annotation.OperateLog;
 import com.csi.domain.Customer;
 import com.csi.domain.PublicCustomerPool;
 import com.csi.domain.vo.CustomerDetailVO;
@@ -33,6 +34,20 @@ public class CustomerController {
     public R getAllCustomerList() {
         List<Customer> allCustomer = customerService.getAllCustomer();
         return allCustomer != null ? R.ok(allCustomer) : R.error();
+    }
+
+    @OperateLog(operation = "查询当前销售所负责客户", targetType = "Customer")
+    @GetMapping("/myCustomers")
+    public R getMyCustomers(@RequestParam(value = "page", defaultValue = "1") int page,
+                            @RequestParam(value = "size", defaultValue = "10") int size,
+                            @RequestParam(value = "employeeId", required = false) Integer employeeId) {
+        try {
+            PageInfo<Customer> pageInfo = customerService.getPersonalCustomerByPage(employeeId, page, size);
+            return R.ok(pageInfo);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return R.error();
+        }
     }
 
     /**
