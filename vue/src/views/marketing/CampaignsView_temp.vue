@@ -260,7 +260,13 @@
         <el-table :data="activities" border class="activities-table">
           <el-table-column prop="id" label="ID" width="60" align="center"/>
           <el-table-column prop="name" label="活动名称" min-width="150" align="center"/>
-          <el-table-column prop="content" label="活动描述" min-width="200" show-overflow-tooltip align="center"/>
+          <el-table-column label="活动描述" min-width="200" align="center">
+            <template #default="{ row }">
+              <el-button size="small" type="primary" plain @click="viewActivityContent(row)">
+                查看详情
+              </el-button>
+            </template>
+          </el-table-column>
           <el-table-column prop="startTime" label="开始时间" width="120" align="center"/>
           <el-table-column prop="endTime" label="结束时间" width="120" align="center"/>
 
@@ -314,6 +320,9 @@
             <el-form-item label="活动名称" prop="name" :rules="[{ required: true, message: '请输入活动名称', trigger: 'blur' }]">
               <el-input v-model="currentActivity.name" placeholder="请输入活动名称"/>
             </el-form-item>
+            <el-form-item label="关联方案ID" prop="planId">
+              <el-input v-model.number="currentActivity.planId" placeholder="请输入关联方案ID" type="number"/>
+            </el-form-item>
             <el-form-item label="活动描述" prop="content">
               <el-input
                 v-model="currentActivity.content"
@@ -321,6 +330,12 @@
                 placeholder="请输入活动描述"
                 :rows="3"
               />
+            </el-form-item>
+            <el-form-item label="活动地点" prop="location">
+              <el-input v-model="currentActivity.location" placeholder="请输入活动地点"/>
+            </el-form-item>
+            <el-form-item label="活动形式" prop="form">
+              <el-input v-model="currentActivity.form" placeholder="请输入活动形式"/>
             </el-form-item>
             <el-row :gutter="20">
               <el-col :span="12">
@@ -375,6 +390,9 @@
                 <el-option label="已结束" :value="3"/>
                 <el-option label="已取消" :value="4"/>
               </el-select>
+            </el-form-item>
+            <el-form-item label="负责人ID" prop="managerId" :rules="[{ required: true, message: '请输入负责人ID', trigger: 'blur' }]">
+              <el-input v-model.number="currentActivity.managerId" placeholder="请输入负责人ID" type="number"/>
             </el-form-item>
           </el-form>
           <template #footer>
@@ -435,10 +453,67 @@
             <el-form-item label="负责人:">
               <span>{{ detailActivity.managername }}</span>
             </el-form-item>
+            <el-form-item label="二维码:">
+              <div class="qr-code-container">
+                <div v-if="!detailActivity.id">
+                  <p>活动信息不完整，无法生成二维码</p>
+                </div>
+                <div v-else>
+                  <img
+                    :src="getQRCodeUrl(detailActivity.id)"
+                    @error="handleQRCodeError"
+                    @load="handleQRCodeLoad"
+                    alt="活动二维码"
+                    class="qr-code-image"
+                    @click="showEnlargedQRCode(detailActivity.id)"
+                  />
+                  <p class="qr-code-description">点击二维码可放大查看</p>
+                  <p v-if="qrCodeError" class="qr-code-error">二维码加载失败，请检查网络连接或联系管理员</p>
+                  <p v-if="qrCodeError" class="qr-code-error">可能是服务器缺少二维码生成组件，请联系系统管理员</p>
+                </div>
+              </div>
+            </el-form-item>
             <el-form-item label="创建时间:">
               <span>{{ detailActivity.createTime }}</span>
             </el-form-item>
           </el-form>
+        </el-dialog>
+
+        <!-- 放大的二维码对话框 -->
+        <el-dialog
+          v-model="enlargedQRCodeVisible"
+          title="活动二维码"
+          width="400px"
+          center
+        >
+          <div class="enlarged-qr-code-container">
+            <img :src="qrCodeUrl" alt="活动二维码" class="enlarged-qr-code-image" />
+            <p class="qr-code-description">请扫描二维码参与活动</p>
+          </div>
+        </el-dialog>
+
+        <!-- 活动描述详情对话框（参考报告内容展示方式） -->
+        <el-dialog
+          v-model="activityContentDialogVisible"
+          title="活动描述详情"
+          width="800px"
+          top="5vh"
+          :modal="true"
+          :close-on-click-modal="true"
+          :show-close="true"
+        >
+          <el-scrollbar max-height="70vh">
+            <div class="activity-content-section">
+              <h3>活动描述</h3>
+              <div class="activity-content-html" v-html="formatActivityContent(detailActivity.content)"></div>
+            </div>
+          </el-scrollbar>
+
+          <template #footer>
+            <div class="dialog-footer">
+              <el-button @click="activityContentDialogVisible = false">关闭</el-button>
+            </div>
+          </template>
         </el-dialog>
       </div>
 
@@ -648,7 +723,10 @@ const dialogVisible = ref(false)
 const dialogTitle = ref('新增活动')
 const currentActivity = ref({
   name: '',
+  planId: null,
   content: '',
+  location: '',
+  form: '',
   startTime: '',
   endTime: '',
   estimatedCost: 0,
@@ -657,7 +735,55 @@ const currentActivity = ref({
   managerId: 1 // 示例值，实际应从用户信息中获取
 })
 const detailDialogVisible = ref(false)
+const activityContentDialogVisible = ref(false) // 确保这个变量已定义
 const detailActivity = ref({})
+// 添加二维码相关数据
+const enlargedQRCodeVisible = ref(false)
+const qrCodeUrl = ref('')
+const qrCodeError = ref(false)
+const debugMode = ref(false) // 调试模式
+
+// 获取二维码URL
+const getQRCodeUrl = (activityId) => {
+  // 添加检查确保activityId存在
+  if (!activityId) {
+    console.error('无效的活动ID:', activityId);
+    return '';
+  }
+
+  // 使用相对路径URL，让前端代理处理
+  const qrUrl = `/market/qrcode/withLogo?activityId=${activityId}`;
+  console.log('生成二维码URL:', qrUrl);
+  return qrUrl;
+};
+
+// 处理二维码加载错误
+const handleQRCodeError = (event) => {
+  console.error('二维码加载失败:', event);
+  console.error('失败的二维码URL:', event.target.src);
+  qrCodeError.value = true;
+};
+
+// 处理二维码加载成功
+const handleQRCodeLoad = (event) => {
+  console.log('二维码加载成功:', event);
+  qrCodeError.value = false;
+};
+
+// 显示放大的二维码
+const showEnlargedQRCode = (activityId) => {
+  // 添加检查确保activityId存在
+  if (!activityId) {
+    console.error('无效的活动ID:', activityId);
+    return;
+  }
+
+  const url = getQRCodeUrl(activityId);
+  console.log('放大二维码URL:', url);
+  qrCodeUrl.value = url;
+  qrCodeError.value = false; // 重置错误状态
+  enlargedQRCodeVisible.value = true;
+}
 
 // 活动报告相关数据
 const activityReports = ref([])
@@ -698,14 +824,32 @@ const handleMenuSelect = (index) => {
 const fetchPromotionPlans = async () => {
   try {
     const response = await request.get('/marketing/getPromotionPlans')
-    if (response && response.code === 200) {
-      promotionPlans.value = response.data || []
-      ElMessage.success('策划数据加载成功')
+    console.log('策划接口响应:', response)
+
+    // 直接使用响应数据，不再检查code
+    if (response && response.data) {
+      // 检查response.data是否直接就是数组
+      if (Array.isArray(response.data)) {
+        promotionPlans.value = response.data
+        ElMessage.success(`策划数据加载成功，共 ${response.data.length} 条数据`)
+      }
+      // 检查response.data中是否有data字段（后端R类封装的格式）
+      else if (response.data.data && Array.isArray(response.data.data)) {
+        promotionPlans.value = response.data.data
+        ElMessage.success(`策划数据加载成功，共 ${response.data.data.length} 条数据`)
+      }
+      // 检查是否是后端直接返回的列表（没有封装在data中）
+      else {
+        promotionPlans.value = []
+        ElMessage.warning('策划数据格式不正确')
+      }
     } else {
-      ElMessage.error('策划数据加载失败')
+      promotionPlans.value = []
+      ElMessage.info('暂无策划数据')
     }
   } catch (error) {
     console.error('获取活动策划失败:', error)
+    promotionPlans.value = []
     ElMessage.error('获取活动策划失败: ' + (error.message || '网络错误'))
   }
 }
@@ -718,7 +862,7 @@ const fetchActivities = async () => {
     // 如果有任何搜索条件，使用组合查询接口
     if (searchForm.value.name || searchForm.value.status !== '') {
       // 准备查询参数
-      const params: any = {};
+      const params = {};
 
       if (searchForm.value.name) {
         params.name = searchForm.value.name.trim();
@@ -730,98 +874,56 @@ const fetchActivities = async () => {
 
       // 如果有状态筛选，使用状态查询接口
       if (searchForm.value.status !== '') {
-        try {
-          response = await request.get('/marketActivity/getByStatus', {
-            params: { status: searchForm.value.status }
-          });
-        } catch (error) {
-          console.error('按状态查询失败:', error);
-          ElMessage.error('按状态查询失败: ' + (error.message || '网络错误'));
-          return;
-        }
+        response = await request.get('/marketActivity/getByStatus', {
+          params: { status: searchForm.value.status }
+        });
       }
       // 如果只有名称筛选，使用名称查询接口
       else if (searchForm.value.name) {
-        try {
-          response = await request.get('/marketActivity/getByName', {
-            params: { name: searchForm.value.name }
-          });
-        } catch (error) {
-          console.error('按名称查询失败:', error);
-          ElMessage.error('按名称查询失败: ' + (error.message || '网络错误'));
-          return;
-        }
+        response = await request.get('/marketActivity/getByName', {
+          params: { name: searchForm.value.name }
+        });
       }
     }
     // 默认查询所有活动
     else {
-      try {
-        response = await request.get('/marketActivity/getAll');
-      } catch (error) {
-        ElMessage.error('查询默认数据失败: ' + (error.message || '网络错误'));
-        return;
-      }
+      response = await request.get('/marketActivity/getAll');
     }
 
     // 处理响应数据
-    const data = response.data || response;
-    console.log('收到数据:', data)
+    console.log('活动接口响应:', response)
+    if (response && response.data) {
+      let data = [];
 
-    if (data) {
-      // 确保数据是数组格式
-      if (Array.isArray(data)) {
-        activities.value = data;
-        pagination.value.total = data.length;
-        ElMessage.success('数据加载成功');
-      } else if (data.id) {
-        // 如果是单个对象（有id属性），转换为数组
-        activities.value = [data];
-        pagination.value.total = 1;
-        ElMessage.success('数据加载成功');
+      // 检查response.data是否直接就是数组
+      if (Array.isArray(response.data)) {
+        data = response.data;
+      }
+      // 检查response.data中是否有data字段（后端R类封装的格式）
+      else if (response.data.data && Array.isArray(response.data.data)) {
+        data = response.data.data;
+      }
+
+      activities.value = data;
+      pagination.value.total = data.length;
+
+      if (data.length > 0) {
+        ElMessage.success(`数据加载成功，共 ${data.length} 条记录`);
       } else {
-        // 数据为空或其他情况
-        activities.value = [];
-        pagination.value.total = 0;
         ElMessage.info('暂无活动数据');
       }
     } else {
-      // 数据为空
       activities.value = [];
       pagination.value.total = 0;
       ElMessage.info('暂无活动数据');
-    const response = await request.get('/marketing/getPromotionPlans')
-    if (response.data.code === 200) {
-      promotionPlans.value = response.data.data
-    } else {
-      ElMessage.error('获取推广计划失败')
     }
 
-    console.log('设置的activities数据:', activities.value)
+    console.log('设置的activities数据:', activities.value);
   } catch (error) {
-    console.error('请求异常:', error)
-
-    // 特别处理未登录的情况
-    if (error.message && error.message.includes('未登录')) {
-      ElMessage.error('请先登录')
-      router.push('/login')
-      return
-    }
-
-    if (error.message && error.message.includes('Token')) {
-      ElMessage.error('身份验证已过期，请重新登录')
-      localStorage.removeItem('crm_token')
-      router.push('/login')
-      return
-    }
-
-    if (error.message) {
-      ElMessage.error(error.message)
-    } else {
-      ElMessage.error('请求失败: ' + (error.message || '未知错误'))
-    }
-
-    activities.value = []
-    pagination.value.total = 0
+    console.error('请求异常:', error);
+    activities.value = [];
+    pagination.value.total = 0;
+    ElMessage.error('请求失败: ' + (error.message || '网络错误'));
   }
 }
 
@@ -829,14 +931,32 @@ const fetchActivities = async () => {
 const fetchActivityReports = async () => {
   try {
     const response = await request.get('/activityReport/getAll')
-    if (response && response.code === 200) {
-      activityReports.value = response.data || []
-      ElMessage.success('报告数据加载成功')
+    console.log('报告接口响应:', response)
+
+    // 直接使用响应数据，不再检查code
+    if (response && response.data) {
+      // 检查response.data是否直接就是数组
+      if (Array.isArray(response.data)) {
+        activityReports.value = response.data
+        ElMessage.success(`报告数据加载成功，共 ${response.data.length} 条数据`)
+      }
+      // 检查response.data中是否有data字段（后端R类封装的格式）
+      else if (response.data.data && Array.isArray(response.data.data)) {
+        activityReports.value = response.data.data
+        ElMessage.success(`报告数据加载成功，共 ${response.data.data.length} 条数据`)
+      }
+      // 检查是否是后端直接返回的列表（没有封装在data中）
+      else {
+        activityReports.value = []
+        ElMessage.warning('报告数据格式不正确')
+      }
     } else {
-      ElMessage.error('报告数据加载失败')
+      activityReports.value = []
+      ElMessage.info('暂无报告数据')
     }
   } catch (error) {
     console.error('获取活动报告失败:', error)
+    activityReports.value = []
     ElMessage.error('获取活动报告失败: ' + (error.message || '网络错误'))
   }
 }
@@ -886,12 +1006,15 @@ const savePlan = async () => {
     };
 
     const response = await request.put('/marketing/savePromotionPlans', planData)
-    if (response && response.code === 200) {
-      ElMessage.success('新增策划成功')
+    console.log('新增策划响应:', response)
+
+    // 检查响应状态
+    if (response && (response.code === 200 || response.status === 200)) {
+      ElMessage.success(response.message || response.data || '新增策划成功')
       planDialogVisible.value = false
       fetchPromotionPlans()
     } else {
-      ElMessage.error('新增策划失败: ' + response.message)
+      ElMessage.error(response.message || response.data || '新增策划失败')
     }
   } catch (error) {
     console.error('新增策划失败:', error)
@@ -933,12 +1056,15 @@ const submitApproval = async () => {
     }
 
     const response = await request.put('/marketing/updatePromotionPlans', approveData)
-    if (response && response.code === 200) {
-      ElMessage.success('审批成功')
+    console.log('审批响应:', response)
+
+    // 检查响应状态
+    if (response && (response.code === 200 || response.status === 200)) {
+      ElMessage.success(response.message || response.data || '审批成功')
       approveDialogVisible.value = false
       fetchPromotionPlans()
     } else {
-      ElMessage.error('审批失败: ' + response.message)
+      ElMessage.error(response.message || response.data || '审批失败')
     }
   } catch (error) {
     console.error('审批失败:', error)
@@ -972,7 +1098,10 @@ const handleAdd = () => {
   dialogTitle.value = '新增活动'
   currentActivity.value = {
     name: '',
+    planId: null,
     content: '',
+    location: '',
+    form: '',
     startTime: '',
     endTime: '',
     estimatedCost: 0,
@@ -1005,29 +1134,86 @@ const saveActivity = async () => {
     return;
   }
 
+  if (!currentActivity.value.managerId) {
+    ElMessage.warning('请输入负责人ID');
+    return;
+  }
+
   try {
     let response;
 
+    // 格式化日期为 MySQL 兼容格式
+    const formatDateTime = (date) => {
+      if (!date) return '';
+      const d = new Date(date);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const hours = String(d.getHours()).padStart(2, '0');
+      const minutes = String(d.getMinutes()).padStart(2, '0');
+      const seconds = String(d.getSeconds()).padStart(2, '0');
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    };
+
+    // 准备发送给后端的数据，确保字段名与Mapper文件完全匹配，并且类型正确
+    const activityData = {
+      id: currentActivity.value.id || undefined,
+      name: currentActivity.value.name,
+      planId: currentActivity.value.planId ? parseInt(currentActivity.value.planId) : null,
+      content: currentActivity.value.content || '',
+      location: currentActivity.value.location || '',
+      form: currentActivity.value.form || '',
+      startTime: currentActivity.value.startTime ? formatDateTime(currentActivity.value.startTime) : '',
+      endTime: currentActivity.value.endTime ? formatDateTime(currentActivity.value.endTime) : '',
+      estimatedCost: parseFloat(currentActivity.value.estimatedCost) || 0,
+      actualCost: parseFloat(currentActivity.value.actualCost) || 0,
+      managerId: parseInt(currentActivity.value.managerId),
+      activityStatus: parseInt(currentActivity.value.activityStatus),
+      createTime: currentActivity.value.id ? currentActivity.value.createTime : formatDateTime(new Date())
+    };
+
+    console.log('发送的活动数据:', activityData);
+
     // 如果有ID则为更新，否则为新增
     if (currentActivity.value.id) {
-      response = await request.put('/marketActivity/update', currentActivity.value);
+      response = await request.put('/marketActivity/update', activityData);
     } else {
-      // 设置创建时间
-      currentActivity.value.createTime = new Date().toISOString();
-      response = await request.post('/marketActivity/add', currentActivity.value);
+      // 新增活动，使用URLSearchParams格式发送
+      const params = new URLSearchParams();
+      for (const key in activityData) {
+        if (activityData[key] !== null && activityData[key] !== undefined) {
+          params.append(key, activityData[key]);
+        }
+      }
+
+      response = await request.post('/marketActivity/add', params, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      });
     }
 
+    console.log('保存活动响应:', response);
     // 检查响应结果
-    if (response && (response.code === 200 || response.code === 0)) {
-      ElMessage.success(response.message || (currentActivity.value.id ? '更新成功' : '新增成功'));
+    if (response && (response.code === 200 || response.status === 200)) {
+      ElMessage.success(response.message || response.data || (currentActivity.value.id ? '更新成功' : '新增成功'));
       dialogVisible.value = false;
       fetchActivities(); // 重新加载数据
     } else {
-      ElMessage.error(response.message || (currentActivity.value.id ? '更新失败' : '新增失败'));
+      ElMessage.error(response.message || response.data || (currentActivity.value.id ? '更新失败' : '新增失败'));
     }
   } catch (error) {
     console.error('完整错误:', error);
-    if (error.message && error.message.includes('未登录')) {
+
+    // 更详细地处理错误信息
+    if (error.response && error.response.data) {
+      const errorData = error.response.data;
+      if (errorData.message) {
+        ElMessage.error('操作失败: ' + errorData.message);
+      } else {
+        ElMessage.error('操作失败: ' + (error.message || '服务器内部错误'));
+      }
+    } else if (error.message && error.message.includes('未登录')) {
       ElMessage.error('请先登录');
       router.push('/login');
     } else if (error.message && error.message.includes('Token')) {
@@ -1093,15 +1279,17 @@ const saveReport = async () => {
       response = await request.put('/activityReport/update', currentReport.value)
     } else {
       // 新增报告
+      // 设置创建时间
+      currentReport.value.createTime = formatDate(new Date());
       response = await request.post('/activityReport/add', currentReport.value)
     }
 
-    if (response && response.code === 200) {
-      ElMessage.success(response.message || (currentReport.value.id ? '更新报告成功' : '新增报告成功'))
+    if (response && (response.code === 200 || response.status === 200)) {
+      ElMessage.success(response.message || response.data || (currentReport.value.id ? '更新报告成功' : '新增报告成功'))
       reportDialogVisible.value = false
       fetchActivityReports()
     } else {
-      ElMessage.error(response.message || (currentReport.value.id ? '更新报告失败' : '新增报告失败'))
+      ElMessage.error(response.message || response.data || (currentReport.value.id ? '更新报告失败' : '新增报告失败'))
     }
   } catch (error) {
     console.error('保存报告失败:', error)
@@ -1118,17 +1306,39 @@ const viewReportDetail = (row) => {
 // 获取报告详情
 const getReportDetail = async (id) => {
   try {
-    const response = await request.get(`/activityReport/getById?id=${id}`);
-    if (response && response.code === 200) {
-      detailReport.value = response.data || {};
-      reportDetailDialogVisible.value = true;
+    const response = await request.get('/activityReport/getById', {
+      params: { id: id }
+    });
+    console.log('获取报告详情响应:', response);
+
+    if (response && response.data) {
+      // 检查response.data是否直接就是报告对象
+      if (response.data.id) {
+        detailReport.value = response.data;
+        reportDetailDialogVisible.value = true;
+        ElMessage.success('报告详情获取成功');
+      }
+      // 检查response.data中是否有data字段（后端R类封装的格式）
+      else if (response.data.data && response.data.data.id) {
+        detailReport.value = response.data.data;
+        reportDetailDialogVisible.value = true;
+        ElMessage.success('报告详情获取成功');
+      } else {
+        ElMessage.error('获取报告详情失败: 数据格式不正确');
+      }
     } else {
-      ElMessage.error('获取报告详情失败');
+      ElMessage.error('获取报告详情失败: 未收到有效数据');
     }
   } catch (error) {
     console.error('获取报告详情失败:', error);
     ElMessage.error('获取报告详情失败: ' + (error.message || '网络错误'));
   }
+}
+
+// 查看活动描述详情（参考报告内容展示方式）
+const viewActivityContent = (row) => {
+  detailActivity.value = { ...row }
+  activityContentDialogVisible.value = true
 }
 
 // 格式化策划内容为HTML
@@ -1142,6 +1352,19 @@ const formatPlanContent = (content) => {
 
   // 如果是纯文本，转换为HTML格式
   return `<div class="plan-content-text">${content.replace(/\n/g, '<br>')}</div>`;
+}
+
+// 格式化活动内容为HTML
+const formatActivityContent = (content) => {
+  if (!content) return '<p>暂无内容</p>';
+
+  // 如果内容已经是HTML格式，直接返回
+  if (content.trim().startsWith('<')) {
+    return content;
+  }
+
+  // 如果是纯文本，转换为HTML格式
+  return `<div class="activity-content-text">${content.replace(/\n/g, '<br>')}</div>`;
 }
 
 // 格式化报告内容为HTML
@@ -1172,11 +1395,11 @@ const handleDeleteReport = (row) => {
         const response = await request.delete('/activityReport/delete', {
           params: { id: row.id }
         })
-        if (response && response.code === 200) {
-          ElMessage.success('删除成功')
+        if (response && (response.code === 200 || response.status === 200)) {
+          ElMessage.success(response.message || response.data || '删除成功')
           fetchActivityReports()
         } else {
-          ElMessage.error('删除失败: ' + response.message)
+          ElMessage.error(response.message || response.data || '删除失败')
         }
       } catch (error) {
         console.error('删除失败:', error)
@@ -1186,23 +1409,6 @@ const handleDeleteReport = (row) => {
     .catch(() => {
       ElMessage.info('已取消删除')
     })
-  ).then(async () => {
-    try {
-      const response = await request.delete('/activityReport/delete', {
-        params: { id: row.id }
-      })
-      if (response.data.code === 200) {
-        ElMessage.success('删除成功')
-        getPromotionPlans()
-      } else {
-        ElMessage.error(response.data.message || '删除失败')
-      }
-    } catch (error) {
-      ElMessage.error('删除失败: ' + error.message)
-    }
-  }).catch(() => {
-    // 用户取消删除
-  })
 }
 
 const onReportDialogClose = () => {
@@ -1631,12 +1837,14 @@ onMounted(() => {
   color: #e6a23c;
 }
 
-/* 策划描述详情样式（参考报告内容样式） */
+/* 活动描述详情样式（参考报告内容样式） */
+.activity-content-section,
 .plan-content-section,
 .report-content-section {
   margin-top: 20px;
 }
 
+.activity-content-section h3,
 .plan-content-section h3,
 .report-content-section h3 {
   margin: 0 0 15px 0;
@@ -1645,6 +1853,7 @@ onMounted(() => {
   font-weight: 600;
 }
 
+.activity-content-html,
 .plan-content-html,
 .report-content-html {
   padding: 15px;
@@ -1654,6 +1863,7 @@ onMounted(() => {
   min-height: 200px;
 }
 
+.activity-content-text,
 .plan-content-text,
 .report-content-text {
   line-height: 1.6;
@@ -1661,16 +1871,20 @@ onMounted(() => {
   white-space: pre-wrap;
 }
 
+:deep(.activity-content-html h1),
 :deep(.plan-content-html h1),
-:deep(.plan-content-html h2),
-:deep(.plan-content-html h3),
 :deep(.report-content-html h1),
+:deep(.activity-content-html h2),
+:deep(.plan-content-html h2),
 :deep(.report-content-html h2),
+:deep(.activity-content-html h3),
+:deep(.plan-content-html h3),
 :deep(.report-content-html h3) {
   margin: 15px 0;
   color: #303133;
 }
 
+:deep(.activity-content-html p),
 :deep(.plan-content-html p),
 :deep(.report-content-html p) {
   margin: 10px 0;
@@ -1678,24 +1892,29 @@ onMounted(() => {
   color: #606266;
 }
 
+:deep(.activity-content-html ul),
 :deep(.plan-content-html ul),
-:deep(.plan-content-html ol),
 :deep(.report-content-html ul),
+:deep(.activity-content-html ol),
+:deep(.plan-content-html ol),
 :deep(.report-content-html ol) {
   padding-left: 20px;
   margin: 10px 0;
 }
 
+:deep(.activity-content-html li),
 :deep(.plan-content-html li),
 :deep(.report-content-html li) {
   margin: 5px 0;
 }
 
+:deep(.activity-content-html strong),
 :deep(.plan-content-html strong),
 :deep(.report-content-html strong) {
   font-weight: 600;
 }
 
+:deep(.activity-content-html em),
 :deep(.plan-content-html em),
 :deep(.report-content-html em) {
   font-style: italic;
@@ -1736,5 +1955,56 @@ onMounted(() => {
   background-color: #fef0f0;
   border: 1px solid #fde2e2;
   color: #f56c6c;
+}
+
+/* 二维码样式 */
+.qr-code-container {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.qr-code-image {
+  width: 120px;
+  height: 120px;
+  cursor: pointer;
+  border: 1px solid #ebeef5;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.qr-code-image:hover {
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+}
+
+.qr-code-description {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #909399;
+}
+
+.qr-code-error {
+  color: #f56c6c;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.debug-info {
+  color: #909399;
+  font-size: 10px;
+  margin-top: 5px;
+  word-break: break-all;
+}
+
+.enlarged-qr-code-container {
+  text-align: center;
+}
+
+.enlarged-qr-code-image {
+  width: 300px;
+  height: 300px;
+  border: 1px solid #ebeef5;
+  padding: 10px;
+  border-radius: 5px;
 }
 </style>
