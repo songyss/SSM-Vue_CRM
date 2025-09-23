@@ -455,41 +455,50 @@
             </el-form-item>
             <el-form-item label="二维码:">
               <div class="qr-code-container">
-                <div v-if="!detailActivity.id">
-                  <p>活动信息不完整，无法生成二维码</p>
+                <div class="qr-code-row">
+                  <div class="qr-code-item">
+                    <div v-if="detailActivity.id && detailActivity.managerId" class="qr-code-wrapper">
+                      <img
+                        :src="commonQRCodeUrl"
+                        @error="handleQRCodeError($event, 'common')"
+                        @load="handleQRCodeLoad($event, 'common')"
+                        alt="普通活动二维码"
+                        class="qr-code-image"
+                        style="max-width: 100%; height: auto; cursor: pointer;"
+                        @click="showLargeQRCode"
+                      />
+                    </div>
+                    <div v-else class="qr-code-placeholder">
+                      <p>活动信息不完整，无法生成二维码</p>
+                    </div>
+                  </div>
                 </div>
-                <div v-else>
-                  <img
-                    :src="getQRCodeUrl(detailActivity.id)"
-                    @error="handleQRCodeError"
-                    @load="handleQRCodeLoad"
-                    alt="活动二维码"
-                    class="qr-code-image"
-                    @click="showEnlargedQRCode(detailActivity.id)"
-                  />
-                  <p class="qr-code-description">点击二维码可放大查看</p>
-                  <p v-if="qrCodeError" class="qr-code-error">二维码加载失败，请检查网络连接或联系管理员</p>
-                  <p v-if="qrCodeError" class="qr-code-error">可能是服务器缺少二维码生成组件，请联系系统管理员</p>
-                </div>
+
+                <p v-if="(detailActivity.id && detailActivity.managerId) && qrCodeErrors.common" class="qr-code-error">
+                  二维码加载失败，请检查网络连接或联系管理员
+                </p>
               </div>
+
+              <!-- 大的二维码预览对话框 -->
+              <el-dialog
+                v-model="largeQRCodeVisible"
+                title="二维码预览"
+                width="500px"
+                center
+              >
+                <div class="large-qr-code-container">
+                  <img
+                    :src="commonQRCodeUrl"
+                    alt="大尺寸二维码"
+                    class="large-qr-code-image"
+                  />
+                </div>
+              </el-dialog>
             </el-form-item>
             <el-form-item label="创建时间:">
               <span>{{ detailActivity.createTime }}</span>
             </el-form-item>
           </el-form>
-        </el-dialog>
-
-        <!-- 放大的二维码对话框 -->
-        <el-dialog
-          v-model="enlargedQRCodeVisible"
-          title="活动二维码"
-          width="400px"
-          center
-        >
-          <div class="enlarged-qr-code-container">
-            <img :src="qrCodeUrl" alt="活动二维码" class="enlarged-qr-code-image" />
-            <p class="qr-code-description">请扫描二维码参与活动</p>
-          </div>
         </el-dialog>
 
         <!-- 活动描述详情对话框（参考报告内容展示方式） -->
@@ -669,7 +678,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
 import { useRouter } from 'vue-router'
@@ -737,53 +746,6 @@ const currentActivity = ref({
 const detailDialogVisible = ref(false)
 const activityContentDialogVisible = ref(false) // 确保这个变量已定义
 const detailActivity = ref({})
-// 添加二维码相关数据
-const enlargedQRCodeVisible = ref(false)
-const qrCodeUrl = ref('')
-const qrCodeError = ref(false)
-const debugMode = ref(false) // 调试模式
-
-// 获取二维码URL
-const getQRCodeUrl = (activityId) => {
-  // 添加检查确保activityId存在
-  if (!activityId) {
-    console.error('无效的活动ID:', activityId);
-    return '';
-  }
-
-  // 使用相对路径URL，让前端代理处理
-  const qrUrl = `/market/qrcode/withLogo?activityId=${activityId}`;
-  console.log('生成二维码URL:', qrUrl);
-  return qrUrl;
-};
-
-// 处理二维码加载错误
-const handleQRCodeError = (event) => {
-  console.error('二维码加载失败:', event);
-  console.error('失败的二维码URL:', event.target.src);
-  qrCodeError.value = true;
-};
-
-// 处理二维码加载成功
-const handleQRCodeLoad = (event) => {
-  console.log('二维码加载成功:', event);
-  qrCodeError.value = false;
-};
-
-// 显示放大的二维码
-const showEnlargedQRCode = (activityId) => {
-  // 添加检查确保activityId存在
-  if (!activityId) {
-    console.error('无效的活动ID:', activityId);
-    return;
-  }
-
-  const url = getQRCodeUrl(activityId);
-  console.log('放大二维码URL:', url);
-  qrCodeUrl.value = url;
-  qrCodeError.value = false; // 重置错误状态
-  enlargedQRCodeVisible.value = true;
-}
 
 // 活动报告相关数据
 const activityReports = ref([])
@@ -801,6 +763,49 @@ const currentReport = ref({
   creatorId: 1 // 示例值，实际应从用户信息中获取
 })
 const detailReport = ref({})
+
+// 添加API基础URL
+const API_BASE_URL = 'http://localhost:8080';
+
+// 计算二维码URL
+const commonQRCodeUrl = computed(() => {
+  if (detailActivity.value.id && detailActivity.value.managerId) {
+    const url = `${API_BASE_URL}/market/qrcode/common?activityId=${detailActivity.value.id}&creatorId=${detailActivity.value.managerId}`;
+    console.log('普通二维码URL:', url);
+    return url;
+  }
+  return '';
+});
+
+// 添加大二维码预览相关数据
+const largeQRCodeVisible = ref(false);
+
+// 显示大二维码预览
+const showLargeQRCode = () => {
+  if (commonQRCodeUrl.value) {
+    largeQRCodeVisible.value = true;
+  }
+};
+
+// 添加二维码相关数据
+const qrCodeErrors = ref({
+  common: false,
+  logo: false
+})
+
+// 处理二维码加载错误
+const handleQRCodeError = (event, type) => {
+  console.error(`二维码加载失败 (${type}):`, event);
+  console.error('失败的二维码URL:', event.target.src);
+  qrCodeErrors.value[type] = true;
+};
+
+// 处理二维码加载成功
+const handleQRCodeLoad = (event, type) => {
+  console.log(`二维码加载成功 (${type}):`, event);
+  console.log('加载成功的二维码URL:', event.target.src);
+  qrCodeErrors.value[type] = false;
+};
 
 // 切换侧边栏
 const toggleSidebar = () => {
@@ -1963,22 +1968,38 @@ onMounted(() => {
   margin-top: 10px;
 }
 
+.qr-code-row {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.qr-code-item {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px;
+}
+
+.qr-code-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 160px;
+}
+
 .qr-code-image {
-  width: 120px;
-  height: 120px;
-  cursor: pointer;
+  width: 150px;
+  height: 150px;
   border: 1px solid #ebeef5;
   padding: 5px;
   border-radius: 5px;
-}
-
-.qr-code-image:hover {
-  transform: scale(1.05);
-  transition: transform 0.3s ease;
+  margin-bottom: 5px;
+  cursor: pointer;
 }
 
 .qr-code-description {
-  margin-top: 10px;
+  margin: 5px 0;
   font-size: 12px;
   color: #909399;
 }
@@ -1989,22 +2010,32 @@ onMounted(() => {
   margin-top: 5px;
 }
 
-.debug-info {
+.qr-code-placeholder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 160px;
   color: #909399;
-  font-size: 10px;
-  margin-top: 5px;
-  word-break: break-all;
-}
-
-.enlarged-qr-code-container {
+  font-size: 14px;
+  padding: 20px;
   text-align: center;
+  border: 1px dashed #ebeef5;
+  border-radius: 5px;
 }
 
-.enlarged-qr-code-image {
-  width: 300px;
-  height: 300px;
+/* 大二维码预览样式 */
+.large-qr-code-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.large-qr-code-image {
+  width: 450px;
+  height: 450px;
   border: 1px solid #ebeef5;
-  padding: 10px;
+  padding: 5px;
   border-radius: 5px;
 }
 </style>
