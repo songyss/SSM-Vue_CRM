@@ -98,8 +98,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Customer> getPersonalCustomer(int id) {
-        List<Customer> customers = customerMapper.getPersonalCustomer(id);
+    public List<Customer> getPersonalCustomer(int assigneeId) {
+        List<Customer> customers = customerMapper.getPersonalCustomer(assigneeId);
         return customers;
     }
     

@@ -852,8 +852,8 @@ const submitFollowUp = async () => {
         }
 
         followUpDialogVisible.value = false
-        // 刷新客户列表
-        fetchMyCustomers()
+        // 刷新客户列表和分页信息
+        await fetchMyCustomers()
       } catch (error) {
         console.error('提交跟进记录异常:', error)
         ElMessage.error('跟进记录提交失败: ' + (error.message || '网络异常'))
@@ -1067,6 +1067,11 @@ onMounted(() => {
   fetchCustomers()
   fetchEmployees()
   fetchMyCustomers() // 获取我的客户列表
+
+  // 初始化分页信息
+  customerPagination.currentPage = 1
+  customerPagination.pageSize = 5
+  customerPagination.total = 0
 })
 
 // 根据商机阶段ID获取阶段名称
