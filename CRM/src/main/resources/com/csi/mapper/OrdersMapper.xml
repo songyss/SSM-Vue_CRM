@@ -26,6 +26,45 @@
         #{orderStatus}
         )
     </insert>
+
+    <!--根据订单号查询订单-->
+    <select id="getOrdersByOrderNumber" resultType="com.csi.domain.Orders">
+        SELECT
+            id,
+            order_number,
+            opportunity_id,
+            customer_id,
+            total_amount,
+            signed_date,
+            order_status,
+            file_url,
+            notes,
+            create_time
+        FROM orders
+        WHERE order_number = #{orderNumber}
+    </select>
+
+    <!--根据ID查询订单详情-->
+    <select id="selectOrderById" resultType="com.csi.domain.Orders">
+        SELECT
+            o.id,
+            o.order_number,
+            o.opportunity_id,
+            o.customer_id,
+            o.total_amount,
+            o.signed_date,
+            o.order_status,
+            o.file_url,
+            o.notes,
+            o.create_time,
+            c.name as customer_name,
+            op.name as opportunity_name
+        FROM orders o
+        LEFT JOIN customers c ON o.customer_id = c.id
+        LEFT JOIN opportunities op ON o.opportunity_id = op.id
+        WHERE o.id = #{id}
+    </select>
+
 <!--按订单查询订单-->
     <select id="getOrdersStatus" resultType="com.csi.domain.Orders">
         SELECT

@@ -22,11 +22,12 @@ public class QrCodeController {
     @GetMapping("/common")
     public void createCommonQRCode(
             @RequestParam("activityId") Integer activityId,
+            @RequestParam("creatorId") Integer creatorId,
             HttpServletResponse response
     ) {
         try {
             // 1. 构建二维码内容（活动ID+表单链接）
-            String content = SCAN_FORM_URL + "?activityId=" + activityId;
+            String content = SCAN_FORM_URL + "?activityId=" + activityId + "&creatorId=" + creatorId;
 
             // 2. 设置响应头（告诉浏览器返回图片，禁止缓存）
             setupResponseHeaders(response);

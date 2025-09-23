@@ -4,9 +4,9 @@
     <!--获取售后订单信息-->
     <insert id="saveAfterSaleOrder">
         insert into after_sale_order(order_number, customer_id, total_amount, signed_date,
-                                 after_sale_status, file_url, notes, create_time)
+                                 after_sale_status, after_sale_apply_time, file_url, notes, create_time)
         values (#{orderNumber}, #{customerId}, #{totalAmount}, #{signedDate},
-                #{afterSaleStatus}, #{fileUrl}, #{notes}, #{createTime})
+                #{afterSaleStatus}, #{afterSaleApplyTime}, #{fileUrl}, #{notes}, #{createTime})
     </insert>
     <!--    根据售后状态查询-->
 

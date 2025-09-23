@@ -50,18 +50,32 @@ public class AfterSaleOrderServiceImpl implements AfterSaleOrderService {
             Orders orders = new Orders();
             orders.setOrderNumber(afterSaleOrder.getOrderNumber());
             orders.setOrderStatus(8);
-            ordersService.updateOrdersStatus(orders);
+            // 先根据订单号查询订单ID，再更新订单状态
+            Orders existingOrder = ordersService.getOrdersByOrderNumber(afterSaleOrder.getOrderNumber());
+            if (existingOrder != null) {
+                orders.setId(existingOrder.getId());
+                ordersService.updateOrdersStatus(orders);
+            }
         }else if (afterSaleOrder.getAfterSaleStatus()==3){
             Orders orders = new Orders();
             orders.setOrderNumber(afterSaleOrder.getOrderNumber());
             orders.setOrderStatus(4);
-            ordersService.updateOrdersStatus(orders);
-
+            // 先根据订单号查询订单ID，再更新订单状态
+            Orders existingOrder = ordersService.getOrdersByOrderNumber(afterSaleOrder.getOrderNumber());
+            if (existingOrder != null) {
+                orders.setId(existingOrder.getId());
+                ordersService.updateOrdersStatus(orders);
+            }
         }else if (afterSaleOrder.getAfterSaleStatus()==5){
             Orders orders = new Orders();
             orders.setOrderNumber(afterSaleOrder.getOrderNumber());
             orders.setOrderStatus(6);
-            ordersService.updateOrdersStatus(orders);
+            // 先根据订单号查询订单ID，再更新订单状态
+            Orders existingOrder = ordersService.getOrdersByOrderNumber(afterSaleOrder.getOrderNumber());
+            if (existingOrder != null) {
+                orders.setId(existingOrder.getId());
+                ordersService.updateOrdersStatus(orders);
+            }
         }
         return i;
 

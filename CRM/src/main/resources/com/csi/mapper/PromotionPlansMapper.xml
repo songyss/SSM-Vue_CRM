@@ -11,7 +11,13 @@
     </insert>
     <!--修改活动状态/审批活动-->
     <update id="updateByStatus">
-        update promotion_plans set status = #{status} where id = #{id}
+        UPDATE promotion_plans
+        SET
+            status = #{status},
+            approver_id = #{approverId},
+            feedback = #{feedback},
+            update_time = #{updateTime}
+        WHERE id = #{id}
     </update>
     <!--未审批活动方案-->
     <select id="getPromotionPlans" resultType="com.csi.domain.PromotionPlans">

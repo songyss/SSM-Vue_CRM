@@ -277,7 +277,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
 import { usePermissionStore } from '@/stores/permission'
@@ -451,7 +451,7 @@ const handleAddActivity = () => {
   activityDialogTitle.value = '添加活动'
   currentActivity.value = {
     name: '',
-    type: '',
+    content: '',
     startTime: '',
     endTime: '',
     budget: 0,

@@ -20,6 +20,7 @@
     <form id="scanForm">
         <!-- 隐藏字段：存储二维码参数（activityId、timestamp、sign） -->
         <input type="hidden" id="activityId">
+        <input type="hidden" id="creatorId">
         <input type="hidden" id="timestamp">
         <input type="hidden" id="sign">
 
@@ -50,16 +51,18 @@
     // 解析URL中的二维码参数（activityId、timestamp、sign）
     const urlParams = new URLSearchParams(window.location.search);
     const activityId = urlParams.get('activityId');
+    const creatorId = urlParams.get('creatorId');
     const timestamp = urlParams.get('timestamp');
     const sign = urlParams.get('sign');
 
     // 初始化隐藏字段（传递给后端校验）
     document.getElementById('activityId').value = activityId;
+    document.getElementById('creatorId').value = creatorId;
     document.getElementById('timestamp').value = timestamp;
     document.getElementById('sign').value = sign;
 
     // 校验参数合法性（防止直接访问页面）
-    if (!activityId || !timestamp || !sign) {
+    if (!activityId || !creatorId || !timestamp || !sign) {
         alert('非法访问，请通过活动二维码进入');
         window.location.href = '/crm/index.jsp';
     }
@@ -88,6 +91,7 @@
     submitBtn.addEventListener('click', async () => {
         const formData = {
             activityId: document.getElementById('activityId').value,
+            creatorId: document.getElementById('creatorId').value,
             timestamp: document.getElementById('timestamp').value,
             sign: document.getElementById('sign').value,
             name: nameInput.value.trim(),
@@ -101,7 +105,7 @@
             submitBtn.textContent = '提交中...';
             // 调用后端接口（需与项目部署地址匹配）
             const response = await axios.post(
-                '/crm/api/market/customer/scan-submit',
+                '/marketing/savecustomer',
                 formData,
                 { headers: { 'Content-Type': 'application/json' } }
             );
