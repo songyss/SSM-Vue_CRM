@@ -17,6 +17,9 @@ public interface OrdersMapper {
     // 查询所有订单
     List<Orders> selectAllOrders();
     
+    // 根据ID查询订单详情
+    Orders selectOrderById(@Param("id") int id);
+    
     // 根据条件查询订单
     List<Orders> selectOrdersByCondition(@Param("orderNo") String orderNo, 
                                         @Param("status") String status,

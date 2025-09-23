@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -41,7 +43,7 @@ public class OrdersServiceImpl implements OrdersService {
 
     /**
      * 更新订单状态
-     * 当订单状态更新为已完成(状态3)时，会自动创建售后订单
+     * 当订单状态更新为申请售后(5)时，会自动创建售后订单
      * 
      * @param order 订单对象，包含新的状态和订单ID
      * @return 更新成功的记录数
@@ -65,17 +67,29 @@ public class OrdersServiceImpl implements OrdersService {
         
         // 仅当订单状态为申请售后(5)时，创建售后订单
         if (order.getOrderStatus() == 5) {
-            AfterSaleOrder afterSaleOrder = new AfterSaleOrder();
-            afterSaleOrder.setOrderNumber(order.getOrderNumber());
-            afterSaleOrder.setCustomerId(order.getCustomerId());
-            afterSaleOrder.setTotalAmount(order.getTotalAmount());
-            afterSaleOrder.setSignedDate(order.getSignedDate());
-            // 使用正确的字段名afterSaleStatus而不是orderStatus
-            afterSaleOrder.setAfterSaleStatus(order.getOrderStatus());
-            afterSaleOrder.setFileUrl(order.getFileUrl());
-            afterSaleOrder.setNotes(order.getNotes());
-            afterSaleOrder.setCreateTime(order.getCreateTime());
-            afterSaleOrderMapper.saveAfterSaleOrder(afterSaleOrder);
+            // 先查询完整的订单信息
+            Orders fullOrder = ordersMapper.selectOrderById(order.getId());
+            if (fullOrder != null) {
+                AfterSaleOrder afterSaleOrder = new AfterSaleOrder();
+                afterSaleOrder.setOrderNumber(fullOrder.getOrderNumber());
+                afterSaleOrder.setCustomerId(fullOrder.getCustomerId());
+                afterSaleOrder.setTotalAmount(fullOrder.getTotalAmount());
+                afterSaleOrder.setSignedDate(fullOrder.getSignedDate());
+                // 使用正确的售后订单状态：1-待处理（而不是直接使用订单状态5）
+                afterSaleOrder.setAfterSaleStatus(1); // 1表示待处理
+                afterSaleOrder.setFileUrl(fullOrder.getFileUrl());
+                afterSaleOrder.setNotes(fullOrder.getNotes());
+                
+                // 设置创建时间和售后申请时间
+                String currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+                afterSaleOrder.setCreateTime(currentTime);
+                afterSaleOrder.setAfterSaleApplyTime(currentTime);
+                
+                // 设置客户名称（如果需要）
+                afterSaleOrder.setCustomerName(fullOrder.getCustomerName());
+                
+                afterSaleOrderMapper.saveAfterSaleOrder(afterSaleOrder);
+            }
         }
         return i;
     }
