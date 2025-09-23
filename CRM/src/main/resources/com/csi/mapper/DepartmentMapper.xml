@@ -16,6 +16,9 @@
             <if test="phone != null">
                 phone = #{phone},
             </if>
+            <if test="superDepartId == null">
+                super_depart_id = null,
+            </if>
             <if test="superDepartId != null">
                 super_depart_id = #{superDepartId},
             </if>
@@ -25,11 +28,31 @@
         </set>
         where department_id = #{departmentId}
     </update>
+
+    <update id="deleteDepartment">
+        update departments set is_delete = 1 where department_id = #{departmentId}
+    </update>
+    <update id="updateChildIsDeleteByFather">
+        update departments set is_delete = #{isDelete} where super_depart_id = #{departmentId}
+    </update>
+
     <select id="findAllDepartments" resultType="com.csi.domain.Department">
         select * from departments where super_depart_id = #{superDepartId}
     </select>
     <select id="findAllCompanys" resultType="com.csi.domain.Department">
-        select * from departments where super_depart_id is null
+        select * from departments where super_depart_id = 0
+    </select>
+    <select id="findByCondition" resultType="com.csi.domain.Department">
+        select * from departments where 1=1
+        <if test="departmentName != null">
+            and department_name like '%${departmentName}%'
+        </if>
+        <if test="isDelete != null">
+            and is_delete = #{isDelete}
+        </if>
+    </select>
+    <select id="findByDepartmentId" resultType="com.csi.domain.Department">
+        select * from departments where department_id = #{did}
     </select>
 
 

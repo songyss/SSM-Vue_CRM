@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface EmployeeMapper {
 
-    List<Employee> getAllEmployees();
+    List<Employee> getAllEmployees(Integer superiorId);
 
     List<Employee> getAllOnEmployees();
 
@@ -31,6 +31,16 @@ public interface EmployeeMapper {
     void update(Employee employee);
     void deleteById(Integer id);
 
+    /**
+     * 更新员工密码
+     * @param id 员工ID
+     * @param password 新密码
+     */
+    void updatePassword(@Param("id") Integer id, @Param("password") String password);
+
+
     Employee login(@Param("username") String username,@Param("password") String password);
+
+    List<Employee> getAllEmployeesWithConditions(@Param("superiorId") Integer superiorId, @Param("conditions") Employee conditions);
 
 }

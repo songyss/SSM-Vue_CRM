@@ -7,7 +7,14 @@ import java.util.List;
 
 public interface EmployeeService {
 
-    List<Employee> getAllEmployees();
+    List<Employee> getAllEmployees(Integer superiorId);
+    /**
+     * 重置员工密码
+     * @param id 员工ID
+     * @param password 新密码
+     */
+    void resetPassword(Integer id, String password);
+
 
     List<Employee> getAllOnEmployees();
 
@@ -33,4 +40,7 @@ public interface EmployeeService {
     Employee login(@Param("username") String username, @Param("password") String password);
 
 
+
+    //带条件查询
+    List<Employee> getAllEmployeesWithConditions(Integer superiorId, Employee conditions);
 }

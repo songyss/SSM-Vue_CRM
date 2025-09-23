@@ -25,6 +25,14 @@ public class DepartmentServiceImpl implements DepartmentService{
 
     @Override
     public int updateDepartment(Department department) {
+        if (department.getSuperDepartId() != null){
+            if(department.getSuperDepartId() == 0){
+                List<Department> bySuperId = findByDepartmentId(department.getDepartmentId());
+                for (Department department1 : bySuperId) {
+                    updateChildIsDeleteByFather(department1.getDepartmentId(), department.getIsDelete());
+                }
+            }
+        }
         return departmentMapper.updateDepartment(department);
     }
 
@@ -32,4 +40,20 @@ public class DepartmentServiceImpl implements DepartmentService{
     public int addDepartment(Department department) {
         return departmentMapper.addDepartment(department);
     }
+
+    @Override
+    public List<Department> findByCondition(String departmentName,Integer isDelete) {
+        return departmentMapper.findByCondition(departmentName, isDelete);
+    }
+
+    @Override
+    public int updateChildIsDeleteByFather(Integer departmentId, Integer isDelete) {
+        return departmentMapper.updateChildIsDeleteByFather(departmentId, isDelete);
+    }
+
+    @Override
+    public List<Department> findByDepartmentId(Integer did) {
+        return departmentMapper.findByDepartmentId(did);
+    }
+
 }

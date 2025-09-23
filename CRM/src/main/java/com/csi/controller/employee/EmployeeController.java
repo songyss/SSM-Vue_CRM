@@ -4,8 +4,7 @@ import com.csi.domain.Employee;
 import com.csi.service.EmployeeService;
 import com.csi.util.R;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,15 +20,61 @@ public class EmployeeController {
     /**
      * 管理员查看全部员工
      */
+    /**
+     * 管理员查看全部员工（支持模糊查询）
+     */
     @GetMapping("/allList")
-    public R getAllEmployeeList(){
-        List<Employee> allEmployees = employeeService.getAllEmployees();
+    public R getAllEmployeeList(
+            @RequestParam(value = "superiorId", required = false) Integer superiorId,
+            @RequestParam(value = "username", required = false) String username,
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "phone", required = false) String phone,
+            @RequestParam(value = "email", required = false) String email
+    ){
+        // 创建查询条件对象
+        Employee queryCondition = new Employee();
+        if (username != null && !username.trim().isEmpty()) {
+            queryCondition.setUsername(username);
+        }
+        if (name != null && !name.trim().isEmpty()) {
+            queryCondition.setName(name);
+        }
+        if (phone != null && !phone.trim().isEmpty()) {
+            queryCondition.setPhone(phone);
+        }
+        if (email != null && !email.trim().isEmpty()) {
+            queryCondition.setEmail(email);
+        }
+
+        List<Employee> allEmployees = employeeService.getAllEmployeesWithConditions(superiorId, queryCondition);
         if (allEmployees != null){
             return R.ok(allEmployees);
         } else {
             return R.error();
         }
     }
+
+    /**
+     * 重置员工密码
+     */
+    @PutMapping("/resetPwd")
+    public R resetPassword(@RequestBody Employee employee) {
+        try {
+            // 检查参数
+            if (employee.getId() == null) {
+                return R.message("员工ID不能为空");
+            }
+            if (employee.getPassword() == null || employee.getPassword().isEmpty()) {
+                return R.message("密码不能为空");
+            }
+
+            employeeService.resetPassword(employee.getId(), employee.getPassword());
+            return R.okMessage("密码重置成功");
+        } catch (Exception e) {
+            return R.message("密码重置失败: " + e.getMessage());
+        }
+    }
+
 
     /**
      * 管理员查看全部在职员工
@@ -71,40 +116,24 @@ public class EmployeeController {
     }
 
     /**
-     * 根据ID查询员工
-     * 用正则约束：id 必须是数字
-     */
-    @GetMapping("/{id:\\d+}")
-    public ResponseEntity<?> getEmployeeById(@PathVariable Integer id) {
-        try {
-            Employee employee = employeeService.findById(id);
-            return ResponseEntity.ok(employee);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
-
-    /**
      * 查询所有员工
      */
     @GetMapping
-    public ResponseEntity<List<Employee>> getAllEmployees() {
+    public R getAllEmployees() {
         List<Employee> employees = employeeService.findAll();
-        return ResponseEntity.ok(employees);
+        return R.ok(employees);
     }
 
     /**
      * 根据部门查询员工
      */
     @GetMapping("/department/{departmentId}")
-    public ResponseEntity<?> getEmployeesByDepartment(@PathVariable Integer departmentId) {
+    public R getEmployeesByDepartment(@PathVariable Integer departmentId) {
         try {
             List<Employee> employees = employeeService.findByDepartment(departmentId);
-            return ResponseEntity.ok(employees);
+            return R.ok(employees);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return R.message(e.getMessage());
         }
     }
 
@@ -112,46 +141,45 @@ public class EmployeeController {
      * 根据用户名查询员工
      */
     @GetMapping("/username/{username}")
-    public ResponseEntity<?> getEmployeeByUsername(@PathVariable String username) {
+    public R getEmployeeByUsername(@PathVariable String username) {
         try {
             Employee employee = employeeService.findByUsername(username);
             if (employee == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("找不到用户名为 " + username + " 的员工");
+                return R.message("找不到用户名为 " + username + " 的员工");
             }
-            return ResponseEntity.ok(employee);
+            return R.ok(employee);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return R.message(e.getMessage());
         }
     }
 
     /**
      * 新增员工
      */
-    @PostMapping
-    public ResponseEntity<?> createEmployee(@RequestBody Employee employee) {
+    @PostMapping("/insert")
+    public R createEmployee(@RequestBody Employee employee) {
         try {
             employeeService.save(employee);
-            return ResponseEntity.status(HttpStatus.CREATED).body("员工创建成功");
+            return R.okMessage("员工创建成功");
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return R.message(e.getMessage());
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+            return R.message(e.getMessage());
         }
     }
 
     /**
-     * 更新员工信息
+     * 更新员工信息根据id
      */
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateEmployee(@PathVariable Integer id, @RequestBody Employee employee) {
+    @PutMapping("/update")
+    public R update(@RequestBody Employee employee) {
         try {
-            employee.setId(id);
             employeeService.update(employee);
-            return ResponseEntity.ok("员工信息更新成功");
+            return R.okMessage("员工信息更新成功");
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return R.message(e.getMessage());
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+            return R.message(e.getMessage());
         }
     }
 
@@ -159,15 +187,16 @@ public class EmployeeController {
      * 删除员工
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteEmployee(@PathVariable Integer id) {
+    public R deleteEmployee(@PathVariable("id") Integer id) {
         try {
             employeeService.deleteById(id);
-            return ResponseEntity.ok("员工删除成功");
+            return R.okMessage("员工删除成功");
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return R.message(e.getMessage());
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return R.message(e.getMessage());
         }
     }
+
 
 }

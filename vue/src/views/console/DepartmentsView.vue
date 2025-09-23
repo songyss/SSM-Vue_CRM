@@ -58,7 +58,6 @@
         default-expand-all
       >
         <el-table-column prop="department_name" label="部门名称" width="300"></el-table-column>
-        <el-table-column prop="orderNum" label="排序" width="200"></el-table-column>
         <el-table-column prop="is_delete" label="状态" width="100">
           <template #default="scope">
             <el-tag :type="scope.row.is_delete === 0 ? 'primary' : 'info'">
@@ -73,27 +72,33 @@
         </el-table-column>
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
-            <el-button
-              type="primary"
-              link
-              icon="Edit"
-              @click="handleUpdate(scope.row)"
-              v-hasPermi="['system:dept:edit']"
-            >修改</el-button>
-            <el-button
-              type="primary"
-              link
-              icon="Plus"
-              @click="handleAdd(scope.row)"
-              v-hasPermi="['system:dept:add']"
-            >新增</el-button>
-            <el-button
-              type="primary"
-              link
-              icon="Delete"
-              @click="handleDelete(scope.row)"
-              v-hasPermi="['system:dept:remove']"
-            >删除</el-button>
+            <div class="action-buttons">
+             <el-button
+               type="primary"
+               link
+               icon="Edit"
+               @click="handleUpdate(scope.row)"
+               v-hasPermi="['system:dept:edit']"
+             >修改</el-button>
+             <!-- 占位元素，确保对齐 -->
+             <span v-if="!(scope.row.super_depart_id === null || scope.row.super_depart_id === 0)" style="width: 56px;"></span>
+             <!-- 只有顶级部门才显示新增按钮 -->
+             <el-button
+               v-else
+               type="primary"
+               link
+               icon="Plus"
+               @click="handleAdd(scope.row)"
+               v-hasPermi="['system:dept:add']"
+             >新增</el-button>
+             <el-button
+               type="primary"
+               link
+               icon="Delete"
+               @click="handleDelete(scope.row)"
+               v-hasPermi="['system:dept:remove']"
+             >删除</el-button>
+           </div>
           </template>
         </el-table-column>
       </el-table>
@@ -118,11 +123,6 @@
           <el-col :span="12">
             <el-form-item label="部门名称" prop="department_name">
               <el-input v-model="form.department_name" placeholder="请输入部门名称" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="显示排序" prop="orderNum">
-              <el-input-number v-model="form.orderNum" controls-position="right" :min="0" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -165,7 +165,6 @@ interface Dept {
   department_id: number
   super_depart_id: number | null
   department_name: string
-  orderNum?: number
   phone?: string
   is_delete: number
   create_time: string
@@ -199,7 +198,6 @@ const form = reactive<Dept>({
   department_id: 0,
   super_depart_id: 0,
   department_name: '',
-  orderNum: 0,
   phone: '',
   is_delete: 0,
   create_time: '',
@@ -210,7 +208,6 @@ const form = reactive<Dept>({
 const rules = {
   super_depart_id: [{ required: true, message: "上级部门不能为空", trigger: "blur" }],
   department_name: [{ required: true, message: "部门名称不能为空", trigger: "blur" }],
-  orderNum: [{ required: true, message: "显示排序不能为空", trigger: "blur" }],
   phone: [
     {
       pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
@@ -239,7 +236,7 @@ const queryRef = ref<FormInstance>()
 const deptRef = ref<FormInstance>()
 
 // 解析后端返回的部门数据
-const parseDepartmentData = (rawData: any): Dept[] => {
+const parseDepartmentListData = (rawData: any): Dept[] => {
   const processedData: Dept[] = []
 
   // 遍历返回的对象，将键值对转换为树形结构
@@ -283,20 +280,51 @@ const parseDepartmentData = (rawData: any): Dept[] => {
   return processedData
 }
 
+// 解析条件查询返回的数据
+const parseConditionData = (rawData: any[]): Dept[] => {
+  if (!Array.isArray(rawData)) {
+    return []
+  }
+
+  return rawData.map(item => ({
+    department_id: item.departmentId,
+    department_name: item.departmentName,
+    phone: item.phone,
+    super_depart_id: item.superDepartId,
+    is_delete: item.isDelete,
+    create_time: item.createTime,
+    modify_time: item.modifyTime,
+    children: [] // 条件查询结果不包含子部门信息
+  }))
+}
+
 // 查询部门列表
 const getList = async () => {
   loading.value = true
   try {
-    // 将 axios.get 替换为 request.get
-    const response = await request.get('/department/list', {
-      params: queryParams
-    })
+    // 判断是否有查询条件
+    const hasQueryParams = queryParams.department_name || queryParams.is_delete !== undefined;
 
-    // 处理后端返回的数据结构
-    deptList.value = parseDepartmentData(response.data.data)
+    let response;
+    if (hasQueryParams) {
+      // 有条件时使用条件查询接口
+      response = await request.get('/department/condition', {
+        params: {
+          departmentName: queryParams.department_name,
+          isDelete: queryParams.is_delete
+        }
+      })
+      // 条件查询返回的是 List<Department>，使用 parseConditionData 解析
+      deptList.value = parseConditionData(response.data.data)
+    } else {
+      // 无条件时使用原列表接口（查询全部）
+      response = await request.get('/department/list')
+      // list 接口返回的是 Map<Department, List<Department>>，使用 parseDepartmentListData 解析
+      deptList.value = parseDepartmentListData(response.data.data)
+    }
   } catch (error) {
     ElMessage.error('获取部门数据失败')
-    console.error(error)
+    console.error('获取部门数据失败:', error)
   } finally {
     loading.value = false
   }
@@ -305,11 +333,10 @@ const getList = async () => {
 // 获取部门下拉树列表
 const getTreeselect = async () => {
   try {
-    // 将 axios.get 替换为 request.get
     const response = await request.get('/department/tree')
-
-    // 处理后端返回的数据结构
-    deptOptions.value = parseDepartmentData(response.data.data)
+    // 使用 parseDepartmentListData 处理返回的数据
+    const treeData = parseDepartmentListData(response.data.data)
+    deptOptions.value = treeData
   } catch (error) {
     ElMessage.error('获取部门选项失败')
     console.error(error)
@@ -328,7 +355,6 @@ const reset = () => {
     department_id: 0,
     super_depart_id: 0,
     department_name: '',
-    orderNum: 0,
     phone: '',
     is_delete: 0,
     create_time: '',
@@ -375,7 +401,6 @@ const handleUpdate = (row: Dept) => {
     department_id: row.department_id,
     super_depart_id: row.super_depart_id || 0,
     department_name: row.department_name,
-    orderNum: row.orderNum || 0,
     phone: row.phone || '',
     is_delete: row.is_delete,
     create_time: row.create_time,
@@ -397,7 +422,6 @@ const submitForm = () => {
             departmentId: form.department_id,
             superDepartId: form.super_depart_id,
             departmentName: form.department_name,
-            orderNum: form.orderNum,
             phone: form.phone,
             isDelete: form.is_delete,
             createTime: form.create_time,
@@ -436,8 +460,12 @@ const handleDelete = (row: Dept) => {
     }
   ).then(async () => {
     try {
-      // 将 axios.delete 替换为 request.delete
-      await request.delete(`/department/${row.department_id}`)
+      // 修改为更新操作，将 isDelete 设置为 1
+      await request.put('/department', {
+        departmentId: row.department_id,
+        superDepartId: row.super_depart_id,
+        isDelete: 1
+      })
       ElMessage.success("删除成功")
       getList()
     } catch (error) {
@@ -461,4 +489,5 @@ onMounted(() => {
 .search-card {
   margin-bottom: 20px;
 }
+
 </style>

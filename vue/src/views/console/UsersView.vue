@@ -3,7 +3,7 @@
   <div class="app-container">
     <el-card class="search-card">
       <el-form :model="queryParams" ref="queryRef" :inline="true" label-width="68px">
-        <el-form-item label="登录用户名" prop="username">
+        <el-form-item label="用户名" prop="username">
           <el-input
             v-model="queryParams.username"
             placeholder="请输入登录用户名"
@@ -72,7 +72,8 @@
               icon="Plus"
               @click="handleAdd()"
               v-hasPermi="['system:user:add']"
-            >新增用户</el-button>
+              >新增用户</el-button
+            >
           </div>
         </div>
       </template>
@@ -85,11 +86,23 @@
       >
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column label="用户ID" align="center" prop="id" width="100" />
-        <el-table-column label="登录用户名" align="center" prop="username" :show-overflow-tooltip="true" width="120" />
-        <el-table-column label="真实姓名" align="center" prop="name" :show-overflow-tooltip="true" width="120" />
+        <el-table-column
+          label="用户名"
+          align="center"
+          prop="username"
+          :show-overflow-tooltip="true"
+          width="120"
+        />
+        <el-table-column
+          label="真实姓名"
+          align="center"
+          prop="name"
+          :show-overflow-tooltip="true"
+          width="120"
+        />
         <el-table-column label="性别" align="center" prop="sex" width="100">
           <template #default="scope">
-            <span>{{ scope.row.sex === '1' ? '男' : scope.row.sex === '0' ? '女' : '未知' }}</span>
+            <span>{{ scope.row.sex === 1 ? '男' : scope.row.sex === 0 ? '女' : '未知' }}</span>
           </template>
         </el-table-column>
         <el-table-column label="手机号码" align="center" prop="phone" width="120" />
@@ -104,12 +117,23 @@
             <span>{{ roleMap[scope.row.role] || '未知' }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="创建时间" align="center" prop="create_time" width="180">
+        <!-- 在角色列后添加直属上级列 -->
+        <el-table-column label="直属上级" align="center" prop="superiorName" width="120">
           <template #default="scope">
-            <span>{{ scope.row.create_time }}</span>
+            <span>{{ scope.row.superiorName || '无' }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" align="center" width="220" class-name="small-padding fixed-width">
+        <el-table-column label="创建时间" align="center" prop="create_time" width="180">
+          <template #default="scope">
+            <span>{{ scope.row.createTime }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="操作"
+          align="center"
+          width="220"
+          class-name="small-padding fixed-width"
+        >
           <template #default="scope">
             <el-button
               type="primary"
@@ -117,14 +141,16 @@
               icon="Edit"
               @click="handleUpdate(scope.row)"
               v-hasPermi="['system:user:edit']"
-            >修改</el-button>
+              >修改</el-button
+            >
             <el-button
               type="primary"
               link
               icon="Delete"
               @click="handleDelete(scope.row)"
               v-hasPermi="['system:user:remove']"
-            >删除</el-button>
+              >删除</el-button
+            >
             <el-dropdown trigger="click" v-hasPermi="['system:user:resetPwd', 'system:user:edit']">
               <el-button type="primary" link>更多</el-button>
               <template #dropdown>
@@ -133,21 +159,14 @@
                     icon="Unlock"
                     @click="handleResetPwd(scope.row)"
                     v-hasPermi="['system:user:resetPwd']"
-                  >重置密码</el-dropdown-item>
+                    >重置密码</el-dropdown-item
+                  >
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
           </template>
         </el-table-column>
       </el-table>
-
-      <pagination
-        v-show="total > 0"
-        :total="total"
-        v-model:page="queryParams.pageNum"
-        v-model:limit="queryParams.pageSize"
-        @pagination="getList"
-      />
     </el-card>
 
     <!-- 添加或修改用户对话框 -->
@@ -215,7 +234,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="直属上级">
-              <el-select v-model="form.superior_id" placeholder="请选择直属上级">
+              <el-select v-model="form.superiorId" placeholder="请选择直属上级">
                 <el-option
                   v-for="item in superiorOptions"
                   :key="item.value"
@@ -250,23 +269,23 @@ import { ElForm, ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance } from 'element-plus'
 import request from '@/utils/request'
 
-
 // 定义数据类型
 interface User {
   id: number
   username: string
   password: string
   name: string
-  sex: string
+  sex: number
   phone: string
   borndate: string
   email: string
   department: number
   role: number
-  superior_id: number
-  create_time: string
-  update_time: string
-  is_delete: number
+  superiorId: number
+  superiorName: string
+  createTime: string
+  updateTime: string
+  isDelete: number
 }
 
 // 字典映射
@@ -274,19 +293,19 @@ const departmentMap = {
   1: '技术部',
   2: '销售部',
   3: '人事部',
-  4: '财务部'
+  4: '财务部',
 }
 
 const roleMap = {
   1: '管理员',
   2: '普通用户',
-  3: '超级管理员'
+  3: '超级管理员',
 }
 
 // 模拟字典数据
 const sys_normal_disable = [
   { value: '0', label: '正常' },
-  { value: '1', label: '停用' }
+  { value: '1', label: '停用' },
 ]
 
 // 页面加载状态
@@ -297,18 +316,14 @@ const multiple = ref(true)
 
 // 查询参数
 const queryParams = reactive({
-  pageNum: 1,
-  pageSize: 10,
   username: '',
   name: '',
   phone: '',
   email: '',
-  status: '',
-  department: undefined
+  isDelete: '',
+  department: undefined,
+  status: '' // 用户状态
 })
-
-// 总条数
-const total = ref(0)
 
 // 表单参数
 const form = reactive<User>({
@@ -316,46 +331,47 @@ const form = reactive<User>({
   username: '',
   password: '',
   name: '',
-  sex: '0',
+  sex: 1,
   phone: '',
   borndate: '',
   email: '',
   department: 1,
   role: 2,
-  superior_id: 0,
-  create_time: '',
-  update_time: '',
-  is_delete: 0
+  superiorId: 0,
+  superiorName: '',
+  createTime: '',
+  updateTime: '',
+  isDelete: 0,
 })
 
 // 表单校验规则
 const rules = {
   username: [
-    { required: true, message: "登录用户名不能为空", trigger: "blur" },
-    { min: 2, max: 50, message: "登录用户名长度必须介于 2 和 50 之间", trigger: "blur" }
+    { required: true, message: '登录用户名不能为空', trigger: 'blur' },
+    { min: 2, max: 50, message: '登录用户名长度必须介于 2 和 50 之间', trigger: 'blur' },
   ],
   name: [
-    { required: true, message: "真实姓名不能为空", trigger: "blur" },
-    { min: 2, max: 50, message: "真实姓名长度必须介于 2 和 50 之间", trigger: "blur" }
+    { required: true, message: '真实姓名不能为空', trigger: 'blur' },
+    { min: 2, max: 50, message: '真实姓名长度必须介于 2 和 50 之间', trigger: 'blur' },
   ],
   phone: [
     {
       pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
-      message: "请输入正确的手机号码",
-      trigger: "blur"
-    }
+      message: '请输入正确的手机号码',
+      trigger: 'blur',
+    },
   ],
   email: [
     {
-      type: "email",
-      message: "请输入正确的邮箱地址",
-      trigger: ["blur", "change"]
-    }
-  ]
+      type: 'email',
+      message: '请输入正确的邮箱地址',
+      trigger: ['blur', 'change'],
+    },
+  ],
 }
 
 // 对话框标题
-const title = ref("")
+const title = ref('')
 
 // 是否显示弹出层
 const open = ref(false)
@@ -363,27 +379,9 @@ const open = ref(false)
 // 用户表格数据
 const userList = ref<User[]>([])
 
-// 部门选项
-const departmentOptions = ref([
-  { value: 1, label: '技术部' },
-  { value: 2, label: '销售部' },
-  { value: 3, label: '人事部' },
-  { value: 4, label: '财务部' }
-])
-
-// 角色选项
-const roleOptions = ref([
-  { value: 1, label: '管理员' },
-  { value: 2, label: '普通用户' },
-  { value: 3, label: '超级管理员' }
-])
 
 // 直属上级选项
-const superiorOptions = ref([
-  { value: 0, label: '无' },
-  { value: 1, label: '张三' },
-  { value: 2, label: '李四' }
-])
+const superiorOptions = ref([])
 
 // 查询表单引用
 const queryRef = ref<FormInstance>()
@@ -395,18 +393,90 @@ const userRef = ref<FormInstance>()
 const getList = async () => {
   loading.value = true
   try {
-    const response = await request.get('/employee/list', {
-      params: queryParams
-    })
-    console.log(response)
-    userList.value = response.data.rows
-    total.value = response.data.total
+    // 从本地存储获取当前用户信息
+    const userInfoStr = localStorage.getItem('crm_userInfo')
+    if (!userInfoStr) {
+      ElMessage.error('未找到用户信息，请重新登录')
+      loading.value = false
+      return
+    }
+
+    const userInfo = JSON.parse(userInfoStr)
+    const currentUserRole = userInfo.role
+    const currentUserId = userInfo.userId
+
+    // 构造查询参数
+    const params: any = {}
+
+    // 添加模糊查询条件
+    if (queryParams.username) {
+      params.username = queryParams.username
+    }
+    if (queryParams.name) {
+      params.name = queryParams.name
+    }
+    if (queryParams.phone) {
+      params.phone = queryParams.phone
+    }
+    if (queryParams.email) {
+      params.email = queryParams.email
+    }
+
+    let response
+    if (currentUserRole === 1) {
+      // 管理员查询所有下级员工（支持模糊查询）
+      response = await request.get('/employee/allList', { params })
+      console.log(response)
+      if (response.data.code !== 200) {
+        ElMessage.error('获取用户数据失败')
+        loading.value = false
+        return
+      }
+      ElMessage.success('获取用户数据成功')
+      userList.value = response.data.data
+    } else {
+      // 普通用户查询自己的下级员工（支持模糊查询）
+      params.superiorId = currentUserId
+      response = await request.get('/employee/allList', { params })
+      console.log(response)
+      if (response.data.code !== 200) {
+        ElMessage.error('获取用户数据失败')
+        loading.value = false
+        return
+      }
+      ElMessage.success('获取用户数据成功')
+      userList.value = response.data.data
+    }
+
+    // 获取直属上级列表
+    await getSuperiorList()
   } catch (error) {
     ElMessage.error('获取用户数据失败')
   } finally {
     loading.value = false
   }
 }
+
+// 获取直属上级列表
+const getSuperiorList = async () => {
+  try {
+    const response = await request.get('/employee/allList')
+    if (response.data.code === 200) {
+      // 转换数据格式以适配下拉框
+      superiorOptions.value = response.data.data.map((item: any) => ({
+        value: item.id,
+        label: item.name
+      }))
+      // 添加"无"选项
+      superiorOptions.value.unshift({ value: 0, label: '无' })
+    } else {
+      ElMessage.error('获取直属上级列表失败: ' + response.data.message)
+    }
+  } catch (error) {
+    ElMessage.error('获取直属上级列表失败')
+  }
+}
+
 
 // 取消按钮
 const cancel = () => {
@@ -421,16 +491,17 @@ const reset = () => {
     username: '',
     password: '',
     name: '',
-    sex: '0',
+    sex: 1,
     phone: '',
     borndate: '',
     email: '',
     department: 1,
     role: 2,
-    superior_id: 0,
-    create_time: '',
-    update_time: '',
-    is_delete: 0
+    superiorId: 0,
+    superiorName: '',
+    createTime: '',
+    updateTime: '',
+    isDelete: 0,
   })
   if (userRef.value) {
     userRef.value.resetFields()
@@ -439,7 +510,6 @@ const reset = () => {
 
 // 搜索按钮操作
 const handleQuery = () => {
-  queryParams.pageNum = 1
   getList()
 }
 
@@ -448,12 +518,23 @@ const resetQuery = () => {
   if (queryRef.value) {
     queryRef.value.resetFields()
   }
+  // 重置查询参数
+  queryParams.username = ''
+  queryParams.name = ''
+  queryParams.phone = ''
+  queryParams.email = ''
+  queryParams.status = ''
   handleQuery()
 }
 
 // 多选框选中数据
+/**
+* 处理用户选择变化的方法
+*
+* @param selection 用户选择数组
+*/
 const handleSelectionChange = (selection: User[]) => {
-  ids.value = selection.map(item => item.id)
+  ids.value = selection.map((item) => item.id)
   single.value = selection.length !== 1
   multiple.value = !selection.length
 }
@@ -462,16 +543,21 @@ const handleSelectionChange = (selection: User[]) => {
 const handleAdd = () => {
   reset()
   open.value = true
-  title.value = "添加用户"
-  form.password = "123456"
+  title.value = '添加用户'
+  form.password = '123456'
 }
 
 // 修改按钮操作
 const handleUpdate = (row: User) => {
   reset()
-  Object.assign(form, row)
+  const mappedRow = {
+    ...row,
+    sex: Number(row.sex),  // 确保是数字类型
+
+  }
+  Object.assign(form, mappedRow)
   open.value = true
-  title.value = "修改用户"
+  title.value = '修改用户'
 }
 
 // 提交按钮
@@ -480,19 +566,48 @@ const submitForm = () => {
     userRef.value.validate(async (valid: boolean) => {
       if (valid) {
         try {
+          // 准备提交数据，只发送后端需要的字段
+          const submitData = {
+            id: form.id,
+            username: form.username,
+            name: form.name,
+            sex: form.sex,
+            phone: form.phone,
+            email: form.email,
+            department: form.department,
+            role: form.role,
+            superiorId: form.superiorId !== undefined ? form.superiorId : 0, // 确保有默认值
+            remark: form.remark || ''
+
+          }
+
+          // 如果是新增且有默认密码，则添加密码字段
+          if (!form.id && form.password) {
+            Object.assign(submitData, { password: form.password })
+          }
+          let response: any;
           if (form.id) {
             // 修改操作
-            await request.put('/employee', form)
-            ElMessage.success("修改成功")
+             response = await request.put('/employee/update', submitData)
+            console.log(response)
+
           } else {
             // 添加操作
-            await request.post('/employee', form)
-            ElMessage.success("新增成功")
+             response = await request.post('/employee/insert', submitData)
+            console.log(response)
           }
-          open.value = false
-          getList()
-        } catch (error) {
-          ElMessage.error(form.id ? "修改失败" : "新增失败")
+
+          if (response.data.code === 200) {
+            ElMessage.success(form.id ? '修改成功' : '新增成功')
+            open.value = false
+            getList()
+          } else {
+            ElMessage.error(response.data.message || (form.id ? '修改失败' : '新增失败'))
+          }
+
+        } catch (error: any) {
+          console.error('提交失败:', error)
+          ElMessage.error(form.id ? '修改失败: ' + (error.message || '网络错误') : '新增失败: ' + (error.message || '网络错误'))
         }
       }
     })
@@ -502,47 +617,135 @@ const submitForm = () => {
 // 删除按钮操作
 const handleDelete = (row: User) => {
   const userIds = row.id || ids.value
-  ElMessageBox.confirm(
-    `是否确认删除用户编号为"${userIds}"的数据项？`,
-    '警告',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  ).then(async () => {
-    try {
-      // 执行删除操作
-      await request.delete(`/employee/${userIds}`)
-      ElMessage.success("删除成功")
-      getList()
-    } catch (error) {
-      ElMessage.error("删除失败")
-    }
-  }).catch(() => {})
+  ElMessageBox.confirm(`是否确认删除用户编号为"${userIds}"的数据项？`, '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  })
+    .then(async () => {
+      try {
+        // 执行删除操作
+        const response = await request.delete(`/employee/${userIds}`)
+        if (response.data.code === 200) {
+          ElMessage.success('删除成功')
+          getList()
+        } else {
+          ElMessage.error('删除失败: ' + response.data.message)
+        }
+      } catch (error: any) {
+        console.error('删除失败:', error)
+        ElMessage.error('删除失败: ' + (error.message || '网络错误'))
+      }
+    })
+    .catch(() => {})
 }
 
 // 重置密码按钮操作
 const handleResetPwd = (row: User) => {
-  ElMessageBox.prompt('请输入"' + row.username + '"的新密码', "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
+  ElMessageBox.prompt('请输入"' + row.username + '"的新密码', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
     closeOnClickModal: false,
     inputPattern: /^.{5,20}$/,
-    inputErrorMessage: "用户密码长度必须介于 5 和 20 之间"
-  }).then(({ value }) => {
-    request.put('/employee/resetPwd', {
-      id: row.id,
-      password: value
-    }).then(() => {
-      ElMessage.success("修改成功，新密码是：" + value)
-    }).catch(() =>{})
-  }).catch(() => {})
+    inputErrorMessage: '用户密码长度必须介于 5 和 20 之间',
+  })
+    .then(async ({ value }) => {
+      try {
+        const response = await request.put('/employee/resetPwd', {
+          id: row.id,
+          password: value,
+        })
+        if (response.data.code === 200) {
+          ElMessage.success('修改成功，新密码是：' + value)
+        } else {
+          ElMessage.error('修改失败: ' + response.data.message)
+        }
+      } catch (error: any) {
+        console.error('重置密码失败:', error)
+        ElMessage.error('修改失败: ' + (error.message || '网络错误'))
+      }
+    })
+    .catch(() => {})
+}
+const roleOptions = ref([
+
+])
+const departmentOptions = ref([
+
+])
+// 获取部门列表
+const getDepartmentList = async () => {
+  try {
+    //如果有部门列表的API，可以这样获取
+    const response = await request.get('/department/list')
+    console.log(response)
+     if (response.data.code === 200) {
+      // 从返回的数据中提取部门列表
+      // 数据结构是 {"Department(...)": [...]}，需要提取其中的数组
+      const dataKeys = Object.keys(response.data.data)
+      if (dataKeys.length > 0) {
+        // 获取第一个键对应的数组
+        const departmentArray = response.data.data[dataKeys[0]]
+        departmentOptions.value = departmentArray.map((item: any) => ({
+          value: item.departmentId,
+          label: item.departmentName
+        }))
+      }
+    }
+
+    // // 暂时使用静态数据
+    // departmentOptions.value = [
+    //   { value: 1, label: '技术部' },
+    //   { value: 2, label: '销售部' },
+    //   { value: 3, label: '人事部' },
+    //   { value: 4, label: '财务部' },
+    // ]
+  } catch (error) {
+    console.error('获取部门列表失败:', error)
+    // // 出错时使用默认值
+    // departmentOptions.value = [
+    //   { value: 1, label: '技术部' },
+    //   { value: 2, label: '销售部' },
+    //   { value: 3, label: '人事部' },
+    //   { value: 4, label: '财务部' },
+    // ]
+  }
+}
+
+// 获取角色列表
+const getRoleList = async () => {
+  try {
+    // 如果有角色列表的API，可以这样获取
+    const response = await request.get('/roles/list')
+    if (response.data.code === 200) {
+      roleOptions.value = response.data.data.map((item: any) => ({
+        value: item.id,
+        label: item.roleName
+      }))
+    }
+
+    // 暂时使用静态数据
+    // roleOptions.value = [
+    //   { value: 1, label: '管理员' },
+    //   { value: 2, label: '普通用户' },
+    //   { value: 3, label: '超级管理员' },
+    // ]
+  } catch (error) {
+    console.error('获取角色列表失败:', error)
+    // 出错时使用默认值
+    // roleOptions.value = [
+    //   { value: 1, label: '管理员' },
+    //   { value: 2, label: '普通用户' },
+    //   { value: 3, label: '超级管理员' },
+    // ]
+  }
 }
 
 // 页面加载时获取数据
 onMounted(() => {
   getList()
+   getDepartmentList()
+  getRoleList()
 })
 </script>
 
