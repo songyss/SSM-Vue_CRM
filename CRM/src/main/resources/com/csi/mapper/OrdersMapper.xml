@@ -27,6 +27,23 @@
         )
     </insert>
 
+    <!--根据订单号查询订单-->
+    <select id="getOrdersByOrderNumber" resultType="com.csi.domain.Orders">
+        SELECT
+            id,
+            order_number,
+            opportunity_id,
+            customer_id,
+            total_amount,
+            signed_date,
+            order_status,
+            file_url,
+            notes,
+            create_time
+        FROM orders
+        WHERE order_number = #{orderNumber}
+    </select>
+
     <!--根据ID查询订单详情-->
     <select id="selectOrderById" resultType="com.csi.domain.Orders">
         SELECT

@@ -42,6 +42,17 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     /**
+     * 根据订单号查询订单
+     * 
+     * @param orderNumber 订单号
+     * @return 订单对象
+     */
+    @Override
+    public Orders getOrdersByOrderNumber(String orderNumber) {
+        return ordersMapper.getOrdersByOrderNumber(orderNumber);
+    }
+
+    /**
      * 更新订单状态
      * 当订单状态更新为申请售后(5)时，会自动创建售后订单
      * 

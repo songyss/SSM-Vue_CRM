@@ -11,6 +11,9 @@ public interface OrdersMapper {
 
     int updateOrdersStatus(@Param("status") int status,@Param("id") int id);//更新订单状体
 
+    //根据订单号查询订单
+    Orders getOrdersByOrderNumber(@Param("orderNumber") String orderNumber);
+
     //销售个人查看自己的订单
     List<Orders> selectPersonalOrders(@Param("id") int id);
     
