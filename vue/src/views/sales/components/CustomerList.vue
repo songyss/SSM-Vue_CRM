@@ -9,7 +9,7 @@
         <el-input v-model="searchForm.phone" placeholder="输入手机号" clearable />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="handleSearch">查询</el-button>
+        <el-button type="primary" @click="handleSearch" v-if="permissionStore.hasButtonPermission('/customer/listByEmployee')">查询</el-button>
         <el-button @click="handleReset">重置</el-button>
       </el-form-item>
     </el-form>
@@ -42,13 +42,13 @@
       <el-table-column label="操作" width="260">
         <template #default="scope">
           <div class="action-buttons">
-            <el-button size="small" type="primary" text @click="showDetail(scope.row)">
+            <el-button size="small" type="primary" text @click="showDetail(scope.row)" v-if="permissionStore.hasButtonPermission('/customer/detail/${row.id}')">
               查看
             </el-button>
-            <el-button size="small" type="warning" text @click="openEdit(scope.row)">
+            <el-button size="small" type="warning" text @click="openEdit(scope.row)" v-if="permissionStore.hasButtonPermission('/customer/update')">
               修改
             </el-button>
-            <el-button size="small" type="success" text @click="openAddToPoolDialog(scope.row)">
+            <el-button size="small" type="success" text @click="openAddToPoolDialog(scope.row)" v-if="permissionStore.hasButtonPermission('/customer/addToPool')">
               加入客户池
             </el-button>
           </div>
@@ -168,6 +168,8 @@
 import {ref, reactive, onMounted} from "vue";
 import {ElMessage} from "element-plus";
 import request from "@/utils/request";
+import { usePermissionStore } from '@/stores/permission'
+const permissionStore = usePermissionStore()
 
 // 数据
 const customers = ref([]);
@@ -177,9 +179,10 @@ const pagination = reactive({currentPage: 1, pageSize: 10, total: 0});
 // 用户信息
 let userInfo = {};
 try {
-  userInfo = JSON.parse(localStorage.getItem("user") || "{}");
-} catch (e) {}
-if (!userInfo.userId) userInfo = {userId: 2, role: 4, name: "李销售"};
+  userInfo = JSON.parse(localStorage.getItem("crm_userInfo") || "{}");
+} catch (e) {
+  userInfo = {};
+}
 
 // 详情 / 编辑
 const detailVisible = ref(false);
@@ -242,10 +245,13 @@ const loadData = async () => {
         phone: searchForm.phone
       }
     });
-    if (res.code === 200) {
-      customers.value = res.data.list;
+    console.log("res ===>", res);
+    if (res.data.code === 200) {
+      customers.value = res.data.data.list;
       pagination.total = res.data.total;
+      ElMessage.success("加载客户列表成功");
     }
+
   } catch (e) {
     console.error(e);
     ElMessage.error("加载客户列表失败");
@@ -278,8 +284,8 @@ const handleCurrentChange = (val) => {
 const showDetail = async (row) => {
   try {
     const res = await request.get(`/customer/detail/${row.id}`);
-    if (res.code === 200) {
-      Object.assign(detailData, res.data);
+    if (res.data.code === 200) {
+      Object.assign(detailData, res.data.data);
       console.log("detailData ===>", res.data);
       detailVisible.value = true;
       editMode.value = false;
@@ -301,7 +307,7 @@ const openEdit = (row) => {
 const submitEdit = async () => {
   try {
     const res = await request.post("/customer/update", editForm);
-    if (res.code === 200) {
+    if (res.data.code === 200) {
       ElMessage.success("更新成功");
       detailVisible.value = false;
       loadData();

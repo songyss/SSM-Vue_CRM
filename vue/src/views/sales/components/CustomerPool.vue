@@ -34,7 +34,7 @@
         </div>
 
         <div class="filter-item">
-          <el-button type="primary" @click="handleSearch" size="small" icon="Search">查询</el-button>
+          <el-button type="primary" @click="handleSearch" size="small" icon="Search" v-if="permissionStore.hasButtonPermission('/customer/poolSearch')">查询</el-button>
           <el-button @click="handleReset" size="small" icon="Refresh">重置</el-button>
         </div>
       </div>
@@ -44,7 +44,7 @@
     <div class="table-card">
       <div class="table-header">
         <div class="table-title">客户列表</div>
-        <el-button type="primary" @click="loadCustomerData" size="small" :loading="loading">
+        <el-button type="primary" @click="loadCustomerData" size="small" :loading="loading" v-if="permissionStore.hasButtonPermission('/customer/poolListAdd')">
           刷新数据
         </el-button>
       </div>
@@ -84,7 +84,7 @@
           <!-- 操作 -->
           <el-table-column label="操作" width="120" fixed="right">
             <template #default="scope">
-              <el-button type="primary" size="small" @click="handleLock(scope.row)">锁定</el-button>
+              <el-button type="primary" size="small" @click="handleLock(scope.row)" v-if="permissionStore.hasButtonPermission('/customer/lock/customerId')">锁定</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -107,18 +107,18 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from "vue";
 import { ElMessage, ElMessageBox, ElNotification } from "element-plus";
-import axios from "axios";
+import request from "@/utils/request";
+import { usePermissionStore } from '@/stores/permission'
+const permissionStore = usePermissionStore()
 
 // ================== 登录用户信息 ==================
 let userInfo = {};
 try {
-  userInfo = JSON.parse(localStorage.getItem("user") || "{}");
-} catch (e) {
-  console.error("解析 user 出错", e);
+  userInfo = JSON.parse(localStorage.getItem("crm_userInfo") || "{}");
+} catch (error) {
+  console.error("解析用户信息失败", error);
 }
-if (!userInfo.userId) {
-  userInfo = { userId: 2, role: 4, name: "李销售" }; // 默认一个用户
-}
+
 
 // ================== 数据状态 ==================
 const customerData = ref([]);
@@ -145,8 +145,11 @@ const paginatedCustomers = computed(() => {
 // ================== 加载客户池数据 ==================
 const loadCustomerData = async () => {
   try {
+    // 开启加载状态
     loading.value = true;
-    const response = await axios.get("http://localhost:8080/customer/poolListAdd");
+    // 发送请求获取客户数据
+    const response = await request.get("/customer/poolListAdd");
+    console.log("response ===>", response);
     const data = response.data;
 
     if (data.code === 200 && Array.isArray(data.data)) {
@@ -199,7 +202,7 @@ const handleLock = (row) => {
   })
     .then(async () => {
       try {
-        const res = await axios.post(`http://localhost:8080/customer/lock/${row.id}`, {
+        const res = await request.post(`/customer/lock/${row.id}`, {
           employeeId: userInfo.userId
         });
         if (res.data.code === 200) {

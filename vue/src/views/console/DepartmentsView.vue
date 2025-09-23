@@ -45,6 +45,7 @@
               icon="Plus"
               @click="handleAdd()"
               v-hasPermi="['system:dept:add']"
+              v-if="permissionStore.hasButtonPermission('/department/insert')"
             >新增</el-button>
           </div>
         </div>
@@ -79,6 +80,7 @@
                icon="Edit"
                @click="handleUpdate(scope.row)"
                v-hasPermi="['system:dept:edit']"
+               v-if="permissionStore.hasButtonPermission('/department/update')"
              >修改</el-button>
              <!-- 占位元素，确保对齐 -->
              <span v-if="!(scope.row.super_depart_id === null || scope.row.super_depart_id === 0)" style="width: 56px;"></span>
@@ -90,6 +92,7 @@
                icon="Plus"
                @click="handleAdd(scope.row)"
                v-hasPermi="['system:dept:add']"
+
              >新增</el-button>
              <el-button
                type="primary"
@@ -97,6 +100,7 @@
                icon="Delete"
                @click="handleDelete(scope.row)"
                v-hasPermi="['system:dept:remove']"
+               v-if="permissionStore.hasButtonPermission('/department/delete')"
              >删除</el-button>
            </div>
           </template>
@@ -159,6 +163,9 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElForm, ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance } from 'element-plus'
 import request from '@/utils/request'  // 替换 axios 导入
+
+import { usePermissionStore } from '@/stores/permission'
+const permissionStore = usePermissionStore()
 
 // 定义数据类型
 interface Dept {

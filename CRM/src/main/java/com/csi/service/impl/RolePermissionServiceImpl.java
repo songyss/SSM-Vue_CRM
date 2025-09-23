@@ -34,4 +34,9 @@ public class RolePermissionServiceImpl implements RolePermissionService {
     public int save(RolePermission rolePermission) {
         return rolePermissionMapper.save(rolePermission);
     }
+
+    @Override
+    public int remove(int roleId) {
+        return rolePermissionMapper.remove(roleId);
+    }
 }

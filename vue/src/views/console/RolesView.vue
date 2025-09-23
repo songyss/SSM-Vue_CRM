@@ -19,7 +19,7 @@
       </el-form>
 
       <div class="toolbar">
-        <el-button type="primary" icon="Plus" @click="handleAdd">新增角色</el-button>
+        <el-button type="primary" icon="Plus" @click="handleAdd" v-if="permissionStore.hasButtonPermission('/roles/create')">新增角色</el-button>
       </div>
 
       <el-table :data="roles" border style="width: 100%; margin-top: 20px;">
@@ -35,9 +35,9 @@
         <el-table-column prop="createTime" label="创建时间" width="180" />
         <el-table-column label="操作" width="250">
           <template #default="scope">
-            <el-button size="small" type="primary" @click="handleEdit(scope.row)">修改</el-button>
-            <el-button size="small" type="warning" @click="handleAuth(scope.row)">分配权限</el-button>
-            <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+            <el-button size="small" type="primary" @click="handleEdit(scope.row)" v-if="permissionStore.hasButtonPermission('/roles/update')">修改</el-button>
+            <el-button size="small" type="warning" @click="handleAuth(scope.row)" v-if="permissionStore.hasButtonPermission('/role/permissions')">分配权限</el-button>
+            <el-button size="small" type="danger" @click="handleDelete(scope.row)" v-if="permissionStore.hasButtonPermission('/roles/delete')">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -85,7 +85,7 @@
   </el-form>
   <template #footer>
     <span class="dialog-footer">
-      <el-button @click="authDialogVisible = false">取 消</el-button>
+      <el-button @click="closeAuthDialog">取 消</el-button>
       <el-button type="primary" @click="submitAuth">确 定</el-button>
     </span>
   </template>
@@ -98,7 +98,8 @@
 import { ref, reactive, onMounted,nextTick,watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
-
+import { usePermissionStore } from '@/stores/permission'
+const permissionStore = usePermissionStore()
 
 
 // 定义类型
@@ -169,12 +170,17 @@ const menuTree = ref<MenuItem[]>([])
 const menuTreeRef = ref()
 const defaultExpandedKeys = ref<number[]>([])
 
-watch(menuTree, (newVal) => {
-  if (newVal.length > 0 && authForm.checkedKeys.length > 0) {
+watch([menuTree, () => authForm.checkedKeys], ([newTree, newKeys]) => {
+  if (newTree.length > 0 && newKeys.length > 0) {
     nextTick(() => {
       if (menuTreeRef.value) {
-        menuTreeRef.value.setCheckedKeys(authForm.checkedKeys)
+        menuTreeRef.value.setCheckedKeys(newKeys)
       }
+    })
+  }else if (newTree.length > 0 && menuTreeRef.value) {
+    // 当没有选中项时，确保清空树的选中状态
+    nextTick(() => {
+      menuTreeRef.value.setCheckedKeys([])
     })
   }
 })
@@ -305,17 +311,42 @@ const submitRole = () => {
   })
 }
 
+
 // 处理权限分配
 const handleAuth = async (row: Role) => {
   authForm.roleId = row.id
   authForm.roleName = row.roleName
-  authDialogVisible.value = true
+  authForm.checkedKeys = [] // 重置选中项
+  authDialogVisible.value = false
 
-  // 先获取角色已有的权限
-  await fetchRoleMenus(row.id)
+  // 重置树的选中状态
+  if (menuTreeRef.value) {
+    menuTreeRef.value.setCheckedKeys([])
+  }
 
   // 再获取菜单树
   await fetchMenuTree()
+
+
+  // 先获取角色已有的权限
+  await fetchRoleMenus(row.id)
+  authDialogVisible.value = true
+
+}
+
+// 在<script setup>中添加一个新的函数来处理对话框关闭
+const closeAuthDialog = () => {
+  authDialogVisible.value = false
+  // 清空相关状态
+  authForm.roleId = 0
+  authForm.roleName = ''
+  authForm.checkedKeys = []
+  // 重置树的选中状态
+  nextTick(() => {
+    if (menuTreeRef.value) {
+      menuTreeRef.value.setCheckedKeys([])
+    }
+  })
 }
 
 /**
@@ -324,6 +355,9 @@ const handleAuth = async (row: Role) => {
 * @returns 无返回值
 */
 // 获取角色已分配的菜单权限
+// 获取角色已分配的菜单权限
+// 获取角色已分配的菜单权限
+// 修改 fetchRoleMenus 函数中的 URL 映射部分
 const fetchRoleMenus = async (roleId: number) => {
   try {
     const response = await request.get('/permission/getPermission', {
@@ -337,64 +371,105 @@ const fetchRoleMenus = async (roleId: number) => {
       const permissionData = response.data.data || {}
       console.log('权限数据:', permissionData)
 
-      // 收集所有已分配的权限URL
-      const assignedUrls = []
+      // 收集所有已分配的权限URL（过滤null值）
+      const assignedUrls: string[] = []
       for (const moduleId in permissionData) {
         if (Array.isArray(permissionData[moduleId])) {
-          assignedUrls.push(...permissionData[moduleId])
+          permissionData[moduleId].forEach(url => {
+            if (url) assignedUrls.push(url) // 过滤null值
+          })
         }
       }
 
       console.log('已分配的权限URL:', assignedUrls)
 
-      // 定义URL到权限ID的映射（根据您的实际情况调整）
-      const urlToIdMap: {[key: string]: number} = {
-        '/employee/list': 1,
-        '/employee/create': 2,
-        '/employee/update': 3,
-        '/employee/delete': 4,
-        '/role/list': 5,
-        '/role/create': 6,
-        '/role/update': 7,
-        '/role/delete': 8
-        // 添加更多映射...
+      // 构建URL到权限ID的映射（使用递归处理所有节点）
+      const urlToIdMap: {[key: string]: number} = {}
+
+      const buildUrlMap = (nodes: MenuItem[]) => {
+        nodes.forEach(node => {
+          if (node.children && node.children.length > 0) {
+            buildUrlMap(node.children) // 递归处理子节点
+          } else {
+            // 从标签中提取URL，格式为 "描述 (URL)"
+            const match = node.label.match(/\(([^)]+)\)$/)
+            if (match && match[1]) {
+              const url = match[1]
+              urlToIdMap[url] = node.id
+            }
+          }
+        })
       }
+
+      buildUrlMap(menuTree.value) // 调用递归函数
+
+      console.log('URL到ID映射:', urlToIdMap)
 
       // 将URL转换为权限ID
       const assignedPermissionIds = assignedUrls
-        .map(url => urlToIdMap[url])
+        .map(url => {
+          console.log(`映射URL: ${url} -> ID: ${urlToIdMap[url]}`)
+          return urlToIdMap[url]
+        })
         .filter(id => id !== undefined)
 
       authForm.checkedKeys = assignedPermissionIds
       console.log('映射后的权限ID:', authForm.checkedKeys)
+
+      // 确保DOM更新后设置选中状态
+      nextTick(() => {
+        if (menuTreeRef.value) {
+          console.log('设置选中项:', authForm.checkedKeys)
+          menuTreeRef.value.setCheckedKeys(authForm.checkedKeys)
+        }
+      })
     } else {
       ElMessage.error(response.data.message || '获取角色菜单权限失败')
-      authForm.checkedKeys = []
+      resetAuthSelection()
     }
     return Promise.resolve()
   } catch (error) {
     ElMessage.error('获取角色菜单权限失败')
     console.error('获取角色菜单权限失败:', error)
-    authForm.checkedKeys = []
+    resetAuthSelection()
     return Promise.resolve()
   }
 }
 
+// 新增重置选中状态的工具函数
+const resetAuthSelection = () => {
+  authForm.checkedKeys = []
+  nextTick(() => {
+    if (menuTreeRef.value) {
+      menuTreeRef.value.setCheckedKeys([])
+    }
+  })
+}
+
 // 获取权限模型列表并构建树形结构
+// 修改 fetchMenuTree 函数
 const fetchMenuTree = async () => {
   try {
     const response = await request.get('/permission/tree')
 
     if (response.data.code === 200) {
-      // 将模块和权限数据转换为树形结构
+      // 将模块和权限数据转换为树形结构，处理空权限模块
       const treeData = response.data.data.map((model: ModelItem) => {
         return {
           id: model.id,
           label: model.modelName,
-          children: model.permissions.map(permission => ({
-            id: permission.id,
-            label: `${permission.permissionDesc} (${permission.permissionName})`
-          }))
+          children: model.permissions.length > 0
+            ? model.permissions.map(permission => ({
+                id: permission.id,
+                label: `${permission.permissionDesc} (${permission.url})`,
+                isLeaf: true // 明确标记为叶子节点
+              }))
+            : [{
+                id: model.id + 1000, // 为无权限模块添加占位节点
+                label: '无可用权限',
+                disabled: true,
+                isLeaf: true
+              }]
         }
       })
 
@@ -404,41 +479,81 @@ const fetchMenuTree = async () => {
       defaultExpandedKeys.value = response.data.data.map((model: ModelItem) => model.id)
 
       console.log('权限树数据:', treeData)
-      console.log('默认选中项:', authForm.checkedKeys)
 
-      // 使用 nextTick 确保 DOM 更新后再设置选中项
+      // 确保树渲染后设置选中状态
       nextTick(() => {
-        if (menuTreeRef.value && authForm.checkedKeys.length > 0) {
-          console.log('设置选中项:', authForm.checkedKeys)
-          // 手动设置选中项
+        if (menuTreeRef.value) {
           menuTreeRef.value.setCheckedKeys(authForm.checkedKeys)
         }
       })
     } else {
       ElMessage.error(response.data.message || '获取权限模型失败')
+      menuTree.value = []
+      defaultExpandedKeys.value = []
     }
   } catch (error) {
     ElMessage.error('获取权限模型失败')
     console.error('获取权限模型失败:', error)
+    menuTree.value = []
+    defaultExpandedKeys.value = []
   }
 }
 
-// 提交权限分配
+// 修改 submitAuth 函数
 const submitAuth = async () => {
-  const checkedKeys = menuTreeRef.value.getCheckedKeys()
-  const halfCheckedKeys = menuTreeRef.value.getHalfCheckedKeys()
-  const menuIds = [...checkedKeys, ...halfCheckedKeys]
-
   try {
-    const response = await request.post(`/roles/update`, {
-      menus: menuIds
-    }, {
-      params: { id: authForm.roleId }
+    // 获取选中的权限ID（只取叶子节点）
+    const checkedKeys = menuTreeRef.value.getCheckedKeys(true)
+    // 获取所有有选中权限的模块ID
+    const moduleIds = new Set<number>()
+
+    // 递归查找选中权限所属的模块ID
+    const findParentModules = (nodes: MenuItem[], childId: number, parentId?: number) => {
+      for (const node of nodes) {
+        if (node.id === childId && parentId) {
+          moduleIds.add(parentId)
+          return true
+        }
+        if (node.children && node.children.length > 0) {
+          if (findParentModules(node.children, childId, node.id)) {
+            return true
+          }
+        }
+      }
+      return false
+    }
+
+    // 为每个选中的权限找到对应的模块
+    checkedKeys.forEach(key => {
+      findParentModules(menuTree.value, key)
     })
+
+    console.log('选中的权限ID:', checkedKeys)
+    console.log('关联的模块ID:', Array.from(moduleIds))
+
+    if (checkedKeys.length === 0) {
+      ElMessage.warning('请至少选择一个权限')
+      return
+    }
+
+    // 构造请求参数
+    const params = new URLSearchParams()
+    params.append('roleId', authForm.roleId.toString())
+    params.append('modelsId', Array.from(moduleIds).join(','))
+    params.append('permissionsId', checkedKeys.join(','))
+
+    // 调用后端接口保存权限
+    const response = await request.post('/permission/savePermission', params, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    })
+
+    console.log('权限分配响应:', response)
 
     if (response.data.code === 200) {
       ElMessage.success('权限分配成功')
-      authDialogVisible.value = false
+      closeAuthDialog()
     } else {
       ElMessage.error(response.data.message || '权限分配失败')
     }
@@ -447,7 +562,6 @@ const submitAuth = async () => {
     console.error('权限分配失败:', error)
   }
 }
-
 // 初始化
 onMounted(() => {
   fetchRoles()

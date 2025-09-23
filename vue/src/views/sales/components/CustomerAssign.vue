@@ -4,7 +4,7 @@
 
     <!-- 工具栏 -->
     <div style="margin-bottom: 15px">
-      <el-button type="primary" @click="refresh">刷新</el-button>
+      <el-button type="primary" @click="refresh" v-if="permissionStore.hasButtonPermission('/customer/unAssignedList')">刷新</el-button>
     </div>
 
     <!-- 待分配客户表格 -->
@@ -32,7 +32,7 @@
                 :value="emp.id"
               />
             </el-select>
-            <el-button type="primary" size="small" @click="assign(row.id)">
+            <el-button type="primary" size="small" @click="assign(row.id)" v-if="permissionStore.hasButtonPermission('/customer/assign')">
               分配
             </el-button>
           </div>
@@ -73,6 +73,9 @@
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import { usePermissionStore } from '@/stores/permission'
+const permissionStore = usePermissionStore()
+import request from '@/utils/request'
 
 // 客户数据
 const customers = ref<any[]>([])
@@ -94,7 +97,7 @@ const total = ref(0)
 // 获取待分配客户（assignee_id = null）
 const fetchCustomers = async () => {
   try {
-    const res = await axios.get('http://localhost:8080/customer/unAssignedList', {
+    const res = await request.get('/customer/unAssignedList', {
       params: {
         pageNum: pageNum.value,
         pageSize: pageSize.value
@@ -110,7 +113,7 @@ const fetchCustomers = async () => {
 // 获取员工
 const fetchEmployees = async () => {
   try {
-    const res = await axios.get('http://localhost:8080/employee/allList')
+    const res = await request.get('/employee/allList')
     employees.value = res.data.data
   } catch (e) {
     console.error('获取员工失败:', e)
@@ -125,7 +128,7 @@ const assign = async (customerId: number) => {
     return
   }
   try {
-    await axios.post('http://localhost:8080/customer/assign', {
+    await request.post('/customer/assign', {
       employeeId,
       customerIds: [customerId]
     })

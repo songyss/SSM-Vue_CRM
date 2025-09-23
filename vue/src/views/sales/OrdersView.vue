@@ -4,7 +4,7 @@
     <div class="orders-management">
       <div class="header">
         <h3>订单管理</h3>
-        <el-button type="primary" @click="handleAddOrder">+ 新增订单</el-button>
+        <el-button type="primary" @click="handleAddOrder" v-if="permissionStore.hasButtonPermission('/orders/add')">+ 新增订单</el-button>
       </div>
 
       <!-- 搜索筛选区域 -->
@@ -15,7 +15,7 @@
           </el-form-item>
 
           <el-form-item label="订单状态">
-            <el-select v-model="searchForm.status" placeholder="请选择订单状态" clearable>
+            <el-select v-model="searchForm.status" placeholder="请选择订单状态" clearable style="width: 150px">
               <el-option label="全部" value="" />
               <el-option label="待支付" value="1" />
               <el-option label="执行中" value="2" />
@@ -42,7 +42,7 @@
           </el-form-item>
 
           <el-form-item>
-            <el-button type="primary" @click="handleSearch">查询</el-button>
+            <el-button type="primary" @click="handleSearch" v-if="permissionStore.hasButtonPermission('/orders/find')">查询</el-button>
             <el-button @click="resetSearch">重置</el-button>
           </el-form-item>
         </el-form>
@@ -92,8 +92,8 @@
 
         <el-table-column label="操作" width="120" fixed="right">
           <template #default="scope">
-            <el-button size="small" type="primary" link @click="handleView(scope.row)">查看</el-button>
-            <el-button size="small" type="primary" link @click="handleEdit(scope.row)">编辑</el-button>
+            <el-button size="small" type="primary" link @click="handleView(scope.row)" v-if="permissionStore.hasButtonPermission('/orders/desc')">查看</el-button>
+            <el-button size="small" type="primary" link @click="handleEdit(scope.row)" v-if="permissionStore.hasButtonPermission('/orders/update')">编辑</el-button>
             <!-- 删除取消订单按钮 -->
           </template>
         </el-table-column>
@@ -267,6 +267,8 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
+import { usePermissionStore } from '@/stores/permission'
+const permissionStore = usePermissionStore()
 
 // 订单状态标签样式映射
 const statusTagType = {
@@ -353,7 +355,7 @@ const fetchOpportunitiesList = async () => {
   try {
     const response = await request.get('/opportunities/allList')
     if (response && response.data) {
-      opportunities.value = response.data
+      opportunities.value = response.data.data
     } else {
       ElMessage.error('获取商机列表失败: 返回数据为空')
     }
@@ -416,7 +418,7 @@ const fetchCustomerList = async () => {
   try {
     const response = await request.get('/customer/allList')
     if (response && response.data) {
-      customers.value = response.data
+      customers.value = response.data.data
     } else {
       ElMessage.error('获取客户列表失败: 返回数据为空')
     }

@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.csi.mapper.PermissionMapper">
-    <cache/>
+
 
     <resultMap id="PermissionResultMap" type="com.csi.domain.Permission">
         <id property="id" column="id"/>

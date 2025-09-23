@@ -125,21 +125,50 @@
     <!-- 更新客户 -->
     <update id="updateCustomer" parameterType="com.csi.domain.Customer">
         UPDATE customers
-        SET name = #{name},
-        phone = #{phone},
-        sex = #{sex},
-        borndate = #{borndate},
-        company = #{company},
-        position = #{position},
-        source = #{source},
-        status = #{status},
-        notes = #{notes},
-        assignee_id = #{assigneeId},
-        last_follow_up_time = #{lastFollowUpTime},
-        is_pool = #{isPool},
-        pool_time = #{poolTime}
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="phone != null and phone != ''">
+                phone = #{phone},
+            </if>
+            <if test="sex != null and sex != ''">
+                sex = #{sex},
+            </if>
+            <if test="borndate != null">
+                borndate = #{borndate},
+            </if>
+            <if test="company != null and company != ''">
+                company = #{company},
+            </if>
+            <if test="position != null and position != ''">
+                position = #{position},
+            </if>
+            <if test="source != null and source != ''">
+                source = #{source},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="notes != null">
+                notes = #{notes},
+            </if>
+            <if test="assigneeId != null">
+                assignee_id = #{assigneeId},
+            </if>
+            <if test="lastFollowUpTime != null">
+                last_follow_up_time = #{lastFollowUpTime},
+            </if>
+            <if test="isPool != null">
+                is_pool = #{isPool},
+            </if>
+            <if test="poolTime != null">
+                pool_time = #{poolTime},
+            </if>
+        </set>
         WHERE id = #{id}
     </update>
+
 
     <!-- 员工负责客户 -->
     <select id="getPersonalCustomer" resultType="com.csi.domain.Customer">

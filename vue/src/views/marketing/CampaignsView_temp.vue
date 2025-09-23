@@ -1,595 +1,278 @@
 <template>
-  <div class="marketing-layout">
-    <!-- 侧边栏 -->
-    <div :class="['sidebar', { collapsed: isSidebarCollapsed }]">
-      <div class="sidebar-header">
-        <h3 v-if="!isSidebarCollapsed">营销活动</h3>
-        <el-button
-          class="toggle-btn"
-          @click="toggleSidebar"
-          :icon="isSidebarCollapsed ? 'Expand' : 'Fold'"
-          circle
-        />
-      </div>
-      <el-menu
-        :default-active="activeMenu"
-        :collapse="isSidebarCollapsed"
-        @select="handleMenuSelect"
-      >
-        <el-menu-item index="promotion">
-          <el-icon><Calendar /></el-icon>
-          <template #title>活动策划</template>
-        </el-menu-item>
-        <el-menu-item index="activity">
-          <el-icon><TrendCharts /></el-icon>
-          <template #title>活动实施</template>
-        </el-menu-item>
-        <el-menu-item index="report">
-          <el-icon><Document /></el-icon>
-          <template #title>活动报告</template>
-        </el-menu-item>
-      </el-menu>
+  <div class="leads-container">
+    <div class="header">
+      <h2>营销管理</h2>
+      <el-button type="primary" @click="handleAddActivity"
+      v-if="permissionStore.hasButtonPermission('/employee/resetPwd')">添加活动</el-button>
     </div>
 
-    <!-- 主内容区域 -->
-    <div :class="['main-content', { collapsed: isSidebarCollapsed }]">
-      <!-- 活动策划模块 -->
-      <div v-if="activeMenu === 'promotion'" class="promotion-container">
-        <div class="header">
-          <h2>活动策划管理</h2>
-          <el-button type="primary" @click="handleAddPlan">新增策划</el-button>
-        </div>
+    <!-- 活动搜索区域 -->
+    <el-form :inline="true" :model="searchForm" class="search-form" label-position="left">
+      <el-form-item label="活动名称">
+        <el-input
+          v-model="searchForm.activityName"
+          placeholder="请输入活动名称"
+          clearable
+          size="small"
+        />
+      </el-form-item>
+      <el-form-item label="活动状态">
+        <el-select
+          v-model="searchForm.activityStatus"
+          placeholder="请选择活动状态"
+          clearable
+          size="small"
+        >
+          <el-option label="筹备中" :value="0" />
+          <el-option label="进行中" :value="1" />
+          <el-option label="已结束" :value="2" />
+          <el-option label="已取消" :value="3" />
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="searchActivities" size="small"
+        v-if="permissionStore.hasButtonPermission('/employee/resetPwd')">搜索</el-button>
+        <el-button @click="resetSearch" size="small">重置</el-button>
+      </el-form-item>
+    </el-form>
 
-        <!-- 策划列表 -->
-        <el-table :data="promotionPlans" border class="plans-table">
-          <el-table-column prop="id" label="ID" width="60" align="center"/>
-          <el-table-column prop="title" label="策划名称" min-width="150" align="center"/>
-          <el-table-column label="策划描述" min-width="120" align="center">
+    <!-- 活动表格 -->
+    <el-tabs v-model="activeTab" @tab-change="handleTabChange">
+      <el-tab-pane label="营销活动" name="activities">
+        <el-table :data="activities" border style="width: 100%" v-loading="loading">
+          <el-table-column prop="id" label="ID" width="60" align="center" />
+          <el-table-column prop="name" label="活动名称" min-width="150" show-overflow-tooltip />
+          <el-table-column prop="type" label="活动类型" width="120" align="center" />
+          <el-table-column prop="startTime" label="开始时间" width="160" align="center" />
+          <el-table-column prop="endTime" label="结束时间" width="160" align="center" />
+          <el-table-column label="活动状态" width="100" align="center">
             <template #default="{ row }">
-              <el-button size="small" type="primary" plain @click="viewPlanContent(row)">
-                查看详情
-              </el-button>
+              <el-tag :type="getActivityStatusType(row.status)">
+                {{ getActivityStatusText(row.status) }}
+              </el-tag>
             </template>
           </el-table-column>
           <el-table-column prop="budget" label="预算" width="100" align="center">
             <template #default="{ row }">
-              ¥{{ parseFloat(row.budget).toFixed(2) }}
+              ¥{{ row.budget }}
             </template>
           </el-table-column>
-          <el-table-column prop="planStatusName" label="状态" width="100" align="center">
+          <el-table-column prop="actualCost" label="实际成本" width="100" align="center">
             <template #default="{ row }">
-              <el-tag :type="getPlanStatusTagTypeByName(row.planStatusName)">
-                {{ row.planStatusName }}
+              ¥{{ row.actualCost }}
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="200" fixed="right" align="center">
+            <template #default="{ row }">
+              <el-button size="small" @click="handleViewActivity(row)" v-if="permissionStore.hasButtonPermission('/employee/resetPwd')">查看</el-button>
+              <el-button size="small" @click="handleEditActivity(row)" v-if="permissionStore.hasButtonPermission('/employee/resetPwd')">编辑</el-button>
+              <el-button size="small" type="danger" @click="handleDeleteActivity(row)" v-if="permissionStore.hasButtonPermission('/employee/resetPwd')">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-tab-pane>
+
+      <el-tab-pane label="推广计划" name="plans">
+        <el-table :data="promotionPlans" border style="width: 100%" v-loading="loading">
+          <el-table-column prop="id" label="ID" width="60" align="center" />
+          <el-table-column prop="planName" label="计划名称" min-width="150" show-overflow-tooltip />
+          <el-table-column prop="targetAudience" label="目标受众" width="120" align="center" />
+          <el-table-column prop="channel" label="推广渠道" width="120" align="center" />
+          <el-table-column prop="startDate" label="开始日期" width="120" align="center" />
+          <el-table-column prop="endDate" label="结束日期" width="120" align="center" />
+          <el-table-column label="状态" width="100" align="center">
+            <template #default="{ row }">
+              <el-tag :type="getPlanStatusType(row.status)">
+                {{ getPlanStatusText(row.status) }}
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="submitterName" label="提交人" width="100" align="center"/>
-          <el-table-column prop="approverName" label="审批人" width="100" align="center"/>
-          <el-table-column prop="createTime" label="创建时间" width="120" align="center"/>
-          <el-table-column prop="updateTime" label="更新时间" width="120" align="center"/>
-          <el-table-column label="操作" width="150" fixed="right" align="center">
+          <el-table-column prop="budget" label="预算" width="100" align="center">
             <template #default="{ row }">
-              <el-button size="small" @click="handleViewPlan(row)">查看</el-button>
-              <el-button
-                size="small"
-                type="primary"
-                :disabled="row.planStatusName !== '待审批'"
-                @click="handleApprovePlan(row)"
-              >
-                审批
-              </el-button>
+              ¥{{ row.budget }}
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="200" fixed="right" align="center">
+            <template #default="{ row }">
+              <el-button size="small" @click="handleViewPlan(row)" v-if="permissionStore.hasButtonPermission('/employee/resetPwd')">查看</el-button>
+              <el-button size="small" @click="handleApprovePlan(row)" v-if="row.status === 0 && permissionStore.hasButtonPermission('/employee/resetPwd')">审批</el-button>
+              <el-button size="small" type="danger" @click="handleDeletePlan(row)" v-if="row.status !== 1 && permissionStore.hasButtonPermission('/employee/resetPwd')">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
+      </el-tab-pane>
+    </el-tabs>
 
-        <!-- 策划对话框 -->
-        <el-dialog
-          v-model="planDialogVisible"
-          title="新增活动策划"
-          width="600px"
-          @close="onPlanDialogClose"
-        >
-          <el-form :model="currentPlan" label-width="100px" class="dialog-form">
-            <el-form-item label="策划名称" prop="title" :rules="[{ required: true, message: '请输入策划名称', trigger: 'blur' }]">
-              <el-input v-model="currentPlan.title" placeholder="请输入策划名称"/>
-            </el-form-item>
-            <el-form-item label="策划描述" prop="content">
-              <el-input
-                v-model="currentPlan.content"
-                type="textarea"
-                placeholder="请输入策划描述"
-                :rows="3"
-              />
-            </el-form-item>
-            <el-form-item label="预算" prop="budget">
-              <el-input-number
-                v-model="currentPlan.budget"
-                :min="0"
-                :precision="2"
-                :step="1000"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-form>
-          <template #footer>
-            <span class="dialog-footer">
-              <el-button @click="planDialogVisible = false">取消</el-button>
-              <el-button type="primary" @click="savePlan">确认</el-button>
-            </span>
-          </template>
-        </el-dialog>
+    <!-- 分页 -->
+    <el-pagination
+      v-if="activeTab === 'activities'"
+      v-model:current-page="pagination.current"
+      v-model:page-size="pagination.size"
+      :total="pagination.total"
+      @current-change="handlePageChange"
+      layout="total, prev, pager, next"
+      class="pagination"
+    />
 
-        <!-- 策划详情对话框 -->
-        <el-dialog v-model="planDetailDialogVisible" title="策划详情" width="600px">
-          <el-form label-width="120px" label-position="left" class="detail-form">
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="策划ID:">
-                  <span>{{ detailPlan.id }}</span>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="策划名称:">
-                  <span>{{ detailPlan.title }}</span>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="预算:">
-                  <span>¥{{ parseFloat(detailPlan.budget).toFixed(2) }}</span>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="状态:">
-                  <el-tag :type="getPlanStatusTagTypeByName(detailPlan.planStatusName)">
-                    {{ detailPlan.planStatusName }}
-                  </el-tag>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="提交人:">
-                  <span>{{ detailPlan.submitterName }}</span>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="审批人:">
-                  <span>{{ detailPlan.approverName || '未审批' }}</span>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-form-item label="审批反馈:">
-              <span>{{ detailPlan.feedback || '无' }}</span>
-            </el-form-item>
-            <el-form-item label="创建时间:">
-              <span>{{ detailPlan.createTime }}</span>
-            </el-form-item>
-            <el-form-item label="更新时间:">
-              <span>{{ detailPlan.updateTime }}</span>
-            </el-form-item>
-          </el-form>
-        </el-dialog>
+    <!-- 活动对话框 -->
+    <el-dialog
+      v-model="activityDialogVisible"
+      :title="activityDialogTitle"
+      width="600px"
+      @close="handleActivityDialogClose"
+    >
+      <el-form :model="currentActivity" label-width="100px">
+        <el-form-item label="活动名称" required>
+          <el-input v-model="currentActivity.name" />
+        </el-form-item>
+        <el-form-item label="活动类型">
+          <el-input v-model="currentActivity.type" />
+        </el-form-item>
+        <el-form-item label="开始时间" required>
+          <el-date-picker
+            v-model="currentActivity.startTime"
+            type="datetime"
+            value-format="YYYY-MM-DD HH:mm:ss"
+            placeholder="请选择开始时间"
+            style="width: 100%"
+          />
+        </el-form-item>
+        <el-form-item label="结束时间" required>
+          <el-date-picker
+            v-model="currentActivity.endTime"
+            type="datetime"
+            value-format="YYYY-MM-DD HH:mm:ss"
+            placeholder="请选择结束时间"
+            style="width: 100%"
+          />
+        </el-form-item>
+        <el-form-item label="预算">
+          <el-input v-model.number="currentActivity.budget" type="number">
+            <template #append>元</template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="实际成本">
+          <el-input v-model.number="currentActivity.actualCost" type="number">
+            <template #append>元</template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="活动状态">
+          <el-select v-model="currentActivity.status" placeholder="请选择活动状态">
+            <el-option label="筹备中" :value="0" />
+            <el-option label="进行中" :value="1" />
+            <el-option label="已结束" :value="2" />
+            <el-option label="已取消" :value="3" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="活动描述">
+          <el-input
+            v-model="currentActivity.description"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入活动描述"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="activityDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="saveActivity">确定</el-button>
+        </span>
+      </template>
+    </el-dialog>
 
-        <!-- 策划描述详情对话框（参考报告内容展示方式） -->
-        <el-dialog v-model="planContentDialogVisible" title="策划描述详情" width="800px" top="5vh">
-          <el-scrollbar max-height="70vh">
-            <div class="plan-content-section">
-              <h3>策划描述</h3>
-              <div class="plan-content-html" v-html="formatPlanContent(detailPlan.content)"></div>
-            </div>
-          </el-scrollbar>
+    <!-- 推广计划对话框 -->
+    <el-dialog
+      v-model="planDialogVisible"
+      title="推广计划详情"
+      width="600px"
+    >
+      <el-form :model="currentPlan" label-width="100px">
+        <el-form-item label="计划名称">
+          <el-input v-model="currentPlan.planName" disabled />
+        </el-form-item>
+        <el-form-item label="目标受众">
+          <el-input v-model="currentPlan.targetAudience" disabled />
+        </el-form-item>
+        <el-form-item label="推广渠道">
+          <el-input v-model="currentPlan.channel" disabled />
+        </el-form-item>
+        <el-form-item label="开始日期">
+          <el-date-picker
+            v-model="currentPlan.startDate"
+            type="date"
+            disabled
+            style="width: 100%"
+          />
+        </el-form-item>
+        <el-form-item label="结束日期">
+          <el-date-picker
+            v-model="currentPlan.endDate"
+            type="date"
+            disabled
+            style="width: 100%"
+          />
+        </el-form-item>
+        <el-form-item label="预算">
+          <el-input v-model.number="currentPlan.budget" disabled>
+            <template #append>元</template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="负责人">
+          <el-input v-model="currentPlan.responsiblePerson" disabled />
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-select v-model="currentPlan.status" disabled>
+            <el-option label="待审批" :value="0" />
+            <el-option label="已批准" :value="1" />
+            <el-option label="已拒绝" :value="2" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="计划描述">
+          <el-input
+            v-model="currentPlan.description"
+            type="textarea"
+            :rows="3"
+            disabled
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="planDialogVisible = false">关闭</el-button>
+        </span>
+      </template>
+    </el-dialog>
 
-          <template #footer>
-            <div class="dialog-footer">
-              <el-button @click="planContentDialogVisible = false">关闭</el-button>
-            </div>
-          </template>
-        </el-dialog>
-
-        <!-- 审批对话框 -->
-        <el-dialog
-          v-model="approveDialogVisible"
-          :title="approveDialogTitle"
-          width="500px"
-          @close="onApproveDialogClose"
-        >
-          <el-form :model="approveForm" label-width="80px" class="dialog-form">
-            <el-form-item label="审批结果" prop="status" :rules="[{ required: true, message: '请选择审批结果', trigger: 'change' }]">
-              <el-select v-model="approveForm.status" placeholder="请选择审批结果" style="width: 100%">
-                <el-option label="通过" :value="1"/>
-                <el-option label="驳回" :value="2"/>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="审批意见" prop="feedback">
-              <el-input
-                v-model="approveForm.feedback"
-                type="textarea"
-                placeholder="请输入审批意见"
-                :rows="3"
-              />
-            </el-form-item>
-          </el-form>
-          <template #footer>
-            <span class="dialog-footer">
-              <el-button @click="approveDialogVisible = false">取消</el-button>
-              <el-button type="primary" @click="submitApproval">确认</el-button>
-            </span>
-          </template>
-        </el-dialog>
-      </div>
-
-      <!-- 活动实施模块 -->
-      <div v-if="activeMenu === 'activity'" class="marketing-container">
-        <div class="header">
-          <h2>营销活动管理</h2>
-          <el-button type="primary" @click="handleAdd">新增活动</el-button>
-        </div>
-
-        <!-- 搜索区域 -->
-        <el-form :inline="true" :model="searchForm" class="search-form" label-position="left">
-          <el-form-item label="活动名称" label-width="80px">
-            <el-input
-              v-model="searchForm.name"
-              placeholder="输入活动名称"
-              clearable
-              size="small"
-            />
-          </el-form-item>
-          <el-form-item label="活动状态" label-width="80px">
-            <el-select
-              v-model="searchForm.status"
-              placeholder="请选择"
-              clearable
-              size="small"
-            >
-              <el-option label="筹备中" value="1"/>
-              <el-option label="进行中" value="2"/>
-              <el-option label="已结束" value="3"/>
-              <el-option label="已取消" value="4"/>
-            </el-select>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="fetchActivities" size="small">搜索</el-button>
-            <el-button @click="resetSearch" size="small">重置</el-button>
-          </el-form-item>
-        </el-form>
-
-        <!-- 活动表格 -->
-        <el-table :data="activities" border class="activities-table">
-          <el-table-column prop="id" label="ID" width="60" align="center"/>
-          <el-table-column prop="name" label="活动名称" min-width="150" align="center"/>
-          <el-table-column prop="content" label="活动描述" min-width="200" show-overflow-tooltip align="center"/>
-          <el-table-column prop="startTime" label="开始时间" width="120" align="center"/>
-          <el-table-column prop="endTime" label="结束时间" width="120" align="center"/>
-
-          <!-- 状态列 - 不同状态显示不同颜色 -->
-          <el-table-column label="状态" width="100" align="center">
-            <template #default="{ row }">
-              <span :class="getActivityStatusClass(Number(row.activityStatus))">
-                {{ row.activityStatusName || getActivityStatusText(row.activityStatus) }}
-              </span>
-            </template>
-          </el-table-column>
-
-          <el-table-column prop="estimatedCost" label="预算" width="100" align="center">
-            <template #default="{ row }">
-              ¥{{ parseFloat(row.estimatedCost).toFixed(2) }}
-            </template>
-          </el-table-column>
-
-          <el-table-column prop="actualCost" label="实际花费" width="100" align="center">
-            <template #default="{ row }">
-              ¥{{ parseFloat(row.actualCost).toFixed(2) }}
-            </template>
-          </el-table-column>
-
-          <el-table-column label="操作" width="150" fixed="right" align="center">
-            <template #default="{ row }">
-              <el-button size="small" @click="handleDetail(row)">详情</el-button>
-              <el-button size="small" @click="handleEdit(row)">编辑</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-
-        <!-- 分页 -->
-        <el-pagination
-          v-model:current-page="pagination.current"
-          v-model:page-size="pagination.size"
-          :total="pagination.total"
-          @current-change="handleCurrentChange"
-          layout="total, prev, pager, next"
-          class="pagination"
-        />
-
-        <!-- 活动对话框 -->
-        <el-dialog
-          v-model="dialogVisible"
-          :title="dialogTitle"
-          width="600px"
-          @close="onDialogClose"
-        >
-          <el-form :model="currentActivity" label-width="100px" class="dialog-form">
-            <el-form-item label="活动名称" prop="name" :rules="[{ required: true, message: '请输入活动名称', trigger: 'blur' }]">
-              <el-input v-model="currentActivity.name" placeholder="请输入活动名称"/>
-            </el-form-item>
-            <el-form-item label="活动描述" prop="content">
-              <el-input
-                v-model="currentActivity.content"
-                type="textarea"
-                placeholder="请输入活动描述"
-                :rows="3"
-              />
-            </el-form-item>
-            <el-row :gutter="20">
-              <el-col :span="12">
-                <el-form-item label="开始时间" prop="startTime" :rules="[{ required: true, message: '请选择开始时间', trigger: 'change' }]">
-                  <el-date-picker
-                    v-model="currentActivity.startTime"
-                    type="date"
-                    placeholder="请选择开始时间"
-                    style="width: 100%"
-                  />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="结束时间" prop="endTime" :rules="[{ required: true, message: '请选择结束时间', trigger: 'change' }]">
-                  <el-date-picker
-                    v-model="currentActivity.endTime"
-                    type="date"
-                    placeholder="请选择结束时间"
-                    style="width: 100%"
-                  />
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row :gutter="20">
-              <el-col :span="12">
-                <el-form-item label="预算" prop="estimatedCost">
-                  <el-input-number
-                    v-model="currentActivity.estimatedCost"
-                    :min="0"
-                    :precision="2"
-                    :step="1000"
-                    style="width: 100%"
-                  />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="实际花费" prop="actualCost">
-                  <el-input-number
-                    v-model="currentActivity.actualCost"
-                    :min="0"
-                    :precision="2"
-                    :step="1000"
-                    style="width: 100%"
-                  />
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-form-item label="活动状态" prop="activityStatus" :rules="[{ required: true, message: '请选择活动状态', trigger: 'change' }]">
-              <el-select v-model="currentActivity.activityStatus" placeholder="请选择活动状态" style="width: 100%">
-                <el-option label="筹备中" :value="1"/>
-                <el-option label="进行中" :value="2"/>
-                <el-option label="已结束" :value="3"/>
-                <el-option label="已取消" :value="4"/>
-              </el-select>
-            </el-form-item>
-          </el-form>
-          <template #footer>
-            <span class="dialog-footer">
-              <el-button @click="cancelUpdate">取消</el-button>
-              <el-button type="primary" @click="saveActivity">确认</el-button>
-            </span>
-          </template>
-        </el-dialog>
-
-        <!-- 活动详情对话框 -->
-        <el-dialog v-model="detailDialogVisible" title="活动详情" width="600px">
-          <el-form label-width="120px" label-position="left" class="detail-form">
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="活动ID:">
-                  <span>{{ detailActivity.id }}</span>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="活动名称:">
-                  <span>{{ detailActivity.name }}</span>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-form-item label="活动描述:">
-              <span>{{ detailActivity.content || '无' }}</span>
-            </el-form-item>
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="开始时间:">
-                  <span>{{ detailActivity.startTime }}</span>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="结束时间:">
-                  <span>{{ detailActivity.endTime }}</span>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="预算:">
-                  <span>¥{{ parseFloat(detailActivity.estimatedCost).toFixed(2) }}</span>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="实际花费:">
-                  <span>¥{{ parseFloat(detailActivity.actualCost).toFixed(2) }}</span>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-form-item label="活动状态:">
-              <span :class="getActivityStatusClass(Number(detailActivity.activityStatus))">
-                {{ detailActivity.activityStatusName || getActivityStatusText(detailActivity.activityStatus) }}
-              </span>
-            </el-form-item>
-            <el-form-item label="负责人:">
-              <span>{{ detailActivity.managername }}</span>
-            </el-form-item>
-            <el-form-item label="创建时间:">
-              <span>{{ detailActivity.createTime }}</span>
-            </el-form-item>
-          </el-form>
-        </el-dialog>
-      </div>
-
-      <!-- 活动报告模块 -->
-      <div v-if="activeMenu === 'report'" class="report-container">
-        <div class="header">
-          <h2>活动报告管理</h2>
-          <el-button type="primary" @click="handleAddReport">新增报告</el-button>
-        </div>
-
-        <!-- 报告列表 -->
-        <el-table :data="activityReports" border class="reports-table">
-          <el-table-column prop="id" label="ID" width="60" align="center"/>
-          <el-table-column prop="title" label="报告标题" min-width="150" align="center"/>
-          <el-table-column prop="activityId" label="关联活动ID" width="120" align="center"/>
-          <el-table-column prop="actualCost" label="实际成本" width="100" align="center">
-            <template #default="{ row }">
-              ¥{{ parseFloat(row.actualCost).toFixed(2) }}
-            </template>
-          </el-table-column>
-          <el-table-column prop="newCustomersCount" label="新增客户数" width="120" align="center"/>
-          <el-table-column prop="potentialLeadsCount" label="潜在线索数" width="120" align="center"/>
-          <el-table-column prop="estimatedRoi" label="预估ROI" width="100" align="center">
-            <template #default="{ row }">
-              {{ (row.estimatedRoi * 100).toFixed(2) }}%
-            </template>
-          </el-table-column>
-          <el-table-column prop="creatorName" label="创建人" width="100" align="center"/>
-          <el-table-column prop="createTime" label="创建时间" width="120" align="center"/>
-          <!-- 报告操作栏 -->
-          <el-table-column label="报告内容" width="120" fixed="right" align="center">
-            <template #default="{ row }">
-              <el-button
-                size="small"
-                type="primary"
-                plain
-                @click="viewReportDetail(row)"
-              >
-                查看详情
-              </el-button>
-            </template>
-          </el-table-column>
-          <el-table-column label="操作" width="150" fixed="right" align="center">
-            <template #default="{ row }">
-              <el-button size="small" @click="handleEditReport(row)">编辑</el-button>
-              <el-button size="small" type="danger" @click="handleDeleteReport(row)">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-
-        <!-- 报告对话框 -->
-        <el-dialog
-          v-model="reportDialogVisible"
-          :title="reportDialogTitle"
-          width="600px"
-          @close="onReportDialogClose"
-        >
-          <el-form :model="currentReport" label-width="120px" class="dialog-form">
-            <el-form-item label="报告标题" prop="title" :rules="[{ required: true, message: '请输入报告标题', trigger: 'blur' }]">
-              <el-input v-model="currentReport.title" placeholder="请输入报告标题"/>
-            </el-form-item>
-            <el-form-item label="关联活动ID" prop="activityId" :rules="[{ required: true, message: '请输入关联活动ID', trigger: 'blur' }]">
-              <el-input v-model="currentReport.activityId" placeholder="请输入关联活动ID"/>
-            </el-form-item>
-            <el-form-item label="报告内容" prop="content">
-              <el-input
-                v-model="currentReport.content"
-                type="textarea"
-                placeholder="请输入报告内容"
-                :rows="4"
-              />
-            </el-form-item>
-            <el-form-item label="实际成本" prop="actualCost">
-              <el-input-number
-                v-model="currentReport.actualCost"
-                :min="0"
-                :precision="2"
-                :step="1000"
-                style="width: 100%"
-              />
-            </el-form-item>
-            <el-form-item label="新增客户数" prop="newCustomersCount">
-              <el-input-number
-                v-model="currentReport.newCustomersCount"
-                :min="0"
-                :step="1"
-                style="width: 100%"
-              />
-            </el-form-item>
-            <el-form-item label="潜在线索数" prop="potentialLeadsCount">
-              <el-input-number
-                v-model="currentReport.potentialLeadsCount"
-                :min="0"
-                :step="1"
-                style="width: 100%"
-              />
-            </el-form-item>
-            <el-form-item label="预估ROI" prop="estimatedRoi">
-              <el-input-number
-                v-model="currentReport.estimatedRoi"
-                :min="0"
-                :max="100"
-                :precision="4"
-                :step="0.01"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-form>
-          <template #footer>
-            <span class="dialog-footer">
-              <el-button @click="reportDialogVisible = false">取消</el-button>
-              <el-button type="primary" @click="saveReport">确认</el-button>
-            </span>
-          </template>
-        </el-dialog>
-
-        <!-- 报告详情对话框 -->
-        <el-dialog v-model="reportDetailDialogVisible" title="报告详情" width="800px" top="5vh">
-          <el-scrollbar max-height="70vh">
-            <div class="report-detail-content">
-              <el-descriptions :column="2" border>
-                <el-descriptions-item label="报告ID">{{ detailReport.id }}</el-descriptions-item>
-                <el-descriptions-item label="报告标题">{{ detailReport.title }}</el-descriptions-item>
-                <el-descriptions-item label="关联活动ID">{{ detailReport.activityId }}</el-descriptions-item>
-                <el-descriptions-item label="实际成本">
-                  ¥{{ parseFloat(detailReport.actualCost).toFixed(2) }}
-                </el-descriptions-item>
-                <el-descriptions-item label="新增客户数">{{ detailReport.newCustomersCount }}</el-descriptions-item>
-                <el-descriptions-item label="潜在线索数">{{ detailReport.potentialLeadsCount }}</el-descriptions-item>
-                <el-descriptions-item label="预估ROI">
-                  {{ (detailReport.estimatedRoi * 100).toFixed(2) }}%
-                </el-descriptions-item>
-                <el-descriptions-item label="创建人">{{ detailReport.creatorName }}</el-descriptions-item>
-                <el-descriptions-item label="创建时间" :span="2">{{ detailReport.createTime }}</el-descriptions-item>
-              </el-descriptions>
-
-              <div class="report-content-section">
-                <h3>报告内容</h3>
-                <div class="report-content-html" v-html="formatReportContent(detailReport.content)"></div>
-              </div>
-            </div>
-          </el-scrollbar>
-
-          <template #footer>
-            <div class="dialog-footer">
-              <el-button @click="reportDetailDialogVisible = false">关闭</el-button>
-            </div>
-          </template>
-        </el-dialog>
-      </div>
-    </div>
+    <!-- 审批对话框 -->
+    <el-dialog
+      v-model="approvalDialogVisible"
+      title="推广计划审批"
+      width="500px"
+    >
+      <el-form :model="approvalForm" label-width="80px">
+        <el-form-item label="审批结果" required>
+          <el-radio-group v-model="approvalForm.status">
+            <el-radio :label="1">批准</el-radio>
+            <el-radio :label="2">拒绝</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="审批意见">
+          <el-input
+            v-model="approvalForm.comments"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入审批意见"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="approvalDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="submitApproval">确定</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -597,595 +280,312 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
-import { useRouter } from 'vue-router'
-import { Calendar, TrendCharts, Document, Expand, Fold } from '@element-plus/icons-vue'
+import { usePermissionStore } from '@/stores/permission'
+const permissionStore = usePermissionStore()
 
-// 获取路由实例
-const router = useRouter()
-
-// 侧边栏状态
-const isSidebarCollapsed = ref(false)
-const activeMenu = ref('promotion') // 默认显示活动策划模块
-
-// 活动策划相关数据
-const promotionPlans = ref([])
-const planDialogVisible = ref(false)
-const planDetailDialogVisible = ref(false)
-const planContentDialogVisible = ref(false) // 新增的策划描述详情对话框
-const approveDialogVisible = ref(false)
-const approveDialogTitle = ref('审批策划')
-const approveForm = ref({
-  status: 1,
-  feedback: ''
-})
-const currentApprovePlan = ref({})
-
-const currentPlan = ref({
-  title: '',
-  content: '',
-  budget: 0,
-  status: 0, // 0: 待审批, 1: 已批准, 2: 已拒绝
-  submitterId: 1, // 示例值，实际应从用户信息中获取
-  approverId: null,
-  feedback: '',
-  createTime: '',
-  updateTime: ''
-})
-const detailPlan = ref({})
-
-// 活动实施相关数据
+// 数据状态
 const activities = ref([])
+const promotionPlans = ref([])
+const loading = ref(false)
+const activeTab = ref('activities')
+
+// 搜索表单
 const searchForm = ref({
-  name: '',
-  status: ''
+  activityName: '',
+  activityStatus: ''
 })
+
+// 分页配置
 const pagination = ref({
   current: 1,
   size: 10,
   total: 0
 })
-const dialogVisible = ref(false)
-const dialogTitle = ref('新增活动')
-const currentActivity = ref({
-  name: '',
-  content: '',
-  startTime: '',
-  endTime: '',
-  estimatedCost: 0,
-  actualCost: 0,
-  activityStatus: 1, // 默认筹备中
-  managerId: 1 // 示例值，实际应从用户信息中获取
+
+// 活动对话框相关
+const activityDialogVisible = ref(false)
+const activityDialogTitle = ref('添加活动')
+const currentActivity = ref({})
+
+// 推广计划对话框相关
+const planDialogVisible = ref(false)
+const currentPlan = ref({})
+
+// 审批对话框相关
+const approvalDialogVisible = ref(false)
+const approvalForm = ref({
+  id: '',
+  status: 1,
+  comments: ''
 })
-const detailDialogVisible = ref(false)
-const detailActivity = ref({})
 
-// 活动报告相关数据
-const activityReports = ref([])
-const reportDialogVisible = ref(false)
-const reportDetailDialogVisible = ref(false)
-const reportDialogTitle = ref('新增报告')
-const currentReport = ref({
-  title: '',
-  activityId: '',
-  content: '',
-  actualCost: 0,
-  newCustomersCount: 0,
-  potentialLeadsCount: 0,
-  estimatedRoi: 0,
-  creatorId: 1 // 示例值，实际应从用户信息中获取
-})
-const detailReport = ref({})
-
-// 切换侧边栏
-const toggleSidebar = () => {
-  isSidebarCollapsed.value = !isSidebarCollapsed.value
-}
-
-// 菜单选择
-const handleMenuSelect = (index) => {
-  activeMenu.value = index
-  if (index === 'promotion') {
-    fetchPromotionPlans()
-  } else if (index === 'activity') {
-    fetchActivities()
-  } else if (index === 'report') {
-    fetchActivityReports()
-    fetchActivities() // 获取活动列表用于报告关联
+// 获取活动状态文本
+const getActivityStatusText = (status) => {
+  const statusMap = {
+    0: '筹备中',
+    1: '进行中',
+    2: '已结束',
+    3: '已取消'
   }
+  return statusMap[status] || '未知'
 }
 
-// 获取活动策划列表
-const fetchPromotionPlans = async () => {
+// 获取活动状态类型
+const getActivityStatusType = (status) => {
+  const typeMap = {
+    0: 'info',
+    1: 'primary',
+    2: 'success',
+    3: 'danger'
+  }
+  return typeMap[status] || 'info'
+}
+
+// 获取计划状态文本
+const getPlanStatusText = (status) => {
+  const statusMap = {
+    0: '待审批',
+    1: '已批准',
+    2: '已拒绝'
+  }
+  return statusMap[status] || '未知'
+}
+
+// 获取计划状态类型
+const getPlanStatusType = (status) => {
+  const typeMap = {
+    0: 'warning',
+    1: 'success',
+    2: 'danger'
+  }
+  return typeMap[status] || 'info'
+}
+
+// 获取所有活动
+const getAllActivities = async () => {
+  loading.value = true
   try {
-    const response = await request.get('/marketing/getPromotionPlans')
-    if (response && response.code === 200) {
-      promotionPlans.value = response.data || []
-      ElMessage.success('策划数据加载成功')
+    const response = await request.get('/marketActivity/getAll')
+    if (response.data.code === 200) {
+      console.log(response.data)
+      activities.value = response.data
+      pagination.value.total = response.data.length
     } else {
-      ElMessage.error('策划数据加载失败')
+      ElMessage.error('获取活动列表失败')
     }
   } catch (error) {
-    console.error('获取活动策划失败:', error)
-    ElMessage.error('获取活动策划失败: ' + (error.message || '网络错误'))
+    ElMessage.error('获取活动列表失败: ' + error.message)
+  } finally {
+    loading.value = false
   }
 }
 
-// 获取活动列表
-const fetchActivities = async () => {
+// 获取推广计划
+const getPromotionPlans = async () => {
+  loading.value = true
   try {
-    let response;
-
-    // 如果有任何搜索条件，使用组合查询接口
-    if (searchForm.value.name || searchForm.value.status !== '') {
-      // 准备查询参数
-      const params: any = {};
-
-      if (searchForm.value.name) {
-        params.name = searchForm.value.name.trim();
-      }
-
-      if (searchForm.value.status !== '') {
-        params.status = searchForm.value.status;
-      }
-
-      // 如果有状态筛选，使用状态查询接口
-      if (searchForm.value.status !== '') {
-        try {
-          response = await request.get('/marketActivity/getByStatus', {
-            params: { status: searchForm.value.status }
-          });
-        } catch (error) {
-          console.error('按状态查询失败:', error);
-          ElMessage.error('按状态查询失败: ' + (error.message || '网络错误'));
-          return;
-        }
-      }
-      // 如果只有名称筛选，使用名称查询接口
-      else if (searchForm.value.name) {
-        try {
-          response = await request.get('/marketActivity/getByName', {
-            params: { name: searchForm.value.name }
-          });
-        } catch (error) {
-          console.error('按名称查询失败:', error);
-          ElMessage.error('按名称查询失败: ' + (error.message || '网络错误'));
-          return;
-        }
-      }
-    }
-    // 默认查询所有活动
-    else {
-      try {
-        response = await request.get('/marketActivity/getAll');
-      } catch (error) {
-        ElMessage.error('查询默认数据失败: ' + (error.message || '网络错误'));
-        return;
-      }
-    }
-
-    // 处理响应数据
-    const data = response.data || response;
-    console.log('收到数据:', data)
-
-    if (data) {
-      // 确保数据是数组格式
-      if (Array.isArray(data)) {
-        activities.value = data;
-        pagination.value.total = data.length;
-        ElMessage.success('数据加载成功');
-      } else if (data.id) {
-        // 如果是单个对象（有id属性），转换为数组
-        activities.value = [data];
-        pagination.value.total = 1;
-        ElMessage.success('数据加载成功');
-      } else {
-        // 数据为空或其他情况
-        activities.value = [];
-        pagination.value.total = 0;
-        ElMessage.info('暂无活动数据');
-      }
-    } else {
-      // 数据为空
-      activities.value = [];
-      pagination.value.total = 0;
-      ElMessage.info('暂无活动数据');
     const response = await request.get('/marketing/getPromotionPlans')
     if (response.data.code === 200) {
       promotionPlans.value = response.data.data
     } else {
       ElMessage.error('获取推广计划失败')
     }
-
-    console.log('设置的activities数据:', activities.value)
   } catch (error) {
-    console.error('请求异常:', error)
+    ElMessage.error('获取推广计划失败: ' + error.message)
+  } finally {
+    loading.value = false
+  }
+}
 
-    // 特别处理未登录的情况
-    if (error.message && error.message.includes('未登录')) {
-      ElMessage.error('请先登录')
-      router.push('/login')
+// 搜索活动
+const searchActivities = async () => {
+  loading.value = true
+  try {
+    let response
+    if (searchForm.value.activityName) {
+      response = await request.get('/marketActivity/getByName', {
+        params: { name: searchForm.value.activityName }
+      })
+    } else if (searchForm.value.activityStatus !== '') {
+      response = await request.get('/marketActivity/getByStatus', {
+        params: { status: searchForm.value.activityStatus }
+      })
+    } else {
+      await getAllActivities()
       return
     }
 
-    if (error.message && error.message.includes('Token')) {
-      ElMessage.error('身份验证已过期，请重新登录')
-      localStorage.removeItem('crm_token')
-      router.push('/login')
-      return
-    }
-
-    if (error.message) {
-      ElMessage.error(error.message)
+    if (response.data.code === 200) {
+      activities.value = response.data.data
+      pagination.value.total = response.data.length
     } else {
-      ElMessage.error('请求失败: ' + (error.message || '未知错误'))
-    }
-
-    activities.value = []
-    pagination.value.total = 0
-  }
-}
-
-// 获取活动报告列表
-const fetchActivityReports = async () => {
-  try {
-    const response = await request.get('/activityReport/getAll')
-    if (response && response.code === 200) {
-      activityReports.value = response.data || []
-      ElMessage.success('报告数据加载成功')
-    } else {
-      ElMessage.error('报告数据加载失败')
+      ElMessage.error('搜索活动失败')
     }
   } catch (error) {
-    console.error('获取活动报告失败:', error)
-    ElMessage.error('获取活动报告失败: ' + (error.message || '网络错误'))
+    ElMessage.error('搜索活动失败: ' + error.message)
+  } finally {
+    loading.value = false
   }
 }
 
-// 活动策划相关方法
-const handleAddPlan = () => {
-  const now = formatDate(new Date());
-  currentPlan.value = {
-    title: '',
-    content: '',
-    budget: 0,
-    status: 0,
-    submitterId: 1, // 示例值，实际应从用户信息中获取
-    approverId: null,
-    feedback: '',
-    createTime: now,
-    updateTime: now
-  }
-  planDialogVisible.value = true
-}
-
-// 格式化日期为 MySQL 兼容格式
-const formatDate = (date) => {
-  if (!date) return '';
-  const d = new Date(date);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  const hours = String(d.getHours()).padStart(2, '0');
-  const minutes = String(d.getMinutes()).padStart(2, '0');
-  const seconds = String(d.getSeconds()).padStart(2, '0');
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-}
-
-const savePlan = async () => {
-  if (!currentPlan.value.title) {
-    ElMessage.warning('请输入策划名称')
-    return
-  }
-
-  try {
-    // 确保日期格式正确
-    const planData = {
-      ...currentPlan.value,
-      createTime: formatDate(currentPlan.value.createTime),
-      updateTime: formatDate(currentPlan.value.updateTime)
-    };
-
-    const response = await request.put('/marketing/savePromotionPlans', planData)
-    if (response && response.code === 200) {
-      ElMessage.success('新增策划成功')
-      planDialogVisible.value = false
-      fetchPromotionPlans()
-    } else {
-      ElMessage.error('新增策划失败: ' + response.message)
-    }
-  } catch (error) {
-    console.error('新增策划失败:', error)
-    ElMessage.error('新增策划失败: ' + (error.message || '网络错误'))
-  }
-}
-
-const handleViewPlan = (row) => {
-  detailPlan.value = { ...row }
-  planDetailDialogVisible.value = true
-}
-
-// 查看策划描述详情（参考报告内容展示方式）
-const viewPlanContent = (row) => {
-  detailPlan.value = { ...row }
-  planContentDialogVisible.value = true
-}
-
-// 处理审批
-const handleApprovePlan = (row) => {
-  currentApprovePlan.value = { ...row }
-  approveDialogTitle.value = `审批策划 - ${row.title}`
-  approveForm.value = {
-    status: 1,
-    feedback: row.feedback || ''
-  }
-  approveDialogVisible.value = true
-}
-
-// 提交审批
-const submitApproval = async () => {
-  try {
-    const approveData = {
-      ...currentApprovePlan.value,
-      status: approveForm.value.status,
-      feedback: approveForm.value.feedback,
-      approverId: 1, // 示例值，实际应从用户信息中获取
-      updateTime: formatDate(new Date())
-    }
-
-    const response = await request.put('/marketing/updatePromotionPlans', approveData)
-    if (response && response.code === 200) {
-      ElMessage.success('审批成功')
-      approveDialogVisible.value = false
-      fetchPromotionPlans()
-    } else {
-      ElMessage.error('审批失败: ' + response.message)
-    }
-  } catch (error) {
-    console.error('审批失败:', error)
-    ElMessage.error('审批失败: ' + (error.message || '网络错误'))
-  }
-}
-
-const onApproveDialogClose = () => {
-  approveDialogVisible.value = false
-}
-
-const onPlanDialogClose = () => {
-  planDialogVisible.value = false
-}
-
-// 活动实施相关方法
+// 重置搜索
 const resetSearch = () => {
   searchForm.value = {
-    name: '',
-    status: ''
+    activityName: '',
+    activityStatus: ''
   }
-  fetchActivities()
+  getAllActivities()
 }
 
-const handleDetail = (row) => {
-  detailActivity.value = {...row}
-  detailDialogVisible.value = true
+// 处理标签页切换
+const handleTabChange = (tabName) => {
+  if (tabName === 'activities') {
+    getAllActivities()
+  } else if (tabName === 'plans') {
+    getPromotionPlans()
+  }
 }
 
-const handleAdd = () => {
-  dialogTitle.value = '新增活动'
+// 处理添加活动
+const handleAddActivity = () => {
+  activityDialogTitle.value = '添加活动'
   currentActivity.value = {
     name: '',
-    content: '',
+    type: '',
     startTime: '',
     endTime: '',
-    estimatedCost: 0,
+    budget: 0,
     actualCost: 0,
-    activityStatus: 1, // 默认筹备中
-    managerId: 1 // 示例值，实际应从用户信息中获取
+    status: 0,
+    description: ''
   }
-  dialogVisible.value = true
+  activityDialogVisible.value = true
 }
 
-const handleEdit = (row) => {
-  dialogTitle.value = '编辑活动'
-  currentActivity.value = {...row}
-  dialogVisible.value = true
+// 处理编辑活动
+const handleEditActivity = (row) => {
+  activityDialogTitle.value = '编辑活动'
+  currentActivity.value = { ...row }
+  activityDialogVisible.value = true
 }
 
+// 处理查看活动
+const handleViewActivity = (row) => {
+  activityDialogTitle.value = '查看活动'
+  currentActivity.value = { ...row }
+  activityDialogVisible.value = true
+}
+
+// 处理删除活动
+const handleDeleteActivity = (row) => {
+  ElMessageBox.confirm(
+    `确定要删除活动 "${row.name}" 吗？`,
+    '删除确认',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }
+  ).then(async () => {
+    try {
+      const response = await request.delete('/marketActivity/delete', {
+        params: { id: row.id }
+      })
+      if (response.data.code === 200) {
+        ElMessage.success('删除成功')
+        getAllActivities()
+      } else {
+        ElMessage.error(response.data.message || '删除失败')
+      }
+    } catch (error) {
+      ElMessage.error('删除失败: ' + error.message)
+    }
+  }).catch(() => {
+    // 用户取消删除
+  })
+}
+
+// 保存活动
 const saveActivity = async () => {
   if (!currentActivity.value.name) {
-    ElMessage.warning('请输入活动名称');
-    return;
-  }
-
-  if (!currentActivity.value.startTime || !currentActivity.value.endTime) {
-    ElMessage.warning('请选择开始时间和结束时间');
-    return;
-  }
-
-  if (!currentActivity.value.activityStatus) {
-    ElMessage.warning('请选择活动状态');
-    return;
-  }
-
-  try {
-    let response;
-
-    // 如果有ID则为更新，否则为新增
-    if (currentActivity.value.id) {
-      response = await request.put('/marketActivity/update', currentActivity.value);
-    } else {
-      // 设置创建时间
-      currentActivity.value.createTime = new Date().toISOString();
-      response = await request.post('/marketActivity/add', currentActivity.value);
-    }
-
-    // 检查响应结果
-    if (response && (response.code === 200 || response.code === 0)) {
-      ElMessage.success(response.message || (currentActivity.value.id ? '更新成功' : '新增成功'));
-      dialogVisible.value = false;
-      fetchActivities(); // 重新加载数据
-    } else {
-      ElMessage.error(response.message || (currentActivity.value.id ? '更新失败' : '新增失败'));
-    }
-  } catch (error) {
-    console.error('完整错误:', error);
-    if (error.message && error.message.includes('未登录')) {
-      ElMessage.error('请先登录');
-      router.push('/login');
-    } else if (error.message && error.message.includes('Token')) {
-      ElMessage.error('身份验证已过期，请重新登录');
-      localStorage.removeItem('crm_token');
-      router.push('/login');
-    } else {
-      ElMessage.error((currentActivity.value.id ? '更新失败' : '新增失败') + ': ' + (error.message || '网络错误'));
-    }
-  }
-}
-
-const cancelUpdate = () => {
-  dialogVisible.value = false
-}
-
-const onDialogClose = () => {
-  cancelUpdate();
-}
-
-const handleCurrentChange = (val) => {
-  pagination.value.current = val;
-  fetchActivities();
-}
-
-// 活动报告相关方法
-const handleAddReport = () => {
-  reportDialogTitle.value = '新增报告'
-  currentReport.value = {
-    title: '',
-    activityId: '',
-    content: '',
-    actualCost: 0,
-    newCustomersCount: 0,
-    potentialLeadsCount: 0,
-    estimatedRoi: 0,
-    creatorId: 1 // 示例值，实际应从用户信息中获取
-  }
-  reportDialogVisible.value = true
-}
-
-const handleEditReport = (row) => {
-  reportDialogTitle.value = '编辑报告'
-  currentReport.value = { ...row }
-  reportDialogVisible.value = true
-}
-
-const saveReport = async () => {
-  if (!currentReport.value.title) {
-    ElMessage.warning('请输入报告标题')
-    return
-  }
-
-  if (!currentReport.value.activityId) {
-    ElMessage.warning('请输入关联活动ID')
+    ElMessage.warning('请输入活动名称')
     return
   }
 
   try {
     let response
-    if (currentReport.value.id) {
-      // 更新报告
-      response = await request.put('/activityReport/update', currentReport.value)
+    if (currentActivity.value.id) {
+      // 更新活动
+      response = await request.put('/marketActivity/update', currentActivity.value)
     } else {
-      // 新增报告
-      response = await request.post('/activityReport/add', currentReport.value)
+      // 添加活动
+      response = await request.post('/marketActivity/add', currentActivity.value)
     }
 
-    if (response && response.code === 200) {
-      ElMessage.success(response.message || (currentReport.value.id ? '更新报告成功' : '新增报告成功'))
-      reportDialogVisible.value = false
-      fetchActivityReports()
+    if (response.data.code === 200) {
+      ElMessage.success(currentActivity.value.id ? '更新成功' : '添加成功')
+      activityDialogVisible.value = false
+      getAllActivities()
     } else {
-      ElMessage.error(response.message || (currentReport.value.id ? '更新报告失败' : '新增报告失败'))
+      ElMessage.error(response.data.message || (currentActivity.value.id ? '更新失败' : '添加失败'))
     }
   } catch (error) {
-    console.error('保存报告失败:', error)
-    ElMessage.error('保存报告失败: ' + (error.message || '网络错误'))
+    ElMessage.error((currentActivity.value.id ? '更新失败' : '添加失败') + ': ' + error.message)
   }
 }
 
-// 查看报告详情（弹出框形式）
-const viewReportDetail = (row) => {
-  // 获取完整的报告详情
-  getReportDetail(row.id);
+// 关闭活动对话框
+const handleActivityDialogClose = () => {
+  currentActivity.value = {}
 }
 
-// 获取报告详情
-const getReportDetail = async (id) => {
+// 处理查看计划
+const handleViewPlan = (row) => {
+  currentPlan.value = { ...row }
+  planDialogVisible.value = true
+}
+
+// 处理审批计划
+const handleApprovePlan = (row) => {
+  approvalForm.value.id = row.id
+  approvalForm.value.status = 1
+  approvalForm.value.comments = ''
+  approvalDialogVisible.value = true
+}
+
+// 提交审批
+const submitApproval = async () => {
   try {
-    const response = await request.get(`/activityReport/getById?id=${id}`);
-    if (response && response.code === 200) {
-      detailReport.value = response.data || {};
-      reportDetailDialogVisible.value = true;
+    const requestData = {
+      id: approvalForm.value.id,
+      status: approvalForm.value.status,
+      approvalComments: approvalForm.value.comments
+    }
+
+    const response = await request.put('/marketing/updatePromotionPlans', requestData)
+
+    if (response.data.code === 200) {
+      ElMessage.success('审批成功')
+      approvalDialogVisible.value = false
+      getPromotionPlans()
     } else {
-      ElMessage.error('获取报告详情失败');
+      ElMessage.error(response.data.message || '审批失败')
     }
   } catch (error) {
-    console.error('获取报告详情失败:', error);
-    ElMessage.error('获取报告详情失败: ' + (error.message || '网络错误'));
+    ElMessage.error('审批失败: ' + error.data.message)
   }
 }
 
-// 格式化策划内容为HTML
-const formatPlanContent = (content) => {
-  if (!content) return '<p>暂无内容</p>';
-
-  // 如果内容已经是HTML格式，直接返回
-  if (content.trim().startsWith('<')) {
-    return content;
-  }
-
-  // 如果是纯文本，转换为HTML格式
-  return `<div class="plan-content-text">${content.replace(/\n/g, '<br>')}</div>`;
-}
-
-// 格式化报告内容为HTML
-const formatReportContent = (content) => {
-  if (!content) return '<p>暂无内容</p>';
-
-  // 如果内容已经是HTML格式，直接返回
-  if (content.trim().startsWith('<')) {
-    return content;
-  }
-
-  // 如果是纯文本，转换为HTML格式
-  return `<div class="report-content-text">${content.replace(/\n/g, '<br>')}</div>`;
-}
-
-const handleDeleteReport = (row) => {
+// 处理删除计划
+const handleDeletePlan = (row) => {
   ElMessageBox.confirm(
-    `确定要删除报告 "${row.title}" 吗？此操作不可恢复。`,
+    `确定要删除推广计划 "${row.planName}" 吗？`,
     '删除确认',
     {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
-      type: 'warning',
+      type: 'warning'
     }
-  )
-    .then(async () => {
-      try {
-        const response = await request.delete('/activityReport/delete', {
-          params: { id: row.id }
-        })
-        if (response && response.code === 200) {
-          ElMessage.success('删除成功')
-          fetchActivityReports()
-        } else {
-          ElMessage.error('删除失败: ' + response.message)
-        }
-      } catch (error) {
-        console.error('删除失败:', error)
-        ElMessage.error('删除失败: ' + (error.message || '网络错误'))
-      }
-    })
-    .catch(() => {
-      ElMessage.info('已取消删除')
-    })
   ).then(async () => {
     try {
       const response = await request.delete('/activityReport/delete', {
@@ -1205,161 +605,21 @@ const handleDeleteReport = (row) => {
   })
 }
 
-const onReportDialogClose = () => {
-  reportDialogVisible.value = false
-}
-
-// 状态文本映射
-const getPlanStatusText = (status) => {
-  const statusMap = {
-    0: '待审批',
-    1: '已批准',
-    2: '已拒绝'
-  }
-  return statusMap[Number(status)] || '未知状态'
-}
-
-// 根据状态名称获取标签类型
-const getPlanStatusTagTypeByName = (statusName) => {
-  const typeMap = {
-    '待审批': 'info',    // 蓝色
-    '已批准': 'success', // 绿色
-    '已拒绝': 'danger'   // 红色
-  }
-  return typeMap[statusName] || 'info'
-}
-
-const getPlanStatusTagType = (status) => {
-  const numStatus = Number(status);
-  const typeMap = {
-    0: 'info',    // 待审批 - 蓝色
-    1: 'success', // 已批准 - 绿色
-    2: 'danger'   // 已拒绝 - 红色
-  }
-  return typeMap[numStatus] || 'info'
-}
-
-const getActivityStatusText = (status) => {
-  const statusMap = {
-    1: '筹备中',
-    2: '进行中',
-    3: '已结束',
-    4: '已取消'
-  }
-  return statusMap[Number(status)] || '未知状态'
-}
-
-// 获取活动状态的CSS类名
-const getActivityStatusClass = (status) => {
-  const classMap = {
-    1: 'status-preparing',  // 筹备中
-    2: 'status-processing', // 进行中
-    3: 'status-finished',   // 已结束
-    4: 'status-cancelled'   // 已取消
-  }
-  return classMap[status] || ''
-}
-
-const getReportStatusText = (status) => {
-  const statusMap = {
-    0: '草稿',
-    1: '已完成',
-    2: '已归档'
-  }
-  return statusMap[Number(status)] || '未知状态'
-}
-
-const getReportStatusTagType = (status) => {
-  const numStatus = Number(status);
-  const typeMap = {
-    0: 'info',    // 草稿 - 蓝色
-    1: 'success', // 已完成 - 绿色
-    2: 'warning'  // 已归档 - 橙色
-  }
-  return typeMap[numStatus] || 'info'
+// 处理分页变化
+const handlePageChange = (page) => {
+  pagination.value.current = page
+  // 这里可以添加分页逻辑
 }
 
 // 初始化加载数据
 onMounted(() => {
-  console.log('页面初始化，开始获取活动数据')
-  // 默认加载活动策划数据
-  if (activeMenu.value === 'promotion') {
-    fetchPromotionPlans()
-  }
+  getAllActivities()
 })
 </script>
 
 <style scoped>
-.marketing-layout {
-  display: flex;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.sidebar {
-  width: 150px;
-  color: #000;
-  transition: width 0.3s ease;
-  height: 100%;
-  overflow-y: auto;
-  z-index: 100;
-}
-
-.sidebar.collapsed {
-  width: 64px;
-}
-
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  height: 60px;
-  box-sizing: border-box;
-}
-
-.sidebar-header h3 {
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.toggle-btn {
-  margin-left: 10px;
-}
-
-.sidebar :deep(.el-menu) {
-  border-right: none;
-  height: calc(100% - 60px);
-}
-
-.sidebar :deep(.el-menu-item) {
-  color: #bfcbd9;
-}
-
-.sidebar :deep(.el-menu-item:hover),
-.sidebar :deep(.el-menu-item.is-active) {
-  color: #409eff !important;
-}
-
-.main-content {
-  flex: 1;
+.leads-container {
   padding: 20px;
-  background-color: #f5f7fa;
-  overflow-y: auto;
-  transition: margin-left 0.3s ease;
-}
-
-.main-content.collapsed {
-  margin-left: 64px;
-}
-
-/* 活动策划样式 */
-.promotion-container,
-.marketing-container,
-.report-container {
-  height: 100%;
 }
 
 .header {
@@ -1367,9 +627,10 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  padding: 16px 0;
+  padding: 16px;
   background-color: #ffffff;
   border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 
 .header h2 {
@@ -1377,10 +638,8 @@ onMounted(() => {
   color: #1a1a1a;
   font-size: 18px;
   font-weight: 600;
-  padding-bottom: 0;
 }
 
-/* 搜索表单样式 */
 .search-form {
   display: flex;
   flex-wrap: wrap;
@@ -1390,6 +649,7 @@ onMounted(() => {
   margin-bottom: 24px;
   background-color: #ffffff;
   border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 
 .search-form .el-form-item {
@@ -1409,169 +669,16 @@ onMounted(() => {
 
 .search-form .el-input,
 .search-form .el-select {
-  width: 180px;
-  min-width: 180px;
+  width: 200px;
 }
 
-.search-form .el-form-item:last-child {
-  margin-left: auto;
-}
-
-/* 表格样式 */
-.plans-table,
-.activities-table,
-.reports-table {
-  width: 100%;
-  margin-top: 16px;
-  border: 1px solid #f0f2f7;
-  border-radius: 4px;
-  overflow: hidden;
-  transition: all 0.2s ease;
-}
-
-.plans-table :deep(.el-table__row),
-.activities-table :deep(.el-table__row),
-.reports-table :deep(.el-table__row) {
-  height: 78px;
-  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.plans-table :deep(.el-table__row:hover),
-.activities-table :deep(.el-table__row:hover),
-.reports-table :deep(.el-table__row:hover) {
-  background-color: #f8fafc;
-  transform: translateY(-6px);
-  box-shadow: 0 14px 32px rgba(58, 87, 232, 0.28);
-  z-index: 1;
-  position: relative;
-}
-
-.plans-table :deep(.el-table__cell),
-.activities-table :deep(.el-table__cell),
-.reports-table :deep(.el-table__cell) {
-  padding: 24px 0;
-  border-bottom: 1px solid #f0f2f7;
-  transition: all 0.2s ease;
-}
-
-.plans-table :deep(.el-table__row--striped),
-.activities-table :deep(.el-table__row--striped),
-.reports-table :deep(.el-table__row--striped) {
-  background-color: #fafbfe;
-}
-
-.plans-table :deep(.el-table__row--striped:hover),
-.activities-table :deep(.el-table__row--striped:hover),
-.reports-table :deep(.el-table__row--striped:hover) {
-  background-color: #f5f7ff;
-}
-
-.plans-table :deep(.el-table__header th),
-.activities-table :deep(.el-table__header th),
-.reports-table :deep(.el-table__header th) {
-  background-color: #f8fafc;
-  color: #5a6d8a;
-  font-weight: 600;
-  font-size: 14px;
-  letter-spacing: 0.5px;
-}
-
-/* 分页样式 */
 .pagination {
   margin-top: 24px;
   padding: 12px 0;
   background-color: #f8fafc;
   border-radius: 8px;
   justify-content: center;
-}
-
-.pagination .btn-prev,
-.pagination .btn-next,
-.pagination .number {
-  min-width: 32px;
-  height: 32px;
-  line-height: 32px;
-  border-radius: 4px;
-}
-
-.pagination .number.active {
-  background-color: #3a57e8;
-  color: white;
-}
-
-.pagination .number:hover:not(.active) {
-  color: #3a57e8;
-}
-
-/* 按钮样式 */
-.el-button {
-  transition: all 0.2s ease;
-  border-radius: 4px;
-  font-weight: 500;
-}
-
-.search-form .el-button--primary {
-  background-color: #3a57e8;
-  border-color: #3a57e8;
-  color: #ffffff;
-  padding: 8px 16px;
-}
-
-.search-form .el-button--primary:hover {
-  background-color: #2c46d8;
-  border-color: #2c46d8;
-}
-
-.el-table .el-button {
-  padding: 6px 12px;
-  font-size: 12px;
-  border-radius: 4px;
-  margin-right: 5px;
-}
-
-.el-table .el-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* 对话框样式 */
-.el-dialog {
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(58, 87, 232, 0.15);
-  border: none;
-}
-
-.el-dialog__header {
-  padding: 18px 24px;
-  border-bottom: 1px solid #f0f2f7;
-  background-color: #f8fafc;
-  border-radius: 12px 12px 0 0;
-}
-
-.el-dialog__title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1a1a1a;
-}
-
-.el-dialog__body {
-  padding: 24px;
-}
-
-.el-dialog__footer {
-  padding: 16px 24px;
-  background-color: #f8fafc;
-  border-radius: 0 0 12px 12px;
-  text-align: right;
-}
-
-.el-dialog__footer .el-button {
-  min-width: 80px;
-  padding: 8px 16px;
-}
-
-.el-dialog__footer .el-button + .el-button {
-  margin-left: 12px;
+  display: flex;
 }
 
 .dialog-footer {
@@ -1581,160 +688,5 @@ onMounted(() => {
   padding-top: 16px;
   border-top: 1px solid #ebeef5;
 }
-
-/* 对话框表单样式 */
-.dialog-form .el-form-item,
-.detail-form .el-form-item {
-  margin-bottom: 18px;
-}
-
-.dialog-form .el-form-item__label,
-.detail-form .el-form-item__label {
-  padding-right: 16px;
-  font-weight: 500;
-  color: #606266;
-}
-
-/* 标签样式 */
-.el-tag {
-  margin: 2px;
-  font-weight: 500;
-}
-
-.el-tag.el-tag--danger {
-  background-color: #fef0f0;
-  border-color: #fde2e2;
-  color: #f56c6c;
-}
-
-.el-tag.el-tag--primary {
-  background-color: #ecf5ff;
-  border-color: #d9ecff;
-  color: #409eff;
-}
-
-.el-tag.el-tag--success {
-  background-color: #f0f9eb;
-  border-color: #e1f3d8;
-  color: #67c23a;
-}
-
-.el-tag.el-tag--info {
-  background-color: #f4f4f5;
-  border-color: #e9e9eb;
-  color: #909399;
-}
-
-.el-tag.el-tag--warning {
-  background-color: #fdf6ec;
-  border-color: #faecd8;
-  color: #e6a23c;
-}
-
-/* 策划描述详情样式（参考报告内容样式） */
-.plan-content-section,
-.report-content-section {
-  margin-top: 20px;
-}
-
-.plan-content-section h3,
-.report-content-section h3 {
-  margin: 0 0 15px 0;
-  color: #303133;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.plan-content-html,
-.report-content-html {
-  padding: 15px;
-  background-color: #f5f7fa;
-  border-radius: 4px;
-  border: 1px solid #e4e7ed;
-  min-height: 200px;
-}
-
-.plan-content-text,
-.report-content-text {
-  line-height: 1.6;
-  color: #606266;
-  white-space: pre-wrap;
-}
-
-:deep(.plan-content-html h1),
-:deep(.plan-content-html h2),
-:deep(.plan-content-html h3),
-:deep(.report-content-html h1),
-:deep(.report-content-html h2),
-:deep(.report-content-html h3) {
-  margin: 15px 0;
-  color: #303133;
-}
-
-:deep(.plan-content-html p),
-:deep(.report-content-html p) {
-  margin: 10px 0;
-  line-height: 1.6;
-  color: #606266;
-}
-
-:deep(.plan-content-html ul),
-:deep(.plan-content-html ol),
-:deep(.report-content-html ul),
-:deep(.report-content-html ol) {
-  padding-left: 20px;
-  margin: 10px 0;
-}
-
-:deep(.plan-content-html li),
-:deep(.report-content-html li) {
-  margin: 5px 0;
-}
-
-:deep(.plan-content-html strong),
-:deep(.report-content-html strong) {
-  font-weight: 600;
-}
-
-:deep(.plan-content-html em),
-:deep(.report-content-html em) {
-  font-style: italic;
-}
-
-/* 活动状态样式 */
-.status-preparing {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  background-color: #f4f4f5;
-  border: 1px solid #e9e9eb;
-  color: #909399;
-}
-
-.status-processing {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  background-color: #ecf5ff;
-  border: 1px solid #d9ecff;
-  color: #409eff;
-}
-
-.status-finished {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  background-color: #f0f9eb;
-  border: 1px solid #e1f3d8;
-  color: #67c23a;
-}
-
-.status-cancelled {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  background-color: #fef0f0;
-  border: 1px solid #fde2e2;
-  color: #f56c6c;
-}
 </style>
+

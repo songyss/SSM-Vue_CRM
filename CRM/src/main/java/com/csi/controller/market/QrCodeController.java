@@ -24,39 +24,19 @@ public class QrCodeController {
             @RequestParam("activityId") Integer activityId,
             HttpServletResponse response
     ) {
-        OutputStream stream = null;
         try {
             // 1. 构建二维码内容（活动ID+表单链接）
             String content = SCAN_FORM_URL + "?activityId=" + activityId;
 
             // 2. 设置响应头（告诉浏览器返回图片，禁止缓存）
-            response.setContentType("image/jpeg");
-            response.setHeader("Pragma", "no-cache");
-            response.setHeader("Cache-Control", "no-store");
-            response.setDateHeader("Expires", 0);
+            setupResponseHeaders(response);
 
             // 3. 生成二维码并写入响应流
-            stream = response.getOutputStream(); // 这里用的是 jakarta 的 OutputStream
+            OutputStream stream = response.getOutputStream();
             QRCodeUtil.encode(content, stream);
 
         } catch (Exception e) {
-            // 异常时返回文字提示
-            response.setContentType("text/plain;charset=UTF-8");
-            try {
-                response.getWriter().write("二维码生成失败：" + e.getMessage());
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        } finally {
-            // 关闭流（避免资源泄漏）
-            if (stream != null) {
-                try {
-                    stream.flush();
-                    stream.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+            handleException(response, "二维码生成失败：" + e.getMessage());
         }
     }
 
@@ -68,34 +48,34 @@ public class QrCodeController {
             @RequestParam("activityId") Integer activityId,
             HttpServletResponse response
     ) {
-        OutputStream stream = null;
         try {
             String content = SCAN_FORM_URL + "?activityId=" + activityId;
-            response.setContentType("image/jpeg");
-            response.setHeader("Pragma", "no-cache");
-            response.setHeader("Cache-Control", "no-store");
-            response.setDateHeader("Expires", 0);
+            setupResponseHeaders(response);
 
-            stream = response.getOutputStream();
+            OutputStream stream = response.getOutputStream();
             // 调用工具类生成带logo的二维码（logo路径是 src/main/resources/logo.jpg）
             QRCodeUtil.encode(content, "logo.jpg", stream, true);
 
         } catch (Exception e) {
+            handleException(response, "带logo二维码生成失败：" + e.getMessage());
+        }
+    }
+
+    // 提取公共方法设置响应头
+    private void setupResponseHeaders(HttpServletResponse response) {
+        response.setContentType("image/jpeg");
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Cache-Control", "no-store");
+        response.setDateHeader("Expires", 0);
+    }
+
+    // 提取公共异常处理方法
+    private void handleException(HttpServletResponse response, String message) {
+        try {
             response.setContentType("text/plain;charset=UTF-8");
-            try {
-                response.getWriter().write("带logo二维码生成失败：" + e.getMessage());
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        } finally {
-            if (stream != null) {
-                try {
-                    stream.flush();
-                    stream.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+            response.getWriter().write(message);
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 }

@@ -33,7 +33,7 @@
           </el-date-picker>
         </div>
         <div class="form-actions">
-          <el-button type="primary" @click="searchLogs">搜索</el-button>
+          <el-button type="primary" @click="searchLogs" v-if="permissionStore.hasButtonPermission('/employee/resetPwd')">搜索</el-button>
           <el-button @click="resetSearch">重置</el-button>
         </div>
       </div>
@@ -89,6 +89,9 @@ import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Refresh } from '@element-plus/icons-vue'
 import request from '@/utils/request'
+
+import { usePermissionStore } from '@/stores/permission'
+const permissionStore = usePermissionStore()
 
 // 定义日志项类型，与后端 OperateLogs 实体类对应
 interface LogItem {

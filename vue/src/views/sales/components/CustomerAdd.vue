@@ -58,7 +58,7 @@
 
       <!-- 操作按钮 -->
       <el-form-item>
-        <el-button type="primary" @click="submitForm">提交</el-button>
+        <el-button type="primary" @click="submitForm" v-if="permissionStore.hasButtonPermission('/customer/addCustomer')">提交</el-button>
         <el-button @click="resetForm">重置</el-button>
       </el-form-item>
     </el-form>
@@ -69,6 +69,8 @@
 import { reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import request from '@/utils/request' // 你自己封装的 axios
+import { usePermissionStore } from '@/stores/permission'
+const permissionStore = usePermissionStore()
 
 // 表单对象
 const customerForm = reactive({

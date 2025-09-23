@@ -55,7 +55,7 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+          <el-button type="primary" icon="Search" v-if="permissionStore.hasButtonPermission('/employee/allList')" @click="handleQuery">搜索</el-button>
           <el-button icon="Refresh" @click="resetQuery">重置</el-button>
         </el-form-item>
       </el-form>
@@ -141,6 +141,7 @@
               icon="Edit"
               @click="handleUpdate(scope.row)"
               v-hasPermi="['system:user:edit']"
+              v-if="permissionStore.hasButtonPermission('/employee/update')"
               >修改</el-button
             >
             <el-button
@@ -149,16 +150,18 @@
               icon="Delete"
               @click="handleDelete(scope.row)"
               v-hasPermi="['system:user:remove']"
+              v-if="permissionStore.hasButtonPermission('/employee/delete')"
               >删除</el-button
             >
             <el-dropdown trigger="click" v-hasPermi="['system:user:resetPwd', 'system:user:edit']">
-              <el-button type="primary" link>更多</el-button>
+              <el-button type="primary" link v-if="permissionStore.hasButtonPermission('/employee/resetPwd')">更多</el-button>
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item
                     icon="Unlock"
                     @click="handleResetPwd(scope.row)"
                     v-hasPermi="['system:user:resetPwd']"
+
                     >重置密码</el-dropdown-item
                   >
                 </el-dropdown-menu>
@@ -268,6 +271,9 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElForm, ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance } from 'element-plus'
 import request from '@/utils/request'
+
+import { usePermissionStore } from '@/stores/permission'
+const permissionStore = usePermissionStore()
 
 // 定义数据类型
 interface User {

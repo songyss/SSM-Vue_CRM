@@ -4,7 +4,12 @@
     <div class="leads-management">
       <div class="header">
         <h3>商机管理</h3>
-        <el-button type="primary" @click="handleAddLead">+ 新增商机</el-button>
+        <el-button
+          type="primary"
+          @click="handleAddLead"
+          v-if="permissionStore.hasButtonPermission('/opportunities/add')"
+          >+ 新增商机</el-button
+        >
       </div>
 
       <!-- 提示信息 -->
@@ -13,17 +18,23 @@
         type="info"
         show-icon
         :closable="false"
-        style="margin-bottom: 20px;"
+        style="margin-bottom: 20px"
       />
 
       <!-- 客户跟进信息表 -->
-      <el-card class="customer-followup-card" style="margin-bottom: 20px;">
+      <el-card class="customer-followup-card" style="margin-bottom: 20px">
         <template #header>
           <div class="card-header">
             <span>我的客户跟进</span>
             <el-button class="button" type="text" @click="fetchMyCustomers">刷新</el-button>
           </div>
         </template>
+
+        <!-- 无权限时显示 -->
+        <div v-if="!hasCustomerPermission" style="text-align: center; padding: 20px">
+          <el-alert title="您没有查看客户跟进的权限" type="warning" show-icon :closable="false" />
+        </div>
+
         <el-table
           :data="myCustomers"
           style="width: 100%"
@@ -48,13 +59,22 @@
           </el-table-column>
           <el-table-column label="操作" width="180" fixed="right">
             <template #default="scope">
-              <el-button size="small" type="primary" link @click="handleCustomerView(scope.row)">查看</el-button>
-              <el-button size="small" type="primary" link @click="handleViewFollowUps(scope.row)">跟进记录</el-button>
-              <el-button size="small" type="primary" link @click="handleCustomerEdit(scope.row)">跟进</el-button>
+              <el-button size="small" type="primary" link @click="handleCustomerView(scope.row)"
+                >查看</el-button
+              >
+              <el-button size="small" type="primary" link @click="handleViewFollowUps(scope.row)"
+                >跟进记录</el-button
+              >
+              <el-button size="small" type="primary" link @click="handleCustomerEdit(scope.row)"
+                >跟进</el-button
+              >
             </template>
           </el-table-column>
         </el-table>
-        <div class="pagination-container" style="margin-top: 15px; display: flex; justify-content: flex-end;">
+        <div
+          class="pagination-container"
+          style="margin-top: 15px; display: flex; justify-content: flex-end"
+        >
           <el-pagination
             v-model:current-page="customerPagination.currentPage"
             v-model:page-size="customerPagination.pageSize"
@@ -106,12 +126,11 @@
       </el-card>
 
       <!-- 商机列表 -->
-      <el-table
-        :data="leadsList"
-        style="width: 100%"
-        border
-        @sort-change="handleSortChange"
-      >
+      <div v-if="!hasLeadsPermission" style="text-align: center; padding: 40px 0">
+        <el-alert title="您没有查看商机列表的权限" type="warning" show-icon :closable="false" />
+      </div>
+      <!-- 商机列表 -->
+      <el-table :data="leadsList" style="width: 100%" border @sort-change="handleSortChange">
         <!-- 表格列定义 -->
         <el-table-column type="selection" width="55" />
 
@@ -124,10 +143,7 @@
         </el-table-column>
         <el-table-column prop="stage" label="商机阶段" width="120" sortable="custom">
           <template #default="scope">
-            <el-tag
-              :type="stageTagType[scope.row.stage]"
-              :effect="'light'"
-            >
+            <el-tag :type="stageTagType[scope.row.stage]" :effect="'light'">
               {{ getStageName(scope.row.stage) }}
             </el-tag>
           </template>
@@ -141,14 +157,35 @@
             />
           </template>
         </el-table-column>
-        <el-table-column prop="expectedCloseDate" label="预计成交日期" width="130" sortable="custom" />
+        <el-table-column
+          prop="expectedCloseDate"
+          label="预计成交日期"
+          width="130"
+          sortable="custom"
+        />
         <el-table-column prop="assigneeName" label="负责人" width="100" sortable="custom" />
 
         <el-table-column label="操作" width="150" fixed="right">
           <template #default="scope">
-            <el-button size="small" type="primary" link @click="handleView(scope.row)">查看</el-button>
-            <el-button size="small" type="primary" link @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button size="small" type="danger" link @click="handleDelete(scope.row)">删除</el-button>
+            <el-button size="small" type="primary" link @click="handleView(scope.row)"
+              >查看</el-button
+            >
+            <el-button
+              size="small"
+              type="primary"
+              link
+              @click="handleEdit(scope.row)"
+              v-if="permissionStore.hasButtonPermission('/opportunities/update')"
+              >编辑</el-button
+            >
+            <el-button
+              size="small"
+              type="danger"
+              link
+              @click="handleDelete(scope.row)"
+              v-if="permissionStore.hasButtonPermission('/opportunities/delete')"
+              >删除</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
@@ -200,7 +237,12 @@
           </el-select>
         </el-form-item>
         <el-form-item label="预估金额" prop="amount">
-          <el-input-number v-model="currentLead.amount" :min="0" controls-position="right" style="width: 100%" />
+          <el-input-number
+            v-model="currentLead.amount"
+            :min="0"
+            controls-position="right"
+            style="width: 100%"
+          />
         </el-form-item>
         <el-form-item label="商机阶段" prop="stage">
           <el-select v-model="currentLead.stage" placeholder="请选择商机阶段" style="width: 100%">
@@ -253,11 +295,7 @@
     </el-dialog>
 
     <!-- 客户详情对话框 -->
-    <el-dialog
-      title="客户详情"
-      v-model="customerDialogVisible"
-      width="600px"
-    >
+    <el-dialog title="客户详情" v-model="customerDialogVisible" width="600px">
       <el-form :model="currentCustomer" label-width="100px">
         <el-row>
           <el-col :span="12">
@@ -327,143 +365,147 @@
       </template>
     </el-dialog>
 
-      <!-- 客户跟进对话框 -->
-      <el-dialog
-        title="客户跟进"
-        v-model="followUpDialogVisible"
-        width="800px"
-        @close="handleFollowUpClose"
+    <!-- 客户跟进对话框 -->
+    <el-dialog
+      title="客户跟进"
+      v-model="followUpDialogVisible"
+      width="800px"
+      @close="handleFollowUpClose"
+    >
+      <el-form
+        :model="followUpForm"
+        :rules="followUpRules"
+        ref="followUpFormRef"
+        label-width="120px"
+        label-position="left"
+        class="follow-up-form"
       >
-        <el-form
-          :model="followUpForm"
-          :rules="followUpRules"
-          ref="followUpFormRef"
-          label-width="120px"
-          label-position="left"
-          class="follow-up-form"
-        >
-          <el-row :gutter="20">
-            <!-- 第一行：客户名称和当前状态 -->
-            <el-col :span="12">
-              <el-form-item label="客户名称：">
-                <el-input v-model="followUpForm.customerName" disabled />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="客户当前状态：">
-                <el-tag :type="getStatusTagType(followUpForm.customerStatus)">
-                  {{ getStatusName(followUpForm.customerStatus) }}
-                </el-tag>
-              </el-form-item>
-            </el-col>
+        <el-row :gutter="20">
+          <!-- 第一行：客户名称和当前状态 -->
+          <el-col :span="12">
+            <el-form-item label="客户名称：">
+              <el-input v-model="followUpForm.customerName" disabled />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="客户当前状态：">
+              <el-tag :type="getStatusTagType(followUpForm.customerStatus)">
+                {{ getStatusName(followUpForm.customerStatus) }}
+              </el-tag>
+            </el-form-item>
+          </el-col>
 
-            <!-- 第二行：更新客户状态 -->
-            <el-col :span="24">
-              <el-form-item label="更新客户状态：">
-                <el-select v-model="followUpForm.newCustomerStatus" placeholder="请选择客户状态" style="width: 100%">
-                  <el-option label="无效" :value="0" />
-                  <el-option label="新客户" :value="1" />
-                  <el-option label="有意向" :value="2" />
-                  <el-option label="已成交" :value="3" />
-                </el-select>
-              </el-form-item>
-            </el-col>
+          <!-- 第二行：更新客户状态 -->
+          <el-col :span="24">
+            <el-form-item label="更新客户状态：">
+              <el-select
+                v-model="followUpForm.newCustomerStatus"
+                placeholder="请选择客户状态"
+                style="width: 100%"
+              >
+                <el-option label="无效" :value="0" />
+                <el-option label="新客户" :value="1" />
+                <el-option label="有意向" :value="2" />
+                <el-option label="已成交" :value="3" />
+              </el-select>
+            </el-form-item>
+          </el-col>
 
-            <!-- 第三行：跟进方式 -->
-            <el-col :span="24">
-              <el-form-item label="跟进方式：" prop="type">
-                <el-select v-model="followUpForm.type" placeholder="请选择跟进方式" style="width: 100%">
-                  <el-option label="电话" :value="1" />
-                  <el-option label="面谈" :value="2" />
-                  <el-option label="邮件" :value="3" />
-                  <el-option label="微信" :value="4" />
-                  <el-option label="其他" :value="5" />
-                </el-select>
-              </el-form-item>
-            </el-col>
+          <!-- 第三行：跟进方式 -->
+          <el-col :span="24">
+            <el-form-item label="跟进方式：" prop="type">
+              <el-select
+                v-model="followUpForm.type"
+                placeholder="请选择跟进方式"
+                style="width: 100%"
+              >
+                <el-option label="电话" :value="1" />
+                <el-option label="面谈" :value="2" />
+                <el-option label="邮件" :value="3" />
+                <el-option label="微信" :value="4" />
+                <el-option label="其他" :value="5" />
+              </el-select>
+            </el-form-item>
+          </el-col>
 
-            <!-- 第四行：跟进内容 -->
-            <el-col :span="24">
-              <el-form-item label="跟进内容：" prop="content">
-                <el-input
-                  v-model="followUpForm.content"
-                  type="textarea"
-                  :rows="6"
-                  placeholder="请输入跟进内容"
-                  style="width: 100%"
-                />
-              </el-form-item>
-            </el-col>
+          <!-- 第四行：跟进内容 -->
+          <el-col :span="24">
+            <el-form-item label="跟进内容：" prop="content">
+              <el-input
+                v-model="followUpForm.content"
+                type="textarea"
+                :rows="6"
+                placeholder="请输入跟进内容"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
 
-            <!-- 第五行：下次计划 -->
-            <el-col :span="24">
-              <el-form-item label="下次计划：">
-                <el-input
-                  v-model="followUpForm.nextPlan"
-                  type="textarea"
-                  :rows="3"
-                  placeholder="请输入下次计划"
-                  style="width: 100%"
-                />
-              </el-form-item>
-            </el-col>
+          <!-- 第五行：下次计划 -->
+          <el-col :span="24">
+            <el-form-item label="下次计划：">
+              <el-input
+                v-model="followUpForm.nextPlan"
+                type="textarea"
+                :rows="3"
+                placeholder="请输入下次计划"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
 
-            <!-- 第六行：下次联系时间 -->
-            <el-col :span="24">
-              <el-form-item label="下次联系时间：" prop="nextContactTime">
-                <el-date-picker
-                  v-model="followUpForm.nextContactTime"
-                  type="datetime"
-                  value-format="YYYY-MM-DD HH:mm:ss"
-                  format="YYYY-MM-DD HH:mm:ss"
-                  placeholder="请选择下次联系时间"
-                  style="width: 100%"
-                />
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </el-form>
+          <!-- 第六行：下次联系时间 -->
+          <el-col :span="24">
+            <el-form-item label="下次联系时间：" prop="nextContactTime">
+              <el-date-picker
+                v-model="followUpForm.nextContactTime"
+                type="datetime"
+                value-format="YYYY-MM-DD HH:mm:ss"
+                format="YYYY-MM-DD HH:mm:ss"
+                placeholder="请选择下次联系时间"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
 
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button @click="followUpDialogVisible = false">取消</el-button>
-            <el-button type="primary" @click="submitFollowUp">提交</el-button>
-          </span>
-        </template>
-      </el-dialog>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="followUpDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="submitFollowUp">提交</el-button>
+        </span>
+      </template>
+    </el-dialog>
 
-      <!-- 跟进记录对话框 -->
-      <el-dialog
-        title="客户跟进记录"
-        v-model="followUpRecordsDialogVisible"
-        width="800px"
-      >
-        <el-table :data="followUpRecords" style="width: 100%" max-height="400">
-          <el-table-column prop="type" label="跟进方式" width="100">
-            <template #default="scope">
-              {{ getFollowUpTypeName(scope.row.type) }}
-            </template>
-          </el-table-column>
-          <el-table-column prop="content" label="跟进内容" min-width="200" show-overflow-tooltip />
-          <el-table-column prop="nextPlan" label="下次计划" min-width="150" show-overflow-tooltip />
-          <el-table-column prop="nextContactTime" label="下次联系时间" width="150">
-            <template #default="scope">
-              {{ formatDateTime(scope.row.nextContactTime) }}
-            </template>
-          </el-table-column>
-          <el-table-column prop="createTime" label="创建时间" width="150">
-            <template #default="scope">
-              {{ formatDateTime(scope.row.createTime) }}
-            </template>
-          </el-table-column>
-        </el-table>
+    <!-- 跟进记录对话框 -->
+    <el-dialog title="客户跟进记录" v-model="followUpRecordsDialogVisible" width="800px">
+      <el-table :data="followUpRecords" style="width: 100%" max-height="400">
+        <el-table-column prop="type" label="跟进方式" width="100">
+          <template #default="scope">
+            {{ getFollowUpTypeName(scope.row.type) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="content" label="跟进内容" min-width="200" show-overflow-tooltip />
+        <el-table-column prop="nextPlan" label="下次计划" min-width="150" show-overflow-tooltip />
+        <el-table-column prop="nextContactTime" label="下次联系时间" width="150">
+          <template #default="scope">
+            {{ formatDateTime(scope.row.nextContactTime) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="createTime" label="创建时间" width="150">
+          <template #default="scope">
+            {{ formatDateTime(scope.row.createTime) }}
+          </template>
+        </el-table-column>
+      </el-table>
 
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button @click="followUpRecordsDialogVisible = false">关闭</el-button>
-          </span>
-        </template>
-      </el-dialog>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="followUpRecordsDialogVisible = false">关闭</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -471,35 +513,37 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
+import { usePermissionStore } from '@/stores/permission'
+const permissionStore = usePermissionStore()
 
 // 商机阶段标签样式映射
 const stageTagType = {
-  1: 'info',      // 初步接触
-  2: 'warning',   // 需求分析
-  3: 'primary',   // 方案报价
-  4: 'success',   // 谈判审核
-  5: 'success',   // 赢单
-  6: 'danger'     // 输单
+  1: 'info', // 初步接触
+  2: 'warning', // 需求分析
+  3: 'primary', // 方案报价
+  4: 'success', // 谈判审核
+  5: 'success', // 赢单
+  6: 'danger', // 输单
 }
 
 // 搜索表单数据模型
 const searchForm = reactive({
-  customerName: '',      // 客户名称搜索条件
-  stage: '',             // 商机阶段筛选条件
-  dateRange: [] as string[] // 预计成交日期范围筛选条件
+  customerName: '', // 客户名称搜索条件
+  stage: '', // 商机阶段筛选条件
+  dateRange: [] as string[], // 预计成交日期范围筛选条件
 })
 
 // 分页配置
 const pagination = reactive({
-  currentPage: 1,   // 当前页码
-  pageSize: 10,     // 每页显示条数
-  total: 0,         // 总数据量
+  currentPage: 1, // 当前页码
+  pageSize: 10, // 每页显示条数
+  total: 0, // 总数据量
 })
 
 // 排序参数
 const sortParams = reactive({
   prop: '',
-  order: ''
+  order: '',
 })
 
 // 商机列表数据
@@ -529,7 +573,7 @@ const currentLead = ref({
   assigneeName: '',
   description: '',
   createTime: '',
-  updateTime: ''
+  updateTime: '',
 })
 
 // 表单验证规则
@@ -540,16 +584,28 @@ const formRules = {
   stage: [{ required: true, message: '请选择商机阶段', trigger: 'change' }],
   probability: [{ required: true, message: '请选择赢率', trigger: 'change' }],
   expectedCloseDate: [{ required: true, message: '请选择预计成交日期', trigger: 'change' }],
-  assigneeId: [{ required: true, message: '请选择负责人', trigger: 'change' }]
+  assigneeId: [{ required: true, message: '请选择负责人', trigger: 'change' }],
 }
 
+// 在<script setup>部分添加一个新的响应式变量
+const hasLeadsPermission = ref(true)
 // 获取商机列表数据（分页）
 const fetchLeadsList = async () => {
+  // 检查权限，如果没有权限则设置状态并返回
+  if (!permissionStore.hasButtonPermission('/opportunities/find')) {
+    hasLeadsPermission.value = false
+    leadsList.value = []
+    pagination.total = 0
+    return
+  }
+
+  hasLeadsPermission.value = true
+
   try {
     // 构造请求参数
     const params: any = {
       page: pagination.currentPage,
-      size: pagination.pageSize
+      size: pagination.pageSize,
     }
 
     // 添加搜索条件
@@ -563,56 +619,56 @@ const fetchLeadsList = async () => {
     // 处理日期范围参数
     if (searchForm.dateRange && searchForm.dateRange.length === 2) {
       // 格式化日期范围
-      const startDate = searchForm.dateRange[0];
-      const endDate = searchForm.dateRange[1];
+      const startDate = searchForm.dateRange[0]
+      const endDate = searchForm.dateRange[1]
 
       if (startDate) {
         if (startDate instanceof Date) {
-          params.startDate = startDate.toISOString().split('T')[0];
+          params.startDate = startDate.toISOString().split('T')[0]
         } else if (typeof startDate === 'string' && startDate.includes('T')) {
-          params.startDate = startDate.split('T')[0];
+          params.startDate = startDate.split('T')[0]
         } else {
-          params.startDate = startDate;
+          params.startDate = startDate
         }
       }
 
       if (endDate) {
         if (endDate instanceof Date) {
-          params.endDate = endDate.toISOString().split('T')[0];
+          params.endDate = endDate.toISOString().split('T')[0]
         } else if (typeof endDate === 'string' && endDate.includes('T')) {
-          params.endDate = endDate.split('T')[0];
+          params.endDate = endDate.split('T')[0]
         } else {
-          params.endDate = endDate;
+          params.endDate = endDate
         }
       }
     }
 
     // 添加排序参数
     if (sortParams.prop && sortParams.order) {
-      params.sortBy = sortParams.prop;
-      params.sortOrder = sortParams.order === 'ascending' ? 'asc' : 'desc';
+      params.sortBy = sortParams.prop
+      params.sortOrder = sortParams.order === 'ascending' ? 'asc' : 'desc'
     }
 
-    console.log('请求参数:', params);
+    console.log('请求参数:', params)
 
     // 调用后端分页接口获取商机数据
     const response = await request.get('/opportunities/page', { params })
-    console.log('后端返回数据:', response);
+    console.log('后端返回数据:', response)
 
     // 正确处理响应数据结构
     if (response && response.data.code === 200) {
-      leadsList.value = response.data.data.list || [];
-      pagination.total = response.data.data.total || 0;
+      leadsList.value = response.data.data.list || []
+      pagination.total = response.data.data.total || 0
     } else {
       ElMessage.error('获取商机列表失败: ' + (response?.data.message || '未知错误'))
-      leadsList.value = [];
-      pagination.total = 0;
+      leadsList.value = []
+      pagination.total = 0
     }
   } catch (error) {
-    console.error('获取商机列表异常:', error);
+    console.error('获取商机列表异常:', error)
     ElMessage.error('获取商机列表失败: ' + (error.message || '网络异常'))
-    leadsList.value = [];
-    pagination.total = 0;
+    leadsList.value = []
+    pagination.total = 0
   }
 }
 
@@ -652,11 +708,24 @@ const customerLoading = ref(false)
 const customerPagination = reactive({
   currentPage: 1,
   pageSize: 5,
-  total: 0
+  total: 0,
 })
+
+// 在<script setup>部分添加一个新的响应式变量
+const hasCustomerPermission = ref(true)
 
 // 获取我的客户列表
 const fetchMyCustomers = async () => {
+  // 检查权限，如果没有权限则设置状态并返回
+  if (!permissionStore.hasButtonPermission('/follow/find')) {
+    hasCustomerPermission.value = false
+    myCustomers.value = []
+    customerPagination.total = 0
+    return
+  }
+
+  hasCustomerPermission.value = true
+
   try {
     customerLoading.value = true
     console.log('开始获取客户列表...')
@@ -674,7 +743,7 @@ const fetchMyCustomers = async () => {
     const params = {
       page: customerPagination.currentPage,
       size: customerPagination.pageSize,
-      employeeId: employeeId // 根据当前员工ID获取分配的客户
+      employeeId: employeeId, // 根据当前员工ID获取分配的客户
     }
 
     console.log('请求参数:', params)
@@ -736,7 +805,7 @@ const followUpForm = ref({
   type: '', // 跟进方式（1-电话，2-面谈，3-邮件，4-微信，5-其他）
   content: '', // 跟进内容
   nextPlan: '', // 下次计划
-  nextContactTime: '' // 下次联系时间
+  nextContactTime: '', // 下次联系时间
 })
 
 // 跟进记录相关数据
@@ -749,7 +818,7 @@ const followUpFormRef = ref()
 const followUpRules = {
   type: [{ required: true, message: '请选择跟进方式', trigger: 'change' }],
   content: [{ required: true, message: '请输入跟进内容', trigger: 'blur' }],
-  nextContactTime: [{ required: true, message: '请选择下次联系时间', trigger: 'change' }]
+  nextContactTime: [{ required: true, message: '请选择下次联系时间', trigger: 'change' }],
 }
 
 // 客户操作方法
@@ -778,7 +847,7 @@ const handleCustomerEdit = (row: any) => {
     type: '',
     content: '',
     nextPlan: '',
-    nextContactTime: ''
+    nextContactTime: '',
   }
   followUpDialogVisible.value = true
 }
@@ -792,7 +861,7 @@ const handleFollowUpClose = () => {
     type: '',
     content: '',
     nextPlan: '',
-    nextContactTime: ''
+    nextContactTime: '',
   }
 
   // 清除表单验证
@@ -821,7 +890,7 @@ const submitFollowUp = async () => {
           type: followUpForm.value.type,
           content: followUpForm.value.content,
           nextPlan: followUpForm.value.nextPlan,
-          nextContactTime: followUpForm.value.nextContactTime
+          nextContactTime: followUpForm.value.nextContactTime,
         }
 
         // 调用后端接口保存跟进记录
@@ -833,19 +902,23 @@ const submitFollowUp = async () => {
         }
 
         // 如果选择了新的客户状态，则更新客户状态
-        if (followUpForm.value.newCustomerStatus !== null &&
-            followUpForm.value.newCustomerStatus !== undefined &&
-            followUpForm.value.newCustomerStatus !== followUpForm.value.customerStatus) {
-
+        if (
+          followUpForm.value.newCustomerStatus !== null &&
+          followUpForm.value.newCustomerStatus !== undefined &&
+          followUpForm.value.newCustomerStatus !== followUpForm.value.customerStatus
+        ) {
           const statusUpdateResponse = await request.patch('/customer/status', {
             id: followUpForm.value.customerId,
-            status: followUpForm.value.newCustomerStatus
+            status: followUpForm.value.newCustomerStatus,
           })
 
           if (statusUpdateResponse && statusUpdateResponse.data.code === 200) {
             ElMessage.success('跟进记录提交成功，客户状态更新成功')
           } else {
-            ElMessage.success('跟进记录提交成功，但客户状态更新失败: ' + (statusUpdateResponse?.data.message || '未知错误'))
+            ElMessage.success(
+              '跟进记录提交成功，但客户状态更新失败: ' +
+                (statusUpdateResponse?.data.message || '未知错误'),
+            )
           }
         } else {
           ElMessage.success('跟进记录提交成功')
@@ -887,16 +960,16 @@ const getFollowUpTypeName = (typeId: number): string => {
     2: '面谈',
     3: '邮件',
     4: '微信',
-    5: '其他'
+    5: '其他',
   }
   return typeMap[typeId] || '未知'
 }
 
 // 处理排序变化
 const handleSortChange = (sortInfo: { prop: string; order: string }) => {
-  sortParams.prop = sortInfo.prop;
-  sortParams.order = sortInfo.order;
-  fetchLeadsList(); // 重新获取数据以应用排序
+  sortParams.prop = sortInfo.prop
+  sortParams.order = sortInfo.order
+  fetchLeadsList() // 重新获取数据以应用排序
 }
 
 // 搜索处理函数
@@ -931,7 +1004,7 @@ const handleCurrentChange = (val: number) => {
 // 操作按钮事件处理函数
 const handleAddLead = () => {
   dialogTitle.value = '新增商机'
-  isEdit.value = true  // 修改为true，允许编辑和保存
+  isEdit.value = true // 修改为true，允许编辑和保存
   Object.assign(currentLead.value, {
     id: null,
     name: '',
@@ -946,7 +1019,7 @@ const handleAddLead = () => {
     assigneeName: '',
     description: '',
     createTime: '',
-    updateTime: ''
+    updateTime: '',
   })
   dialogVisible.value = true
 }
@@ -954,7 +1027,7 @@ const handleAddLead = () => {
 const handleView = (row: any) => {
   dialogTitle.value = '查看商机'
   Object.assign(currentLead.value, row)
-  isEdit.value = false  // 查看模式
+  isEdit.value = false // 查看模式
   dialogVisible.value = true
 }
 
@@ -969,23 +1042,25 @@ const handleDelete = (row: any) => {
   ElMessageBox.confirm('确定要删除该商机吗？', '删除确认', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
-    type: 'warning'
-  }).then(async () => {
-    try {
-      // 调用后端删除接口
-      const response = await request.delete(`/opportunities/${row.id}`)
-      if (response && response.data.code === 200) {
-        ElMessage.success('删除成功')
-        fetchLeadsList()
-      } else {
-        ElMessage.error('删除失败: ' + (response?.data.message || '未知错误'))
-      }
-    } catch (error) {
-      ElMessage.error('删除失败: ' + (error.message || '网络异常'))
-    }
-  }).catch(() => {
-    ElMessage.info('已取消删除')
+    type: 'warning',
   })
+    .then(async () => {
+      try {
+        // 调用后端删除接口
+        const response = await request.delete(`/opportunities/${row.id}`)
+        if (response && response.data.code === 200) {
+          ElMessage.success('删除成功')
+          fetchLeadsList()
+        } else {
+          ElMessage.error('删除失败: ' + (response?.data.message || '未知错误'))
+        }
+      } catch (error) {
+        ElMessage.error('删除失败: ' + (error.message || '网络异常'))
+      }
+    })
+    .catch(() => {
+      ElMessage.info('已取消删除')
+    })
 }
 
 // 对话框关闭处理
@@ -997,39 +1072,44 @@ const handleDialogClose = () => {
 const saveLead = async () => {
   try {
     // 格式化日期字段
-    const leadToSave = { ...currentLead.value };
+    const leadToSave = { ...currentLead.value }
 
     // 处理预计成交日期格式
     if (leadToSave.expectedCloseDate) {
       if (leadToSave.expectedCloseDate instanceof Date) {
         // 如果是Date对象，格式化为YYYY-MM-DD
-        leadToSave.expectedCloseDate = leadToSave.expectedCloseDate.toISOString().split('T')[0];
-      } else if (typeof leadToSave.expectedCloseDate === 'string' && leadToSave.expectedCloseDate.includes('T')) {
+        leadToSave.expectedCloseDate = leadToSave.expectedCloseDate.toISOString().split('T')[0]
+      } else if (
+        typeof leadToSave.expectedCloseDate === 'string' &&
+        leadToSave.expectedCloseDate.includes('T')
+      ) {
         // 如果是ISO字符串，提取日期部分
-        leadToSave.expectedCloseDate = leadToSave.expectedCloseDate.split('T')[0];
+        leadToSave.expectedCloseDate = leadToSave.expectedCloseDate.split('T')[0]
       }
     }
 
     // 处理创建时间和更新时间格式（仅在新增时设置创建时间）
-    const now = new Date();
-    const formattedNow = now.toISOString().split('T')[0] + ' ' + now.toTimeString().split(' ')[0].split('.')[0];
+    const now = new Date()
+    const formattedNow =
+      now.toISOString().split('T')[0] + ' ' + now.toTimeString().split(' ')[0].split('.')[0]
 
     if (!leadToSave.id) {
       // 新增时设置创建时间
       if (!leadToSave.createTime) {
-        leadToSave.createTime = formattedNow;
+        leadToSave.createTime = formattedNow
       }
     }
 
     // 更新时总是设置更新时间
-    leadToSave.updateTime = formattedNow;
+    leadToSave.updateTime = formattedNow
 
     // 检查是否从其他阶段更新为"赢单"
-    const isStageChangedToWin = leadToSave.id && // 确保是更新操作（有ID）
+    const isStageChangedToWin =
+      leadToSave.id && // 确保是更新操作（有ID）
       leadToSave.stage === 5 &&
-      leadsList.value.find((item: any) => item.id === leadToSave.id)?.stage !== 5;
+      leadsList.value.find((item: any) => item.id === leadToSave.id)?.stage !== 5
 
-    let response;
+    let response
     if (leadToSave.id) {
       // 更新商机
       response = await request.patch('/opportunities/update', leadToSave)
@@ -1044,7 +1124,7 @@ const saveLead = async () => {
         ElMessage.success(response.message || (leadToSave.id ? '更新成功' : '新增成功'))
         // 如果是从其他阶段更新为"赢单"，提示用户订单已自动创建
         if (isStageChangedToWin) {
-          ElMessage.success('商机已更新为赢单，系统已自动创建订单');
+          ElMessage.success('商机已更新为赢单，系统已自动创建订单')
         }
         dialogVisible.value = false
         fetchLeadsList()
@@ -1082,7 +1162,7 @@ const getStageName = (stageId: number): string => {
     3: '方案报价',
     4: '谈判审核',
     5: '赢单',
-    6: '输单'
+    6: '输单',
   }
   return stageMap[stageId] || '未知阶段'
 }
@@ -1145,7 +1225,6 @@ const formatDateTime = (dateTime: string) => {
   }
   return '-'
 }
-
 </script>
 
 <style scoped>

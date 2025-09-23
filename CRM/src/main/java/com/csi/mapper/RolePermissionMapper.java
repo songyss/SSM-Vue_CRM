@@ -16,4 +16,5 @@ public interface RolePermissionMapper {
 
     int save(RolePermission rolePermission);
 
+    int remove(int roleId);
 }

@@ -54,7 +54,7 @@
 
           <!-- 操作按钮 -->
           <el-form-item>
-            <el-button type="primary" @click="handleSearch" size="small" icon="Search">筛选</el-button>
+            <el-button type="primary" @click="handleSearch" size="small" icon="Search" v-if="permissionStore.hasButtonPermission('/customer/allList')">筛选</el-button>
             <el-button @click="handleReset" size="small" icon="Refresh">重置</el-button>
           </el-form-item>
         </el-form>
@@ -97,6 +97,7 @@
             type="primary"
             @click="handleSave(scope.row)"
             :loading="scope.row.saving"
+            v-if="permissionStore.hasButtonPermission('/customer/updateCustomerSdrStatus')"
           >保存</el-button>
         </template>
       </el-table-column>
@@ -121,6 +122,9 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import request from '@/utils/request'
+
+import { usePermissionStore } from '@/stores/permission'
+const permissionStore = usePermissionStore()
 
 interface Customer {
   id: number

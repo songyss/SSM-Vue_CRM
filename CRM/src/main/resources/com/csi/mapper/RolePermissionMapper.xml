@@ -24,5 +24,10 @@
         where id = #{permissionId}
     </select>
 
+    <delete id="remove">
+        DELETE FROM role_permission
+        WHERE role_id = #{roleId}
+    </delete>
+
 
 </mapper>

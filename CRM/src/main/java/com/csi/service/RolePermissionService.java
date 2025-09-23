@@ -14,6 +14,9 @@ public interface RolePermissionService {
 
     int getModelIdByPermissionId(int permissionId);
 
+    //保存
     int save(RolePermission rolePermission);
+
+     int remove(int roleId);
 
 }

@@ -56,6 +56,7 @@ public class PermissionController {
     public R savePermission(@RequestParam("roleId") int roleId,
                             @RequestParam("modelsId") String modelsId,
                             @RequestParam("permissionsId") String permissionsId) {
+        rolePermissionService.remove(roleId);
         String[] modelIds = modelsId.split(",");
         List<Integer> modelsIdList = new ArrayList<>();
         for (String modelId : modelIds) {
