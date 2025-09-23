@@ -73,6 +73,7 @@ public class MarketingController {
     public R updatePromotionPlans(@RequestBody PromotionPlans promotionPlans) {
         int i = marketingService.updateByStatus(promotionPlans);
         if (i == 1) {
+
             return R.ok(i);
         } else {
             return R.error();
