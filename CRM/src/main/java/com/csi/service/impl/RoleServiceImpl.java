@@ -20,8 +20,8 @@ public class RoleServiceImpl implements RoleService {
     private RolePermissionMapper rolePermissionMapper;
 
     @Override
-    public List<Role> findAllRoles() {
-        return roleMapper.findAll();
+    public List<Role> findAllRoles(String roleName, Integer isDelete) {
+        return roleMapper.findAll(roleName, isDelete);
     }
 
     @Override

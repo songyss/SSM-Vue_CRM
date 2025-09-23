@@ -61,7 +61,8 @@
       </div>
     </el-card>
 
-    <el-table :data="filteredCustomers" border style="width: 100%" v-loading="loading">
+    <!-- 表格 -->
+    <el-table :data="paginatedCustomers" border style="width: 100%" v-loading="loading">
       <el-table-column prop="name" label="客户姓名" width="120" />
       <el-table-column prop="phone" label="手机号" width="130" />
       <el-table-column prop="source" label="客户来源" width="120" />
@@ -101,14 +102,23 @@
       </el-table-column>
     </el-table>
 
-    <div class="result-info">
-      <el-tag type="info" size="small">共 {{ filteredCustomers.length }} 条数据</el-tag>
+    <!-- 分页 -->
+    <div class="pagination-container">
+      <el-pagination
+        background
+        layout="total, prev, pager, next, sizes, jumper"
+        :total="filteredCustomers.length"
+        :page-size="pageSize"
+        :current-page="currentPage"
+        @current-change="handlePageChange"
+        @size-change="handleSizeChange"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import request from '@/utils/request'
 
@@ -125,6 +135,15 @@ interface Customer {
 const customerData = ref<Customer[]>([])
 const filteredCustomers = ref<Customer[]>([])
 const loading = ref(false)
+
+// 分页相关
+const currentPage = ref(1)
+const pageSize = ref(10)
+
+const paginatedCustomers = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  return filteredCustomers.value.slice(start, start + pageSize.value)
+})
 
 const statusMap: { [key: string]: number } = {
   'pending': 1,
@@ -150,8 +169,11 @@ const searchForm = reactive({
 const loadCustomerData = async () => {
   try {
     loading.value = true
-    const data = await request.get('/customer/allList')
-    console.log('API响应数据:', data)
+    const response = await request.get('/customer/allList')
+    console.log('API响应数据:', response)
+
+    const result = response.data
+    const data =result.data
 
     if (!Array.isArray(data)) {
       throw new Error('API返回数据格式不正确')
@@ -188,28 +210,24 @@ const handleSearch = () => {
   }
 
   filteredCustomers.value = customerData.value.filter(customer => {
-    // 姓名模糊查询 - 不区分大小写
     const nameMatch = searchForm.name
       ? customer.name && customer.name.toLowerCase().includes(searchForm.name.toLowerCase())
       : true
-
-    // 手机号模糊查询
     const phoneMatch = searchForm.phone
       ? customer.phone && customer.phone.includes(searchForm.phone)
       : true
-
-    // 来源模糊查询 - 不区分大小写
     const sourceMatch = searchForm.source
       ? customer.source && customer.source.toLowerCase().includes(searchForm.source.toLowerCase())
       : true
-
-    // 状态精确匹配
     const statusMatch = searchForm.status
       ? customer.sdr_status === searchForm.status
       : true
 
     return nameMatch && phoneMatch && sourceMatch && statusMatch
   })
+
+  // 搜索时重置到第一页
+  currentPage.value = 1
 
   ElMessage.success(`找到 ${filteredCustomers.value.length} 条匹配结果`)
 }
@@ -220,13 +238,14 @@ const handleReset = () => {
   searchForm.source = ''
   searchForm.status = ''
   filteredCustomers.value = [...customerData.value]
+  currentPage.value = 1
   ElMessage.info('已重置筛选条件')
 }
 
 const handleSave = async (row: Customer) => {
   try {
     row.saving = true
-    const sdrStatusValue = Number(statusMap[row.sdr_status as keyof typeof statusMap]) || 1;
+    const sdrStatusValue = Number(statusMap[row.sdr_status as keyof typeof statusMap]) || 1
 
     const updateData = {
       id: row.id,
@@ -243,6 +262,16 @@ const handleSave = async (row: Customer) => {
   } finally {
     row.saving = false
   }
+}
+
+// 分页事件
+const handlePageChange = (page: number) => {
+  currentPage.value = page
+}
+
+const handleSizeChange = (size: number) => {
+  pageSize.value = size
+  currentPage.value = 1
 }
 
 onMounted(() => {
@@ -282,33 +311,13 @@ onMounted(() => {
   font-size: 12px;
 }
 
-.compact-form :deep(.el-input) {
-  width: 100%;
-}
-
-.compact-form :deep(.el-select) {
-  width: 100%;
-}
-
-.compact-form :deep(.el-button) {
-  margin-left: 4px;
-}
-
 .result-info {
   margin-top: 15px;
   text-align: right;
 }
 
-/* 确保所有元素在一行内 */
-:deep(.el-form--inline .el-form-item) {
-  display: inline-flex;
-  vertical-align: middle;
-  margin-right: 8px;
-  margin-bottom: 0;
-}
-
-:deep(.el-form--inline .el-form-item__content) {
-  display: inline-flex;
-  align-items: center;
+.pagination-container {
+  margin-top: 15px;
+  text-align: right;
 }
 </style>

@@ -1,14 +1,14 @@
 package com.csi.controller.customer;
 
 import com.csi.domain.Customer;
-import com.csi.domain.CustomerFollows;
 import com.csi.service.CustomerService;
 import com.csi.util.R;
-import jakarta.servlet.http.HttpServletRequest;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin
@@ -20,169 +20,139 @@ public class CustomerController {
 
     /**
      * 查询全部客户信息
-     * @return
      */
     @GetMapping("/allList")
-    public R getAllCustomerList(){
+    public R getAllCustomerList() {
         List<Customer> allCustomer = customerService.getAllCustomer();
-        if (allCustomer != null){
-            return R.ok(allCustomer);
-        } else {
-            return R.error();
-        }
+        return allCustomer != null ? R.ok(allCustomer) : R.error();
     }
 
     /**
      * 销售经理查询除未联系之外的全部客户
-     * @return
      */
     @GetMapping("/saleList")
-    public R getAllSaleCustomerList(){
+    public R getAllSaleCustomerList() {
         List<Customer> allSaleCustomer = customerService.getAllSaleCustomer();
-        if (allSaleCustomer != null){
-            return R.ok(allSaleCustomer);
-        } else {
-            return R.error();
-        }
+        return allSaleCustomer != null ? R.ok(allSaleCustomer) : R.error();
     }
 
     /**
      * 查询有意向已分配客户
-     * @return
      */
     @GetMapping("/assignedList")
-    public R getAssignedCustomerList(){
+    public R getAssignedCustomerList() {
         List<Customer> assignedCustomer = customerService.getAssignedCustomer();
-        if (assignedCustomer != null){
-            return R.ok(assignedCustomer);
-        } else {
-            return R.error();
-        }
+        return assignedCustomer != null ? R.ok(assignedCustomer) : R.error();
     }
 
     /**
-     * 查询有意向未分配客户
-     * @return
+     * 查询有意向未分配客户（assignee_id IS NULL）
      */
     @GetMapping("/unAssignedList")
-    public R getUnAssignedCustomerList(){
+    public R getUnAssignedCustomerList() {
         List<Customer> unAssignedCustomer = customerService.getUnAssignedCustomer();
-        if (unAssignedCustomer != null){
-            return R.ok(unAssignedCustomer);
-        } else {
-            return R.error();
-        }
+        return unAssignedCustomer != null ? R.ok(unAssignedCustomer) : R.error();
     }
 
     /**
      * 查询无意向客户
-     * @return
      */
     @GetMapping("/noIntention")
-    public R getNoIntentionCustomerList(){
+    public R getNoIntentionCustomerList() {
         List<Customer> noIntentionCustomer = customerService.getNoIntentionCustomer();
-        if (noIntentionCustomer != null){
-            return R.ok(noIntentionCustomer);
-        } else {
-            return R.error();
-        }
+        return noIntentionCustomer != null ? R.ok(noIntentionCustomer) : R.error();
     }
 
     /**
      * 查询信息有误客户
-     * @return
      */
     @GetMapping("/infoIncorrect")
-    public R getInfoIncorrectCustomerList(){
+    public R getInfoIncorrectCustomerList() {
         List<Customer> infoIncorrectCustomer = customerService.getInfoIncorrectCustomer();
-        if (infoIncorrectCustomer != null){
-            return R.ok(infoIncorrectCustomer);
-        } else {
+        return infoIncorrectCustomer != null ? R.ok(infoIncorrectCustomer) : R.error();
+    }
+
+    /**
+     * 根据来源查询客户
+     */
+    @GetMapping("/{source}")
+    public R getCustomerListBySource(@PathVariable("source") String source) {
+        List<Customer> CustomerBySource = customerService.getCustomerBySource(source);
+        return CustomerBySource != null ? R.ok(CustomerBySource) : R.error();
+    }
+
+    /**
+     * 销售对客户状态进行更改
+     */
+    @PatchMapping("/status")
+    public R changeCustomerStatus(@RequestParam("id") int id, @RequestParam("status") int status) {
+        int i = customerService.changeCustomerStatus(id, status);
+        return i == 1 ? R.ok(i) : R.error();
+    }
+
+    /**
+     * 查询当前销售的所负责客户
+     */
+    @GetMapping("/personalCustomer")
+    public R getPersonalCustomer(@RequestParam("id") int id) {
+        List<Customer> customers = customerService.getPersonalCustomer(id);
+        return customers != null ? R.ok(customers) : R.error();
+    }
+
+    /**
+     * 分页查询当前销售负责的客户
+     */
+    @GetMapping("/myCustomers")
+    public R getMyCustomers(@RequestParam(value = "page", defaultValue = "1") int page,
+                           @RequestParam(value = "size", defaultValue = "10") int size,
+                           @RequestParam(value = "employeeId", required = false) Integer employeeId) {
+        try {
+            PageInfo<Customer> pageInfo = customerService.getPersonalCustomerByPage(employeeId, page, size);
+            return R.ok(pageInfo);
+        } catch (Exception e) {
+            e.printStackTrace();
             return R.error();
         }
     }
 
     /**
-     * 根据来源查询客户
-     * @param source
-     * @return
+     * 销售新增用户
      */
-    @GetMapping("/{source}")
-    public R getCustomerListBySource(@PathVariable("source") String source){
-        List<Customer> CustomerBySource = customerService.getCustomerBySource(source);
-        if (CustomerBySource != null){
-            return R.ok(CustomerBySource);
-        } else {
-            return R.error();
-        }
-    }
-
-    //销售对客户状态进行更改
-    @PatchMapping("/status")
-    public R changeCustomerStatus(@RequestParam("id") int id,@RequestParam("status") int status) {
-
-        int i = customerService.changeCustomerStatus(id, status);
-
-        if (i == 1) {
-            return R.ok(i) ;
-        } else {
-            return R.error() ;
-        }
-    }
-
-    //查询当前销售的所负责客户
-    @GetMapping("/personalCustomer")
-    public R getPersonalCustomer(@RequestParam("id") int id) {
-        List<Customer> customers = customerService.getPersonalCustomer(id);
-
-        if (customers != null) {
-            return R.ok(customers);
-        } else {
-            return R.error();
-        }
-    }
-
-    //销售新增用户
-    @PutMapping("/add5Customer")
+    @PostMapping("/add5Customer")
     public R add5Customer(@RequestBody Customer customer) {
         int i = customerService.add5Customer(customer);
-        if (i == 1) {
-            return R.ok(i) ;
-        } else {
-            return R.error();
-        }
+        return i == 1 ? R.ok(i) : R.error();
     }
 
-    //销售更新用户信息
+    /**
+     * 新增用户（标准接口）
+     */
+    @PostMapping("/addCustomer")
+    public R addCustomer(@RequestBody Customer customer) {
+        int i = customerService.add5Customer(customer);
+        return i == 1 ? R.ok(i) : R.error();
+    }
+
+    /**
+     * 销售更新用户信息
+     */
     @PatchMapping("/updateCustomer")
     public R updateCustomer(@RequestBody Customer customer) {
         int i = customerService.updateCustomer(customer);
-        if (i == 1) {
-            return R.ok(i) ;
-        } else {
-            return R.error();
-        }
+        return i == 1 ? R.ok(i) : R.error();
     }
 
     @GetMapping("/findBySdrStatus")
-    public R getCustomerBySdrStatus(){
+    public R getCustomerBySdrStatus() {
         List<Customer> list = customerService.getCustomerBySdrStatus();
-        if (list != null){
-            return R.ok(list);
-        }else {
-            return R.error();
-        }
+        return list != null ? R.ok(list) : R.error();
     }
+
     @PatchMapping("/updateCustomerSdrStatus")
-    public R updateCustomerSdrStatus(@RequestBody Customer customer){
+    public R updateCustomerSdrStatus(@RequestBody Customer customer) {
         int i = customerService.updateCustomerSdrStatus(customer);
-        if (i == 1){
-            return R.ok(i);
-        }else {
-            return R.error();
-        }
+        return i == 1 ? R.ok(i) : R.error();
     }
-    // 在 CustomerController.java 中添加
 
     /**
      * 根据条件查询客户（支持模糊查询）
@@ -193,10 +163,34 @@ public class CustomerController {
                                     @RequestParam(value = "source", required = false) String source,
                                     @RequestParam(value = "status", required = false) Integer status) {
         List<Customer> customers = customerService.getCustomerByCondition(name, phone, source, status);
-        if (customers != null) {
-            return R.ok(customers);
-        } else {
-            return R.error();
-        }
+        return customers != null ? R.ok(customers) : R.error();
+    }
+
+    /**
+     * 查询客户池客户
+     */
+    @GetMapping("/poolList")
+    public R getPoolCustomerList() {
+        List<Customer> poolCustomer = customerService.getPoolCustomer();
+        return poolCustomer != null ? R.ok(poolCustomer) : R.error();
+    }
+
+    /**
+     * 获取待分配客户（可按状态过滤）
+     */
+    @GetMapping("/unAssigned")
+    public List<Customer> getUnAssignedCustomerList(@RequestParam(value = "status", required = false) Integer status) {
+        return customerService.getUnAssignedCustomerList(status);
+    }
+
+    /**
+     * 分配客户
+     */
+    @PostMapping("/assign")
+    public R assignCustomers(@RequestBody Map<String, Object> params) {
+        Integer employeeId = (Integer) params.get("employeeId");
+        List<Integer> customerIds = (List<Integer>) params.get("customerIds");
+        customerService.assignCustomers(employeeId, customerIds);
+        return R.ok("分配成功");
     }
 }

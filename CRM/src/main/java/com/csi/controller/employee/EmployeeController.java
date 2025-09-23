@@ -6,7 +6,6 @@ import com.csi.util.R;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +20,6 @@ public class EmployeeController {
 
     /**
      * 管理员查看全部员工
-     * @return
      */
     @GetMapping("/allList")
     public R getAllEmployeeList(){
@@ -35,7 +33,6 @@ public class EmployeeController {
 
     /**
      * 管理员查看全部在职员工
-     * @return
      */
     @GetMapping("/allOnList")
     public R getAllOnEmployeeList(){
@@ -49,7 +46,6 @@ public class EmployeeController {
 
     /**
      * 管理员查看全部已离职员工
-     * @return
      */
     @GetMapping("/allLeaveList")
     public R getAllLeaveEmployeeList(){
@@ -63,8 +59,6 @@ public class EmployeeController {
 
     /**
      * 查询经理自己手下的员工
-     * @param id
-     * @return
      */
     @GetMapping("/list")
     public R getEmployeeList(@RequestParam("id") int id){
@@ -78,8 +72,9 @@ public class EmployeeController {
 
     /**
      * 根据ID查询员工
+     * 用正则约束：id 必须是数字
      */
-    @GetMapping("/{id}")
+    @GetMapping("/{id:\\d+}")
     public ResponseEntity<?> getEmployeeById(@PathVariable Integer id) {
         try {
             Employee employee = employeeService.findById(id);
@@ -150,7 +145,7 @@ public class EmployeeController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateEmployee(@PathVariable Integer id, @RequestBody Employee employee) {
         try {
-            employee.setId(id); // 确保ID一致性
+            employee.setId(id);
             employeeService.update(employee);
             return ResponseEntity.ok("员工信息更新成功");
         } catch (IllegalArgumentException e) {

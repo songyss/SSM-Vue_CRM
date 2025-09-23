@@ -46,7 +46,15 @@ public interface CustomerMapper {
 
     //模糊查询
     List<Customer> getCustomerByCondition(@Param("name") String name,
-                                          @Param("phone") String phone,
-                                          @Param("source") String source,
+                                          @Param("phone") String phone, @Param("source") String source,
                                           @Param("status") Integer status);
+    List<Customer> getPoolCustomer();
+
+    List<Customer> getUnAssignedCustomerList(@Param("status") Integer status);
+
+    void assignCustomers(@Param("employeeId") Integer employeeId,
+                         @Param("customerIds") List<Integer> customerIds);
+
+    List<Customer> selectUnAssignedList();
+
 }

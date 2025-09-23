@@ -6,42 +6,73 @@
     <cache/>
 
     <select id="getPersonalCustomerByTime" resultType="com.csi.domain.CustomerFollows">
-        SELECT *
-        FROM customer_follows
-        WHERE create_time BETWEEN #{startTime} AND #{endTime}
-        ORDER BY create_time DESC
+        SELECT
+        cf.id,
+        cf.customer_id as customerId,
+        cf.executor_id as executorId,
+        cf.type,
+        cf.content,
+        cf.next_plan as nextPlan,
+        cf.next_contact_time as nextContactTime,
+        cf.create_time as createTime
+        FROM customer_follows cf
+        WHERE cf.create_time BETWEEN #{startTime} AND #{endTime}
+        ORDER BY cf.create_time DESC
     </select>
 
     <select id="getAllCustomerFollows" parameterType="com.csi.domain.CustomerFollows">
-        select * from customerfollows
+        SELECT
+        cf.id,
+        cf.customer_id as customerId,
+        cf.executor_id as executorId,
+        cf.type,
+        cf.content,
+        cf.next_plan as nextPlan,
+        cf.next_contact_time as nextContactTime,
+        cf.create_time as createTime
+        FROM customer_follows cf
+    </select>
+
+    <select id="getCustomerFollowsByCustomerId" parameterType="java.lang.Integer" resultType="com.csi.domain.CustomerFollows">
+        SELECT
+        cf.id,
+        cf.customer_id as customerId,
+        cf.executor_id as executorId,
+        cf.type,
+        cf.content,
+        cf.next_plan as nextPlan,
+        cf.next_contact_time as nextContactTime,
+        cf.create_time as createTime
+        FROM customer_follows cf
+        WHERE cf.customer_id = #{customerId}
+        ORDER BY cf.create_time DESC
     </select>
 
     <insert id="addCustomerFollows"  parameterType="com.csi.domain.CustomerFollows">
-        INSERT INTO follow_up (
+        INSERT INTO customer_follows (
         customer_id,
         executor_id,
         type,
-        type_name,
         content,
         next_plan,
-        next_contact_time
+        next_contact_time,
+        create_time
         ) VALUES (
         #{customerId},
         #{executorId},
         #{type},
-        #{typeName},
         #{content},
         #{nextPlan},
-        #{nextContactTime}
+        #{nextContactTime},
+        NOW()
         )
     </insert>
 
     <update id="updateCustomerFollows" parameterType="com.csi.domain.CustomerFollows">
-        UPDATE follow_up SET
+        UPDATE customer_follows SET
         customer_id = #{customerId},
         executor_id = #{executorId},
         type = #{type},
-        type_name = #{typeName},
         content = #{content},
         next_plan = #{nextPlan},
         next_contact_time = #{nextContactTime}

@@ -284,6 +284,7 @@ const fetchAfterSales = async () => {
 
     let response;
 
+    // 如果有任何搜索条件，使用组合查询接口
     if (searchForm.value.orderNumber || searchForm.value.status ||
       (searchForm.value.dateRange && searchForm.value.dateRange.length === 2)) {
 
@@ -346,6 +347,7 @@ const fetchAfterSales = async () => {
   } catch (error) {
     console.error('请求异常:', error)
 
+    // 特别处理未登录的情况
     if (error.message && error.message.includes('未登录')) {
       ElMessage.error('请先登录')
       router.push('/login')
@@ -439,6 +441,7 @@ const handleStatusChange = (row, value) => {
     originalStatusMap.value.set(row.orderNumber, row.statusName)
   }
 
+  // 保存临时状态值
   tempStatusMap.value.set(row.orderNumber, value)
   currentOrder.value = { ...row, statusName: value }
   dialogVisible.value = true
@@ -446,10 +449,13 @@ const handleStatusChange = (row, value) => {
 
 // 取消更新
 const cancelUpdate = () => {
+  // 清除临时状态值
   if (currentOrder.value.orderNumber) {
     tempStatusMap.value.delete(currentOrder.value.orderNumber)
     originalStatusMap.value.delete(currentOrder.value.orderNumber)
   }
+
+  // 清除当前订单引用
   currentOrder.value = {}
   dialogVisible.value = false
 }
@@ -576,6 +582,7 @@ onMounted(() => {
   margin-left: auto;
 }
 
+/* 确保日期选择器不换行 */
 .search-form .el-date-editor--daterange {
   display: flex;
   white-space: nowrap;
@@ -604,7 +611,7 @@ onMounted(() => {
   position: relative;
 }
 
-.after-sales-table :deep(.el-table__cell) {
+.el-table :deep(.el-table__cell) {
   padding: 24px 0;
   border-bottom: 1px solid #f0f2f7;
   transition: all 0.2s ease;

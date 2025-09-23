@@ -75,4 +75,39 @@
         ORDER BY orders.id DESC
     </select>
 
+    <!-- 根据条件查询订单 -->
+    <select id="selectOrdersByCondition" resultType="com.csi.domain.Orders">
+        SELECT
+            orders.id,
+            orders.order_number,
+            orders.total_amount,
+            orders.signed_date,
+            orders.order_status,
+            orders.file_url,
+            orders.notes,
+            orders.create_time,
+            c.name as customer_name,
+            o.name as opportunity_name,
+            os.order_status_name
+        FROM orders
+        LEFT JOIN order_status os ON orders.order_status = os.order_status_id
+        LEFT JOIN customers c ON orders.customer_id = c.id
+        LEFT JOIN opportunities o ON orders.opportunity_id = o.id
+        <where>
+            <if test="orderNo != null and orderNo != ''">
+                AND orders.order_number LIKE CONCAT('%', #{orderNo}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                AND orders.order_status = #{status}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND orders.signed_date &gt;= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND orders.signed_date &lt;= #{endDate}
+            </if>
+        </where>
+        ORDER BY orders.id DESC
+    </select>
+
 </mapper>

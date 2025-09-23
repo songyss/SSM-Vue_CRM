@@ -789,6 +789,11 @@ const fetchActivities = async () => {
       activities.value = [];
       pagination.value.total = 0;
       ElMessage.info('暂无活动数据');
+    const response = await request.get('/marketing/getPromotionPlans')
+    if (response.data.code === 200) {
+      promotionPlans.value = response.data.data
+    } else {
+      ElMessage.error('获取推广计划失败')
     }
 
     console.log('设置的activities数据:', activities.value)
@@ -1181,6 +1186,23 @@ const handleDeleteReport = (row) => {
     .catch(() => {
       ElMessage.info('已取消删除')
     })
+  ).then(async () => {
+    try {
+      const response = await request.delete('/activityReport/delete', {
+        params: { id: row.id }
+      })
+      if (response.data.code === 200) {
+        ElMessage.success('删除成功')
+        getPromotionPlans()
+      } else {
+        ElMessage.error(response.data.message || '删除失败')
+      }
+    } catch (error) {
+      ElMessage.error('删除失败: ' + error.message)
+    }
+  }).catch(() => {
+    // 用户取消删除
+  })
 }
 
 const onReportDialogClose = () => {

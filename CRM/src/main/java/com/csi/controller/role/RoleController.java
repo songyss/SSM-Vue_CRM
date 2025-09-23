@@ -17,10 +17,13 @@ public class RoleController {
     private RoleService roleService;
 
     // 获取所有角色
-    @GetMapping
-    public R getAllRoles() {
+    @GetMapping("/list")
+    public R getAllRoles(
+            @RequestParam(value = "roleName", required = false) String roleName,
+            @RequestParam(value = "isDelete", required = false) Integer isDelete
+    ) {
         try {
-            List<Role> roles = roleService.findAllRoles();
+            List<Role> roles = roleService.findAllRoles(roleName, isDelete);
             return R.ok(roles);
         } catch (Exception e) {
             return R.error();

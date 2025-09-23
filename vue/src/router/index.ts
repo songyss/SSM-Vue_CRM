@@ -1,4 +1,6 @@
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
+import { usePermissionStore } from '@/stores/permission'
+import { moduleRouteMap } from '@/utils/moduleRouteMap'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -36,32 +38,13 @@ const router = createRouter({
           path: '/permission',
           name: 'permission',
           component: () => import('../views/ConsoleView.vue'),
-          meta: { title: '权限管理', icon: 'lock', requiresAuth: true },
+          meta: { title: '权限管理', icon: 'setting', requiresAuth: true },
           children: [
-            {
-              path: 'users',
-              name: 'permission.users',
-              component: () => import('../views/console/UsersView.vue'),
-              meta: { title: '用户管理', requiresAuth: true },
-            },
-            {
-              path: 'roles',
-              name: 'permission.roles',
-              component: () => import('../views/console/RolesView.vue'),
-              meta: { title: '角色管理', requiresAuth: true },
-            },
-            {
-              path: 'departments',
-              name: 'permission.departments',
-              component: () => import('../views/console/DepartmentsView.vue'),
-              meta: { title: '部门管理', requiresAuth: true },
-            },
-            {
-              path: 'logs',
-              name: 'permission.logs',
-              component: () => import('../views/console/LogsView.vue'),
-              meta: { title: '日志管理', requiresAuth: true },
-            },
+             // 动态关联子路由
+            moduleRouteMap[1],  // 用户管理
+            moduleRouteMap[2],  // 角色管理
+            moduleRouteMap[3],  // 部门管理
+            moduleRouteMap[4],  // 日志管理
           ],
         },
         // 运营管理路由
@@ -71,24 +54,8 @@ const router = createRouter({
           component: () => import('../views/MarketingView.vue'),
           meta: { title: '运营管理', icon: 'operation', requiresAuth: true },
           children: [
-            {
-              path: 'customers',
-              name: 'operation.customers',
-              component: () => import('../views/sales/CustomersView.vue'),
-              meta: {
-                title: '客户管理',
-                requiresAuth: true,
-                keepAlive: true
-              },
-
-            },
-            {
-              path: 'campaigns',
-              name: 'operation.campaigns',
-              component: () => import('../views/marketing/CampaignsView_temp.vue'),
-              meta: { title: '营销活动', requiresAuth: true },
-
-            },
+             moduleRouteMap[5],  // 客户管理
+            moduleRouteMap[6],  // 活动管理
           ],
         },
         // 业务管理路由
@@ -96,32 +63,12 @@ const router = createRouter({
           path: '/business',
           name: 'business',
           component: () => import('../views/SalesView.vue'),
-          meta: { title: '业务管理', icon: 'business', requiresAuth: true },
+          meta: { title: '业务管理', icon: 'promotion', requiresAuth: true },
           children: [
-            {
-              path: 'orders',
-              name: 'business.orders',
-              component: () => import('../views/sales/OrdersView.vue'),
-              meta: { title: '订单管理', requiresAuth: true },
-            },
-            {
-              path: 'emergencies',
-              name: 'business.emergencies',
-              component: () => import('../views/sales/EmergenciesView.vue'),
-              meta: { title: '突发事件', requiresAuth: true },
-            },
-            {
-              path: 'aftersales',
-              name: 'business.aftersales',
-              component: () => import('../views/sales/AfterSalesView.vue'),
-              meta: { title: '售后管理', requiresAuth: true },
-            },
-            {
-              path: 'opportunities',
-              name: 'business.opportunities',
-              component: () => import('../views/marketing/LeadsView.vue'),
-              meta: { title: '商机管理', requiresAuth: true },
-            },
+            moduleRouteMap[8],  // 订单管理
+            moduleRouteMap[9],  // 突发事件
+            moduleRouteMap[10], // 售后管理
+            moduleRouteMap[7],  // 商机管理
           ],
         },
       ],
@@ -129,23 +76,48 @@ const router = createRouter({
   ],
 })
 
-//路由守卫，检查用户是否登录
+
 // 路由守卫，检查用户是否登录
-router.beforeEach((to: RouteLocationNormalized, from, next) => {
-  if (to.meta.requiresAuth) {
-    // 检查用户是否有登录令牌
-    const token = localStorage.getItem('crm_token')
+router.beforeEach(async (to, from, next) => {
+  if (!to.meta.requiresAuth) {
+    // 不需要认证的路由直接放行
+    next()
+    return
+  }
+  // 检查用户是否有登录令牌
+  const token = localStorage.getItem('crm_token')
     if (!token) {
       // 用户未登录，重定向到登录页面
       next('/login')
-    } else {
-      // 用户已登录，允许访问
-      next()
+      return
     }
-  } else {
-    // 不需要认证的路由直接放行
-    next()
+
+
+
+
+  // 权限检查 (已登录状态)
+  const permissionStore = usePermissionStore()
+  if (to.meta.requiresAuth && permissionStore.accessibleModuleIds.length === 0) {
+    // 假设从用户信息中获取roleId
+    const userInfoStr = localStorage.getItem('crm_userInfo')
+      if (userInfoStr) {
+        const userInfo = JSON.parse(userInfoStr)
+        if (userInfo.role) {
+          await permissionStore.fetchPermissions(userInfo.role) // 加载权限
+        }
+      }
   }
+
+  // 检查是否有权限访问当前路由
+  if (to.meta.moduleId) {
+    if (!permissionStore.accessibleModuleIds.includes(Number(to.meta.moduleId))) {
+      // 没有权限，重定向到 dashboard 或无权限页面
+      next('/dashboard')
+      return
+    }
+  }
+
+  next()
 })
 
 export default router

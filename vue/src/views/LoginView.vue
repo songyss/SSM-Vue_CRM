@@ -29,6 +29,7 @@ import { reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 import request from '@/utils/request'
+import { usePermissionStore } from '@/stores/permission'
 
 // 1. 路由实例：用于登录后跳转
 const router = useRouter()
@@ -73,13 +74,18 @@ const handleLogin = async () => {
       )
 
       // 第三步：处理后端响应（按需求文档返回格式解析）
-      const { token, userInfo } = response.data
+      const { data } = response.data// 先获取外层data
+      const { token, userInfo } = data// 再从内层data获取token和userInfo
       if (token && userInfo) {
         // 3.1 存储Token（需求文档"数据安全性"：后续接口需携带）
         localStorage.setItem('crm_token', token) // 长期存储，支撑单次登录持续访问
 
         // 3.2 存储用户核心信息（用于前端权限控制，匹配需求文档"权限精细化"）
         localStorage.setItem('crm_userInfo', JSON.stringify(userInfo))
+
+        // 新增：获取权限信息
+      const permissionStore = usePermissionStore()
+      await permissionStore.fetchPermissions(userInfo.role) // 使用userInfo中的roleId
 
         // 3.3 按"角色+部门"跳转至对应模块（严格匹配需求文档各角色功能范围）
         const { role, department } = userInfo

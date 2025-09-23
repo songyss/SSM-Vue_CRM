@@ -137,13 +137,13 @@ const fetchAllLogs = async () => {
     console.log('开始获取所有日志数据，页码:', currentPage.value, '每页数量:', pageSize.value)
 
     // 发送请求获取分页数据
-    const response = await request.get('/api/logs/list', {
+    const result = await request.get('/api/logs/list', {
       params: {
         page: currentPage.value,
         size: pageSize.value
       }
     })
-
+    const response = result.data
     console.log('后端返回的原始数据:', response)
 
     // 处理分页数据
