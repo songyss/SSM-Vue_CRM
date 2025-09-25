@@ -197,6 +197,14 @@ public class EmployeeController {
             return R.message(e.getMessage());
         }
     }
+    @GetMapping("/{id}/leader")
+    public R getLeaderByEmployeeId(@PathVariable("id") int id) {
+        Employee leader = employeeService.findLeaderByEmployeeId(id);
+        if (leader == null) {
+            return R.error().message("未找到上级领导");
+        }
+        return R.ok(leader);
+    }
 
 
 }

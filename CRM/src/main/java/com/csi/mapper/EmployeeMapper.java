@@ -43,4 +43,6 @@ public interface EmployeeMapper {
 
     List<Employee> getAllEmployeesWithConditions(@Param("superiorId") Integer superiorId, @Param("conditions") Employee conditions);
 
+    Employee findLeaderByEmployeeId(Integer id);
+
 }

@@ -7,6 +7,25 @@
         insert into marketing_activities(name,plan_id,content,location,form,start_time,end_time,estimated_cost,actual_cost,manager_id,activity_status,create_time)
         values(#{name},#{planId},#{content},#{location},#{form},#{startTime},#{endTime},#{estimatedCost},#{actualCost},#{managerId},#{activityStatus},#{createTime})
     </insert>
+    <update id="updateMarketActivity" parameterType="com.csi.domain.MarketingActivities">
+        UPDATE marketing_activities
+        <set>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="planId != null">plan_id = #{planId},</if>
+            <if test="content != null and content != ''">content = #{content},</if>
+            <if test="location != null and location != ''">location = #{location},</if>
+            <if test="form != null and form != ''">form = #{form},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="estimatedCost != null">estimated_cost = #{estimatedCost},</if>
+            <if test="actualCost != null">actual_cost = #{actualCost},</if>
+            <if test="managerId != null">manager_id = #{managerId},</if>
+            <if test="activityStatus != null">activity_status = #{activityStatus},</if>
+
+        </set>
+        WHERE id = #{id}
+    </update>
+
     <select id="getAllMarketActivities" resultType="com.csi.domain.MarketingActivities">
         select
         ma.id,ma.name,ma.plan_id,ma.content,ma.location,ma.form,ma.start_time,ma.end_time,ma.estimated_cost,ma.actual_cost,e.username,ma.manager_id,e.name as managername,ma.activity_status,ats.activity_status_name,ma.create_time

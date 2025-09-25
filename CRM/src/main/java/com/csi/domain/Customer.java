@@ -39,7 +39,7 @@ public class Customer implements Serializable {
     private Integer creatorId;
     private String name2;
     //最后跟进时间
-    private String lastFollowUPTime;
+    private String lastFollowUpTime;
     //是否放进客户池
     private int isPool;
     //放入客户池时间

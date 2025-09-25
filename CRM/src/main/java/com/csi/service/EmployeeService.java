@@ -15,6 +15,7 @@ public interface EmployeeService {
      */
     void resetPassword(Integer id, String password);
 
+    Employee findLeaderByEmployeeId(Integer id);
 
     List<Employee> getAllOnEmployees();
 

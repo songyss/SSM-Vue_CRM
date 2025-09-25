@@ -32,37 +32,49 @@
         <result property="isDeleted" column="is_deleted" />
     </resultMap>
 
-<!--    插入一条新的销售突发状况记录到数据库-->
+    <resultMap id="SalesEmergencyResult" type="com.csi.domain.SalesEmergency">
+        <id property="id" column="id"/>
+        <result property="salespersonName" column="salesperson_name"/>
+        <result property="customerName" column="customer_name"/>
+        <result property="currentHandlerName" column="current_handler_name"/>
+        <result property="proposedByName" column="proposed_by_name"/>
+        <result property="submittedToName" column="submitted_to_name"/>
+    </resultMap>
+
+    <!--    插入一条新的销售突发状况记录到数据库-->
     <insert id="insert" parameterType="com.csi.domain.SalesEmergency" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO sales_emergency (
             emergency_no, type, salesperson_id, customer_id, related_id,
             title, description, customer_request, urgency, solution_content,
             proposed_by, cost_impact, risk_level, status, current_handler_id,
-             occur_time, deadline, created_time, updated_time
+            occur_time, deadline, created_time, updated_time
         ) VALUES (
                      #{emergencyNo}, #{type}, #{salespersonId}, #{customerId}, #{relatedId},
                      #{title}, #{description}, #{customerRequest}, #{urgency}, #{solutionContent},
                      #{proposedBy}, #{costImpact}, #{riskLevel}, #{status}, #{currentHandlerId},
-                      #{occurTime}, #{deadline}, NOW(), NOW()
+                     #{occurTime}, #{deadline}, NOW(), NOW()
                  )
     </insert>
 
-<!--    根据主键ID查询单个突发状况的完整信息-->
-    <select id="selectById" parameterType="int" resultMap="SalesEmergencyResultMap">
+    <!--    根据主键ID查询单个突发状况的完整信息-->
+    <select id="selectById" parameterType="int" resultMap="SalesEmergencyResult">
         SELECT se.*,
-               e1.name as salesperson_name,
-               c.name as customer_name,
-               e2.name as current_handler_name,
-               e3.name as proposed_by_name
+               e1.name AS salesperson_name,
+               c.name AS customer_name,
+               e2.name AS current_handler_name,
+               e3.name AS proposed_by_name,
+               leader.name AS submitted_to_name
         FROM sales_emergency se
                  LEFT JOIN employees e1 ON se.salesperson_id = e1.id
                  LEFT JOIN customers c ON se.customer_id = c.id
                  LEFT JOIN employees e2 ON se.current_handler_id = e2.id
                  LEFT JOIN employees e3 ON se.proposed_by = e3.id
-        WHERE se.id = #{id} AND se.is_deleted = 0
+                 LEFT JOIN employees leader ON e1.superior_id = leader.id
+        WHERE se.id = #{id}
     </select>
 
-<!--    查询对应销售人员所创建的所有突发状况-->
+
+    <!--    查询对应销售人员所创建的所有突发状况-->
     <select id="selectBySalespersonId" parameterType="int" resultMap="SalesEmergencyResultMap">
         SELECT se.*,
                e1.name as salesperson_name,
@@ -127,7 +139,7 @@
         LEFT JOIN customers c ON se.customer_id = c.id
         LEFT JOIN employees e2 ON se.current_handler_id = e2.id
         WHERE se.is_deleted = 0
-        <if test="salespersonId != null">AND se.salesperson_id = #{salespersonId}</if>
+        <if test="employeeId != null">AND se.salesperson_id = #{employeeId}</if>
         <if test="handlerId != null">AND se.current_handler_id = #{handlerId}</if>
         <if test="status != null">AND se.status = #{status}</if>
         <if test="type != null">AND se.type = #{type}</if>
@@ -156,6 +168,20 @@
         WHERE id = #{id}
     </update>
 
+    <select id="findAllEmergencies" resultType="com.csi.domain.SalesEmergency">
+        SELECT se.*,
+               e1.name AS salespersonName,
+               e2.name AS currentHandlerName,
+               e3.name AS proposedByName,
+               leader.name AS submittedToName
+        FROM sales_emergency se
+                 LEFT JOIN employees e1 ON se.salesperson_id = e1.id
+                 LEFT JOIN employees e2 ON se.current_handler_id = e2.id
+                 LEFT JOIN employees e3 ON se.proposed_by = e3.id
+                 LEFT JOIN employees leader ON e3.superior_id = leader.id
+        WHERE se.is_deleted = 0
+    </select>
+
     <select id="countByStatus" parameterType="map" resultType="int">
         SELECT COUNT(*)
         FROM sales_emergency
@@ -164,4 +190,100 @@
         <if test="status != null">AND status = #{status}</if>
         <if test="handlerId != null">AND current_handler_id = #{handlerId}</if>
     </select>
+
+    <!-- 更新状态和处理人 -->
+    <update id="updateStatusAndHandler">
+        UPDATE sales_emergency
+        SET status = #{status},
+            current_handler_id = #{handlerId}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 更新状态为已解决 -->
+    <update id="updateStatusToSolved">
+        UPDATE sales_emergency
+        SET status = #{status},
+            solution_content = #{solutionDescription},
+            solved_time = #{solvedTime}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 更新描述和时间 -->
+    <update id="updateDescription">
+        UPDATE sales_emergency
+        SET description = #{description}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateById">
+        UPDATE sales_emergency
+        <set>
+            <if test="emergency.emergencyNo != null and emergency.emergencyNo != ''">
+                emergency_no = #{emergency.emergencyNo},
+            </if>
+            <if test="emergency.type != null and emergency.type != ''">
+                type = #{emergency.type},
+            </if>
+            <if test="emergency.salespersonId != null">
+                salesperson_id = #{emergency.salespersonId},
+            </if>
+            <if test="emergency.customerId != null">
+                customer_id = #{emergency.customerId},
+            </if>
+            <if test="emergency.relatedId != null">
+                related_id = #{emergency.relatedId},
+            </if>
+            <if test="emergency.title != null and emergency.title != ''">
+                title = #{emergency.title},
+            </if>
+            <if test="emergency.description != null and emergency.description != ''">
+                description = #{emergency.description},
+            </if>
+            <if test="emergency.customerRequest != null and emergency.customerRequest != ''">
+                customer_request = #{emergency.customerRequest},
+            </if>
+            <if test="emergency.urgency != null">
+                urgency = #{emergency.urgency},
+            </if>
+            <if test="emergency.solutionContent != null and emergency.solutionContent != ''">
+                solution_content = #{emergency.solutionContent},
+            </if>
+            <if test="emergency.proposedBy != null">
+                proposed_by = #{emergency.proposedBy},
+            </if>
+            <if test="emergency.costImpact != null">
+                cost_impact = #{emergency.costImpact},
+            </if>
+            <if test="emergency.riskLevel != null and emergency.riskLevel != ''">
+                risk_level = #{emergency.riskLevel},
+            </if>
+            <if test="emergency.status != null and emergency.status != ''">
+                status = #{emergency.status},
+            </if>
+            <if test="emergency.currentHandlerId != null">
+                current_handler_id = #{emergency.currentHandlerId},
+            </if>
+            <if test="emergency.occurTime != null">
+                occur_time = #{emergency.occurTime},
+            </if>
+            <if test="emergency.deadline != null">
+                deadline = #{emergency.deadline},
+            </if>
+            <if test="emergency.createdTime != null">
+                created_time = #{emergency.createdTime},
+            </if>
+            <if test="emergency.updatedTime != null">
+                updated_time = #{emergency.updatedTime},
+            </if>
+            <if test="emergency.solvedTime != null">
+                solved_time = #{emergency.solvedTime},
+            </if>
+            <if test="emergency.isDeleted != null">
+                is_deleted = #{emergency.isDeleted},
+            </if>
+        </set>
+        WHERE id = #{emergency.id}
+    </update>
+
+
 </mapper>

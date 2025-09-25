@@ -12,11 +12,18 @@
     <!--修改活动状态/审批活动-->
     <update id="updateByStatus">
         UPDATE promotion_plans
-        SET
-            status = #{status},
-            approver_id = #{approverId},
-            feedback = #{feedback},
-            update_time = #{updateTime}
+        <set>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="approverId != null">
+                approver_id = #{approverId},
+            </if>
+            <if test="feedback != null and feedback != ''">
+                feedback = #{feedback},
+            </if>
+
+        </set>
         WHERE id = #{id}
     </update>
     <!--未审批活动方案-->

@@ -95,7 +95,7 @@
           </el-form-item>
 
           <el-form-item label="商机阶段">
-            <el-select v-model="searchForm.stage" placeholder="请选择商机阶段" clearable>
+            <el-select v-model="searchForm.stage" placeholder="请选择商机阶段" clearable style="width: 150px">
               <el-option label="全部" value="" />
               <el-option label="初步接触" value="1" />
               <el-option label="需求分析" value="2" />

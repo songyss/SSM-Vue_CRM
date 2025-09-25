@@ -135,5 +135,7 @@ public interface CustomerMapper {
                      @Param("lockedUntil") LocalDateTime lockedUntil);
 
     List<CustomerPoolVO> selectCustomerPoolList();
+    int lockCustomer(@Param("customerId") Integer customerId,
+                     @Param("employeeId") Integer employeeId);
 
 }

@@ -284,6 +284,7 @@ const handleCurrentChange = (val) => {
 const showDetail = async (row) => {
   try {
     const res = await request.get(`/customer/detail/${row.id}`);
+    console.log("res ===>", res);
     if (res.data.code === 200) {
       Object.assign(detailData, res.data.data);
       console.log("detailData ===>", res.data);

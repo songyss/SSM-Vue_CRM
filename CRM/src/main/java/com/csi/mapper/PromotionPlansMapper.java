@@ -13,5 +13,5 @@ public interface PromotionPlansMapper {
 
     List<PromotionPlans> getPromotionPlans();
 
-    int updateByStatus(@Param("status") int status,@Param("id") int id);
+    int updateByStatus(@Param("status") int status,@Param("id") int id ,@Param("approverId") int approverId ,@Param("feedback") String feedback);
 }

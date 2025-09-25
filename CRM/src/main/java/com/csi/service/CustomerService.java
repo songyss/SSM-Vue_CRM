@@ -77,5 +77,6 @@ public interface CustomerService {
     void lockCustomer(LockCustomerRequest request);
 
     List<CustomerPoolVO> getCustomerPoolList();
-}
 
+
+}

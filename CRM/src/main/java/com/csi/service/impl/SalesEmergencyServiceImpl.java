@@ -1,6 +1,8 @@
 package com.csi.service.impl;
 
+import com.csi.domain.Employee;
 import com.csi.domain.SalesEmergency;
+import com.csi.mapper.EmployeeMapper;
 import com.csi.mapper.SalesEmergencyMapper;
 import com.csi.service.SalesEmergencyService;
 import com.csi.util.ValidationUtils;
@@ -8,18 +10,20 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 @Service
 public class SalesEmergencyServiceImpl implements SalesEmergencyService {
+    @Autowired
+    private SalesEmergencyMapper salesEmergencyMapper ;
 
-    //提交给对应上级
-    private Integer findManagerId(Integer emId){
-        //返回对应上级的ID
-        return 2001;
-    }
+    @Autowired
+    private EmployeeMapper employeeService;
+
 
     //审批验证方法
     private void validateForApproval(SalesEmergency salesEmergency , Integer managerId){
@@ -43,8 +47,7 @@ public class SalesEmergencyServiceImpl implements SalesEmergencyService {
         return params;
     }
 
-    @Autowired
-    private SalesEmergencyMapper salesEmergencyMapper ;
+
 
     @Override
     public void createEmergency(SalesEmergency emergency, Integer empId) {
@@ -69,11 +72,14 @@ public class SalesEmergencyServiceImpl implements SalesEmergencyService {
             throw new RuntimeException("只能提交草稿状态的记录");
         }
 
-        // 验证固定字段（防止数据被篡改）
-        ValidationUtils.validateFixed(salesEmergency);
+        // 查找直属上级
+        Employee leader = employeeService.findLeaderByEmployeeId(empId);
+        if (leader == null) {
+            throw new RuntimeException("未找到直属上级");
+        }
 
-        Integer managerId = findManagerId(empId);
-        salesEmergencyMapper.updateStatusAndHandler(id, "PENDING", managerId);
+        // 更新状态和处理人
+        salesEmergencyMapper.updateStatusAndHandler(id, "PENDING", leader.getId());
     }
 
     @Override
@@ -88,6 +94,32 @@ public class SalesEmergencyServiceImpl implements SalesEmergencyService {
         SalesEmergency salesEmergency = salesEmergencyMapper.selectById(id) ;
         validateForApproval(salesEmergency,managerId);
         salesEmergencyMapper.updateStatusAndHandler(id,"REJECTED",managerId);
+    }
+
+    @Override
+    public void markAsSolved(Integer id, Integer empId, String solutionDescription) {
+        SalesEmergency salesEmergency = salesEmergencyMapper.selectById(id);
+        if (salesEmergency == null) {
+            throw new RuntimeException("记录不存在");
+        }
+
+        // 检查是否是自己的记录
+        if (!salesEmergency.getSalespersonId().equals(empId)) {
+            throw new RuntimeException("只能标记自己的记录为已解决");
+        }
+
+        // 检查当前状态
+        if (!"APPROVED".equals(salesEmergency.getStatus())) {
+            throw new RuntimeException("只有已批准状态的记录才能标记为已解决");
+        }
+
+        // 更新状态为已解决，并记录解决描述和时间
+        salesEmergencyMapper.updateStatusToSolved(id, "SOLVED", solutionDescription, new Date());
+    }
+
+    @Override
+    public int updateById(SalesEmergency emergency) {
+        return salesEmergencyMapper.updateById(emergency);
     }
 
     @Override
@@ -131,5 +163,6 @@ public class SalesEmergencyServiceImpl implements SalesEmergencyService {
     public List<SalesEmergency> getPendingEmergenciesByManager(Integer managerId) {
         return salesEmergencyMapper.selectPendingByManagerId(managerId);
     }
+
 
 }

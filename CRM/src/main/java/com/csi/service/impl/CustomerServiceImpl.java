@@ -208,7 +208,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public boolean lockCustomer(Integer customerId, Integer employeeId) {
-        int rows = customerMapper.updateAssignee(customerId, employeeId);
+        int rows = customerMapper.lockCustomer(customerId, employeeId);
         return rows > 0;
     }
 
@@ -264,5 +264,6 @@ public class CustomerServiceImpl implements CustomerService {
     public List<CustomerPoolVO> getCustomerPoolList() {
         return customerMapper.selectCustomerPoolList();
     }
+
 
 }

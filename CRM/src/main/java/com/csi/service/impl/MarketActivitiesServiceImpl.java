@@ -1,10 +1,13 @@
 package com.csi.service.impl;
 
+import cn.hutool.core.date.DateTime;
 import com.csi.domain.ActivityReports;
 import com.csi.domain.MarketingActivities;
 import com.csi.mapper.ActivityReportMapper;
 import com.csi.mapper.MarketActivitiesMapper;
+import com.csi.service.ActivityReportService;
 import com.csi.service.MarketActivitiesService;
+import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,11 +19,14 @@ import java.util.List;
 public class MarketActivitiesServiceImpl implements MarketActivitiesService {
 
 
-    @Autowired
+    @Resource
     private MarketActivitiesMapper marketActivitiesMapper;
 
-    @Autowired
+    @Resource
     private ActivityReportMapper activityReportMapper;
+
+    @Resource
+    private ActivityReportService activityReportService;
     /**
      * 添加市场活动
      * @param activity
@@ -65,7 +71,7 @@ public class MarketActivitiesServiceImpl implements MarketActivitiesService {
     @Override
     public int updateMarketActivity(MarketingActivities activity) {
         int result = 0;
-        if(activity.getActivityStatus() == 2){
+        if(activity.getActivityStatus() == 3){
             //自动添加活动报告
             if (marketActivitiesMapper.updateMarketActivity( activity) ==1){
                 ActivityReports report = new ActivityReports();
@@ -74,9 +80,10 @@ public class MarketActivitiesServiceImpl implements MarketActivitiesService {
                 report.setContent(activity.getContent());
                 report.setActualCost(activity.getActualCost());
                 report.setCreatorId(activity.getManagerId());
-                report.setCreateTime(activity.getCreateTime());
+                report.setCreateTime(new DateTime().toString());
 
-                result = activityReportMapper.addActivityReport(report);
+
+                result = activityReportService.addActivityReport(report);
             }
         }else{
             result =  marketActivitiesMapper.updateMarketActivity(activity);

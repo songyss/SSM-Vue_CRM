@@ -15,6 +15,10 @@ public interface SalesEmergencyService {
 
     void reject(Integer id, Integer managerId);/* 经理审批拒绝 */
 
+    void markAsSolved(Integer id, Integer empId, String solutionDescription);
+
+    int updateById(SalesEmergency emergency);
+
     List<SalesEmergency> listByCreator(Integer empId);/* 员工查看自己创建的突发情况 */
 
     List<SalesEmergency> listPending();  /* 经理查看待审批列表 */

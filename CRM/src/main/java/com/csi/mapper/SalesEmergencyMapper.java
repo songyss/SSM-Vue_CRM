@@ -3,6 +3,7 @@ package com.csi.mapper;
 import com.csi.domain.SalesEmergency;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -16,9 +17,23 @@ public interface SalesEmergencyMapper {
 
     void update(SalesEmergency emergency); // 更新突发状况
 
+    int updateById(@Param("emergency") SalesEmergency emergency);
+
     void updateStatusAndHandler(@Param("id") Integer id,
                                 @Param("status") String status,
                                 @Param("handlerId") Integer handlerId); //更新状态
+    /**
+     * 更新状态为已解决
+     */
+    void updateStatusToSolved(@Param("id") Integer id,
+                              @Param("status") String status,
+                              @Param("solutionDescription") String solutionDescription,
+                              @Param("solvedTime") Date solvedTime);
+    /**
+     * 更新描述和时间
+     */
+    void updateDescription(@Param("id") Integer id,
+                           @Param("description") String description);
 
     List<SalesEmergency> selectByStatus(String status);    // 根据状态查询（经理使用）
 

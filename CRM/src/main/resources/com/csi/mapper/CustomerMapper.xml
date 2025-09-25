@@ -473,16 +473,6 @@
         WHERE id = #{customerId}
     </update>
 
-    <!-- 更新公共客户池，锁定客户 -->
-    <update id="lockCustomer">
-        UPDATE public_customer_pool
-        SET locked_by = #{employeeId},
-        locked_until = #{lockedUntil},
-        release_time = NULL,
-        create_time = NOW()
-        WHERE customer_id = #{customerId}
-    </update>
-
     <select id="selectCustomerPoolList" resultType="com.csi.domain.vo.CustomerPoolVO">
         SELECT
         c.id,
@@ -492,15 +482,16 @@
         c.company AS companyName,
         c.position,
         p.reason AS reason,
-        c.notes AS salesRemark,
-        p.create_time AS poolCreateTime,
-        c.last_follow_up_time AS lastFollowTime,
+        c.notes AS sales_remark,
+        p.create_time AS pool_create_time,
+        c.last_follow_up_time AS last_follow_time,
         c.create_time,
         c.update_time
         FROM customers c
         JOIN public_customer_pool p ON c.id = p.customer_id
         ORDER BY p.create_time DESC
     </select>
+
 
 
 
@@ -512,6 +503,15 @@
         WHERE id = #{customerId}
     </update>
 
+    <update id="lockCustomer">
+        UPDATE customers
+        SET
+        assignee_id = #{employeeId},
+        is_pool = 0,
+        update_time = NOW()
+        WHERE id = #{customerId}
+        AND is_pool = 1
+    </update>
 
 
 </mapper>

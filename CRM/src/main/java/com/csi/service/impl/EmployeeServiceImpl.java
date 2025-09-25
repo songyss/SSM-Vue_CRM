@@ -186,4 +186,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
     }
 
+    @Override
+    public Employee findLeaderByEmployeeId(Integer id) {
+        return employeeMapper.findLeaderByEmployeeId(id);
+    }
+
+
 }

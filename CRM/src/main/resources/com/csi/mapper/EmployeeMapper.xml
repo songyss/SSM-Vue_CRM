@@ -21,7 +21,7 @@
         <result property="updateTime" column="update_time" />
     </resultMap>
 
-<!--    经理查询下属员工-->
+    <!--    经理查询下属员工-->
     <select id="getAllEmployees" resultType="com.csi.domain.Employee">
         select e.id as id,
         e.username,
@@ -238,6 +238,13 @@
         DELETE FROM employees WHERE id = #{id}
     </delete>
 
+    <!-- 根据员工ID查直属上司 -->
+    <select id="findLeaderByEmployeeId" parameterType="int" resultType="com.csi.domain.Employee">
+        SELECT e.*
+        FROM employees emp
+        JOIN employees e ON emp.superior_id = e.id
+        WHERE emp.id = #{id}
+    </select>
 
 
 </mapper>

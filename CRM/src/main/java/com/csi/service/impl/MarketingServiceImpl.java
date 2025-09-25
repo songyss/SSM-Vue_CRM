@@ -1,26 +1,33 @@
 package com.csi.service.impl;
 
+import cn.hutool.core.date.DateTime;
 import com.csi.domain.MarketingActivities;
 import com.csi.domain.PromotionPlans;
 import com.csi.mapper.MarketActivitiesMapper;
 import com.csi.mapper.PromotionPlansMapper;
+import com.csi.service.MarketActivitiesService;
 import com.csi.service.MarketingService;
+import jakarta.annotation.Resource;
 import org.aspectj.apache.bcel.generic.ReturnaddressType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
 @Transactional
 public class MarketingServiceImpl implements MarketingService {
 
-    @Autowired
+   @Resource
     private PromotionPlansMapper promotionPlansMapper;
 
-    @Autowired
+    @Resource
     private MarketActivitiesMapper marketActivitiesMapper;
+
+    @Resource
+    MarketActivitiesService marketActivitiesService;
 
 
     @Override
@@ -37,6 +44,8 @@ public class MarketingServiceImpl implements MarketingService {
                 activity.setEstimatedCost(promotionPlans.getBudget());
                 activity.setManagerId(promotionPlans.getApproverId());
                 activity.setActivityStatus(1);
+                activity.setCreateTime(new Date().toString());
+                System.out.println();
                 result = marketActivitiesMapper.addMarketActivity(activity);
             }
 
@@ -63,7 +72,7 @@ public class MarketingServiceImpl implements MarketingService {
     @Override
     public int updateByStatus(PromotionPlans promotionPlans) {
         int result = 0;
-        if(promotionPlansMapper.updateByStatus(promotionPlans.getStatus(), promotionPlans.getId()) ==1) {
+        if(promotionPlansMapper.updateByStatus(promotionPlans.getStatus(), promotionPlans.getId(),promotionPlans.getApproverId(),promotionPlans.getFeedback()) ==1) {
             if(promotionPlans.getStatus() == 1){
                 MarketingActivities activity = new MarketingActivities();
                 activity.setName(promotionPlans.getTitle());
@@ -72,7 +81,8 @@ public class MarketingServiceImpl implements MarketingService {
                 activity.setEstimatedCost(promotionPlans.getBudget());
                 activity.setManagerId(promotionPlans.getApproverId());
                 activity.setActivityStatus(1);
-                result = marketActivitiesMapper.addMarketActivity(activity);
+                activity.setCreateTime(new DateTime().toString());
+                result = marketActivitiesService.addMarketActivity(activity);
             }
         }
         return result;
