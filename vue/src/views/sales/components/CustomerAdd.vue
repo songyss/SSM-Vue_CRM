@@ -16,8 +16,14 @@
       </el-form-item>
 
       <!-- 手机号 -->
-      <el-form-item label="手机号" required>
-        <el-input v-model="customerForm.phone" placeholder="请输入手机号" />
+      <el-form-item label="手机号" required prop="phone">
+        <el-input
+          v-model="customerForm.phone"
+          placeholder="请输入手机号"
+          @blur="validatePhone"
+          :class="{ 'is-error': phoneError }"
+        />
+        <!-- <div v-if="phoneError" class="phone-error">{{ phoneError }}</div> -->
       </el-form-item>
 
       <!-- 出生日期 -->
@@ -66,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import request from '@/utils/request' // 你自己封装的 axios
 import { usePermissionStore } from '@/stores/permission'
@@ -84,10 +90,40 @@ const customerForm = reactive({
   status: null
 })
 
+// 手机号错误信息
+const phoneError = ref('')
+
+// 验证手机号格式
+const validatePhone = () => {
+  const phone = customerForm.phone
+  phoneError.value = ''
+
+  if (!phone) {
+    phoneError.value = '请输入手机号'
+    return false
+  }
+
+  // 中国大陆手机号正则表达式
+  const phoneRegex = /^1[3-9]\d{9}$/
+
+  if (!phoneRegex.test(phone)) {
+    phoneError.value = '请输入正确的手机号格式'
+    return false
+  }
+
+  return true
+}
+
 // 提交表单
 const submitForm = async () => {
   if (!customerForm.name || customerForm.sex === null || !customerForm.phone || customerForm.status === null) {
     ElMessage.error('请填写完整的必填信息')
+    return
+  }
+
+  // 提交前再次验证手机号
+  if (!validatePhone()) {
+    ElMessage.error('手机号格式不正确')
     return
   }
 
@@ -111,6 +147,8 @@ const resetForm = () => {
   Object.keys(customerForm).forEach((key) => {
     customerForm[key] = (key === 'sex' || key === 'status') ? null : ''
   })
+  // 清空手机号错误信息
+  phoneError.value = ''
 }
 </script>
 
@@ -120,5 +158,19 @@ const resetForm = () => {
   max-width: 600px;
   background: #fff;
   border-radius: 8px;
+}
+
+.phone-error {
+  color: #f56c6c;
+  font-size: 12px;
+  line-height: 1;
+  padding-top: 4px;
+  position: absolute;
+  top: 100%;
+  left: 0;
+}
+
+:deep(.el-form-item.is-error .el-input__inner) {
+  border-color: #f56c6c;
 }
 </style>

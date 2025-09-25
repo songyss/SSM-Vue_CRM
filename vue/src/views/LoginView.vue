@@ -93,33 +93,33 @@ const handleLogin = async () => {
         // 部门枚举（需求文档2.2.1/2.3.1/2.4.1：1=市场部，2=电话销售部，3=销售部）
         switch (true) {
           // 超级管理员（仅可访问管理员模块，需求文档2.1）
-          case role === 3:
-            router.push('/admin/employee-manage') // 员工管理页（需求2.1.1）
-            break
-          // 市场部经理（可访问市场部模块，需求文档2.2）
-          case role === 2 && department === 1:
-            router.push('/market/customer/pending-audit') // 客户待审核页（需求2.2.1）
-            break
-          // 电话销售部经理（可访问电话销售部模块，需求文档2.3）
-          case role === 2 && department === 2:
-            router.push('/sdr/customer/assign') // 客户分配页（需求2.3.1）
-            break
-          // 销售部经理（可访问销售部模块，需求文档2.4）
-          case role === 2 && department === 3:
-            router.push('/sales/customer/pending-allocate') // 客户待分配页（需求2.4.2）
-            break
-          // 市场部普通员工（仅可访问客户收集等基础功能，需求文档2.2.1）
-          case role === 1 && department === 1:
-            router.push('/market/customer/collect') // 客户信息收集页（需求2.2.1）
-            break
-          // 电话销售普通员工（仅可访问电话拜访功能，需求文档2.3.2）
-          case role === 1 && department === 2:
-            router.push('/sdr/customer/follow') // 客户电话跟进页（需求2.3.2）
-            break
-          // 销售部普通员工（仅可访问客户跟进等功能，需求文档2.4.4）
-          case role === 1 && department === 3:
-            router.push('/sales/customer/my-follow') // 我的客户跟进页（需求2.4.4）
-            break
+          // case role === 3:
+          //   router.push('/admin/employee-manage') // 员工管理页（需求2.1.1）
+          //   break
+          // // 市场部经理（可访问市场部模块，需求文档2.2）
+          // case role === 2 && department === 1:
+          //   router.push('/market/customer/pending-audit') // 客户待审核页（需求2.2.1）
+          //   break
+          // // 电话销售部经理（可访问电话销售部模块，需求文档2.3）
+          // case role === 2 && department === 2:
+          //   router.push('/sdr/customer/assign') // 客户分配页（需求2.3.1）
+          //   break
+          // // 销售部经理（可访问销售部模块，需求文档2.4）
+          // case role === 2 && department === 3:
+          //   router.push('/sales/customer/pending-allocate') // 客户待分配页（需求2.4.2）
+          //   break
+          // // 市场部普通员工（仅可访问客户收集等基础功能，需求文档2.2.1）
+          // case role === 1 && department === 1:
+          //   router.push('/market/customer/collect') // 客户信息收集页（需求2.2.1）
+          //   break
+          // // 电话销售普通员工（仅可访问电话拜访功能，需求文档2.3.2）
+          // case role === 1 && department === 2:
+          //   router.push('/sdr/customer/follow') // 客户电话跟进页（需求2.3.2）
+          //   break
+          // // 销售部普通员工（仅可访问客户跟进等功能，需求文档2.4.4）
+          // case role === 1 && department === 3:
+          //   router.push('/sales/customer/my-follow') // 我的客户跟进页（需求2.4.4）
+          //   break
           // 默认：跳转至系统首页（避免未定义角色/部门的异常）
           default:
             router.push('/dashboard')

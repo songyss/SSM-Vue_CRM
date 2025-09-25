@@ -9,23 +9,23 @@
         <el-input v-model="searchForm.phone" placeholder="输入手机号" clearable />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="handleSearch" v-if="permissionStore.hasButtonPermission('/customer/listByEmployee')">查询</el-button>
+        <el-button type="primary" @click="handleSearch">查询</el-button>
         <el-button @click="handleReset">重置</el-button>
       </el-form-item>
     </el-form>
 
     <!-- 客户表格 -->
     <el-table :data="customers" border stripe style="width: 100%; margin-top: 10px;">
-      <el-table-column prop="name" label="姓名" />
-      <el-table-column prop="phone" label="手机号" />
+      <el-table-column prop="name" label="姓名" width="80" />
+      <el-table-column prop="phone" label="手机号" width="150" />
       <el-table-column label="性别" width="80">
         <template #default="scope">
           <span>{{ scope.row.sex === 1 ? '男' : '女' }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="companyName" label="公司" />
-      <el-table-column prop="position" label="职位" />
-      <el-table-column label="状态">
+      <el-table-column prop="company" label="公司" width="120" />
+      <el-table-column prop="position" label="职位" width="100"/>
+      <el-table-column label="状态" width="100">
         <template #default="scope">
           <span>
             {{
@@ -39,17 +39,21 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="操作" width="260">
+      <!-- 操作列 -->
+      <el-table-column label="操作" min-width="300" fixed="right">
         <template #default="scope">
           <div class="action-buttons">
-            <el-button size="small" type="primary" text @click="showDetail(scope.row)" v-if="permissionStore.hasButtonPermission('/customer/detail/${row.id}')">
+            <el-button size="small" type="primary" text @click="showDetail(scope.row)">
               查看
             </el-button>
-            <el-button size="small" type="warning" text @click="openEdit(scope.row)" v-if="permissionStore.hasButtonPermission('/customer/update')">
+            <el-button size="small" type="warning" text @click="openEdit(scope.row)">
               修改
             </el-button>
-            <el-button size="small" type="success" text @click="openAddToPoolDialog(scope.row)" v-if="permissionStore.hasButtonPermission('/customer/addToPool')">
+            <el-button size="small" type="success" text @click="openAddToPoolDialog(scope.row)">
               加入客户池
+            </el-button>
+            <el-button size="small" type="info" text @click="addEmergency(scope.row)">
+              新增事件
             </el-button>
           </div>
         </template>
@@ -95,29 +99,10 @@
         <p><b>姓名：</b>{{ detailData.name }}</p>
         <p><b>手机号：</b>{{ detailData.phone }}</p>
         <p><b>性别：</b>{{ detailData.sex === 1 ? '男' : '女' }}</p>
-        <p><b>公司：</b>{{ detailData.companyName || '无' }}</p>
+        <p><b>公司：</b>{{ detailData.company || '无' }}</p>
         <p><b>职位：</b>{{ detailData.position || '无' }}</p>
         <p><b>客户来源：</b>{{ detailData.source || '无' }}</p>
         <p><b>销售备注：</b>{{ detailData.salesRemark || '无' }}</p>
-        <!-- 订单 -->
-        <div v-if="detailData.orders && detailData.orders.length">
-          <b>订单：</b>
-          <ul>
-            <li v-for="order in detailData.orders" :key="order.id">
-              {{ order.orderNumber }}
-            </li>
-          </ul>
-        </div>
-
-        <!-- 商机 -->
-        <div v-if="detailData.opportunities && detailData.opportunities.length">
-          <b>商机：</b>
-          <ul>
-            <li v-for="opp in detailData.opportunities" :key="opp.id">
-              {{ opp.name }}
-            </li>
-          </ul>
-        </div>
       </div>
 
       <!-- 编辑表单 -->
@@ -135,7 +120,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="公司">
-          <el-input v-model="editForm.companyName" />
+          <el-input v-model="editForm.company" />
         </el-form-item>
         <el-form-item label="职位">
           <el-input v-model="editForm.position" />
@@ -164,41 +149,50 @@
   </div>
 </template>
 
-<script setup>
-import {ref, reactive, onMounted} from "vue";
-import {ElMessage} from "element-plus";
+<script setup lang="ts">
+import { ref, reactive, onMounted } from "vue";
+import { ElMessage } from "element-plus";
 import request from "@/utils/request";
-import { usePermissionStore } from '@/stores/permission'
-const permissionStore = usePermissionStore()
+import { useRouter } from 'vue-router';
+import type { ResponseData } from "@/utils/request";
+
+const router = useRouter();
 
 // 数据
-const customers = ref([]);
-const searchForm = reactive({name: "", phone: ""});
-const pagination = reactive({currentPage: 1, pageSize: 10, total: 0});
+const customers = ref<any[]>([]);
+const searchForm = reactive({ name: "", phone: "" });
+const pagination = reactive({ currentPage: 1, pageSize: 10, total: 0 });
 
 // 用户信息
-let userInfo = {};
-try {
-  userInfo = JSON.parse(localStorage.getItem("crm_userInfo") || "{}");
-} catch (e) {
-  userInfo = {};
-}
+const userInfo = JSON.parse(localStorage.getItem("crm_userInfo") || "{}");
 
 // 详情 / 编辑
 const detailVisible = ref(false);
-const detailData = reactive({});
+const detailData = reactive<any>({});
 const editMode = ref(false);
-const editForm = reactive({});
+const editForm = reactive<any>({});
 
 // 加入客户池
 const addDialogVisible = ref(false);
 const reason = ref("");
-let currentCustomerId = null;
+let currentCustomerId: number | null = null;
 
-const openAddToPoolDialog = (row) => {
+const openAddToPoolDialog = (row: any) => {
   currentCustomerId = row.id;
   reason.value = "";
   addDialogVisible.value = true;
+};
+
+const addEmergency = (row: any) => {
+  router.push({
+    name: 'business.emergencies.report',
+    query: {
+      customerId: row.id,
+      customerName: row.name,
+      phone: row.phone,
+      company: row.company
+    }
+  });
 };
 
 const submitAddToPool = async () => {
@@ -207,12 +201,13 @@ const submitAddToPool = async () => {
     return;
   }
   try {
-    const res = await request.post("/customer/addToPool", {
+    const res = await request.post<ResponseData>("/customer/addToPool", {
       customerId: currentCustomerId,
       reason: reason.value,
       operatorId: userInfo.userId
     });
-    if (res.code === 200) {
+    const data = res.data;
+    if (data.code === 200) {
       ElMessage.success("客户已加入客户池");
       addDialogVisible.value = false;
       const idx = customers.value.findIndex((c) => Number(c.id) === Number(currentCustomerId));
@@ -224,8 +219,6 @@ const submitAddToPool = async () => {
         pagination.currentPage -= 1;
         loadData();
       }
-    } else {
-      ElMessage.error(res.message || "加入客户池失败");
     }
   } catch (e) {
     console.error(e);
@@ -233,10 +226,10 @@ const submitAddToPool = async () => {
   }
 };
 
-// ✅ 加载客户列表
+// 加载客户列表
 const loadData = async () => {
   try {
-    const res = await request.get("/customer/listByEmployee", {
+    const res = await request.get<ResponseData>(`/customer/myCustomers`, {
       params: {
         employeeId: userInfo.userId,
         pageNum: pagination.currentPage,
@@ -245,13 +238,11 @@ const loadData = async () => {
         phone: searchForm.phone
       }
     });
-    console.log("res ===>", res);
-    if (res.data.code === 200) {
-      customers.value = res.data.data.list;
-      pagination.total = res.data.total;
-      ElMessage.success("加载客户列表成功");
+    const data = res.data;
+    if (data.code === 200) {
+      customers.value = (data.data as any)?.list || [];
+      pagination.total = (data.data as any)?.total || 0;
     }
-
   } catch (e) {
     console.error(e);
     ElMessage.error("加载客户列表失败");
@@ -270,28 +261,25 @@ const handleReset = () => {
   loadData();
 };
 
-const handleSizeChange = (val) => {
+const handleSizeChange = (val: number) => {
   pagination.pageSize = val;
   loadData();
 };
 
-const handleCurrentChange = (val) => {
+const handleCurrentChange = (val: number) => {
   pagination.currentPage = val;
   loadData();
 };
 
-// ✅ 查看详情：调用后端 /customer/detail/{id}
-const showDetail = async (row) => {
+// 查看详情
+const showDetail = async (row: any) => {
   try {
-    const res = await request.get(`/customer/detail/${row.id}`);
-    console.log("res ===>", res);
-    if (res.data.code === 200) {
-      Object.assign(detailData, res.data.data);
-      console.log("detailData ===>", res.data);
+    const res = await request.get<ResponseData>(`/customer/detail/${row.id}`);
+    const data = res.data;
+    if (data.code === 200) {
+      Object.assign(detailData, data.data);
       detailVisible.value = true;
       editMode.value = false;
-    } else {
-      ElMessage.error(res.message || "加载客户详情失败");
     }
   } catch (e) {
     console.error(e);
@@ -299,7 +287,7 @@ const showDetail = async (row) => {
   }
 };
 
-const openEdit = (row) => {
+const openEdit = (row: any) => {
   Object.assign(editForm, row);
   detailVisible.value = true;
   editMode.value = true;
@@ -307,13 +295,12 @@ const openEdit = (row) => {
 
 const submitEdit = async () => {
   try {
-    const res = await request.post("/customer/update", editForm);
-    if (res.data.code === 200) {
+    const res = await request.post<ResponseData>("/customer/update", editForm);
+    const data = res.data;
+    if (data.code === 200) {
       ElMessage.success("更新成功");
       detailVisible.value = false;
       loadData();
-    } else {
-      ElMessage.error(res.message || "更新失败");
     }
   } catch (e) {
     console.error(e);
@@ -339,6 +326,12 @@ onMounted(loadData);
 
 .action-buttons {
   display: flex;
-  gap: 8px;
+  flex-wrap: nowrap;
+  gap: 4px;
+}
+
+.action-buttons .el-button {
+  padding: 0 6px;
+  font-size: 12px;
 }
 </style>

@@ -467,6 +467,7 @@ const handleEdit = (row: any) => {
   editForm.value = {
     id: row.id,
     orderNumber: row.orderNumber,
+    customerId: row.customerId,
     customerName: row.customerName,
     signedDate: row.signedDate,
     totalAmount: row.totalAmount,
@@ -475,6 +476,7 @@ const handleEdit = (row: any) => {
     notes: row.notes || ''
   }
   editDialogVisible.value = true
+  console.log('查看订单详情:', row)
 }
 
 // 确认编辑订单
@@ -483,6 +485,8 @@ const confirmEdit = async () => {
     const orderData = {
       id: editForm.value.id,
       orderStatus: parseInt(editForm.value.orderStatus) || 0, // 确保转换为整数，避免NaN
+      orderNumber: editForm.value.orderNumber,
+      customerId: editForm.value.customerId,
       fileUrl: editForm.value.fileUrl,
       notes: editForm.value.notes
     }
@@ -549,7 +553,7 @@ const confirmAdd = async () => {
         }
 
         const response = await request.put('/orders/add', orderData)
-        if (response && response.code === 200) {
+        if (response && response.data.code === 200) {
           ElMessage.success('订单新增成功')
           addDialogVisible.value = false
           fetchOrderList()

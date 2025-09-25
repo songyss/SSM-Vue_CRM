@@ -60,7 +60,7 @@
           <el-table-column prop="name" label="客户姓名" width="120" fixed="left" />
           <el-table-column prop="phone" label="手机号" width="150" fixed="left" />
           <el-table-column prop="sex" label="性别" width="80" />
-          <el-table-column prop="companyName" label="公司名称" width="200" />
+          <el-table-column prop="company" label="公司名称" width="200" />
           <el-table-column prop="position" label="职位" width="150" />
 
           <!-- 放入原因 -->
@@ -112,6 +112,7 @@ import { usePermissionStore } from '@/stores/permission'
 const permissionStore = usePermissionStore()
 
 // ================== 登录用户信息 ==================
+
 let userInfo = {};
 try {
   userInfo = JSON.parse(localStorage.getItem("crm_userInfo") || "{}");
@@ -147,10 +148,12 @@ const loadCustomerData = async () => {
   try {
     // 开启加载状态
     loading.value = true;
+    const res = await request.get("/customer/poolList");
+
     // 发送请求获取客户数据
-    const response = await request.get("/customer/poolListAdd");
-    console.log("response ===>", response);
-    const data = response.data;
+
+
+    const data = res.data;
 
     if (data.code === 200 && Array.isArray(data.data)) {
       customerData.value = data.data;
@@ -202,14 +205,19 @@ const handleLock = (row) => {
   })
     .then(async () => {
       try {
-        const res = await request.post(`/customer/lock/${row.id}`, {
+        console.log('锁定客户请求参数:', {
+          customerId: row.id,
           employeeId: userInfo.userId
         });
+        const res = await request.post(`/customer/lock/${row.id}`, {
+          customerId: row.id,
+          employeeId: userInfo.userId
+        });
+        console.log('锁定客户响应:', res);
         if (res.data.code === 200) {
           ElMessage.success("锁定成功");
           // 移除该客户（前端立即消失）
-          filteredCustomers.value = filteredCustomers.value.filter(c => c.id !== row.id);
-          customerData.value = customerData.value.filter(c => c.id !== row.id);
+          loadCustomerData(); // 刷新客户池
         } else {
           ElMessage.error(res.data.message || "锁定失败");
         }
