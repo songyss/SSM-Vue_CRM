@@ -19,6 +19,11 @@ public interface ActivityReportMapper {
     // 按状态查询活动报告
     List<ActivityReports> getActivityReportByStatus(@Param("status")  int status);
 
+    // 组合条件查询活动报告（按标题和时间范围）
+    List<ActivityReports> getActivityReportByCondition(@Param("title") String title,
+                                                       @Param("startDate") String startDate,
+                                                       @Param("endDate") String endDate);
+
     // 更改活动报告
     int updateActivityReport( ActivityReports report);
 

@@ -273,9 +273,9 @@ public class SalesEmergencyController {
     @PutMapping("/{id}/solve")
     public R markAsSolved(@PathVariable("id") Integer id,
                           @RequestParam("empId") Integer empId,
-                          @RequestBody Map<String, String> requestBody) {
+                          @RequestParam("solutionDescription") String solutionDescription) {
         try {
-            String solutionDescription = requestBody.get("solutionDescription");
+
             salesEmergencyService.markAsSolved(id, empId, solutionDescription);
             return R.okMessage("标记成功");
         } catch (Exception e) {

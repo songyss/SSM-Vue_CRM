@@ -8,7 +8,7 @@
         </div>
       </template>
 
-      <el-table :data="pendingEmergencies" border style="width: 100%">
+      <el-table :data="pendingEmergencies" border style="width: 100%" v-if=hasPermission>
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="title" label="标题" width="180" />
         <el-table-column prop="type" label="类型" width="120">
@@ -41,6 +41,7 @@
           </template>
         </el-table-column>
       </el-table>
+      <el-empty description="您没有权限查看此页面" />
     </el-card>
 
     <!-- 详情弹窗 -->
@@ -71,10 +72,18 @@
               {{ getRiskLevelName(detailData.riskLevel) }}
             </el-tag>
           </el-descriptions-item>
-          <el-descriptions-item label="描述" :span="2">{{ detailData.description }}</el-descriptions-item>
-          <el-descriptions-item label="客户需求" :span="2">{{ detailData.customerRequest }}</el-descriptions-item>
-          <el-descriptions-item label="解决方案" :span="2">{{ detailData.solutionContent }}</el-descriptions-item>
-          <el-descriptions-item label="成本影响" :span="2">{{ detailData.costImpact }}</el-descriptions-item>
+          <el-descriptions-item label="描述" :span="2">{{
+            detailData.description
+          }}</el-descriptions-item>
+          <el-descriptions-item label="客户需求" :span="2">{{
+            detailData.customerRequest
+          }}</el-descriptions-item>
+          <el-descriptions-item label="解决方案" :span="2">{{
+            detailData.solutionContent
+          }}</el-descriptions-item>
+          <el-descriptions-item label="成本影响" :span="2">{{
+            detailData.costImpact
+          }}</el-descriptions-item>
           <el-descriptions-item label="发生时间">{{ detailData.occurTime }}</el-descriptions-item>
           <el-descriptions-item label="截止时间">{{ detailData.deadline }}</el-descriptions-item>
           <el-descriptions-item label="创建时间">{{ detailData.createdTime }}</el-descriptions-item>
@@ -112,6 +121,9 @@ import { ref, reactive, onMounted } from 'vue' // 添加 reactive 导入
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
 import type { ResponseData } from '@/utils/request'
+
+import { usePermissionStore } from '@/stores/permission'
+const permissionStore = usePermissionStore()
 
 // 类型映射
 const typeMap: Record<string, string> = {
@@ -169,44 +181,64 @@ const getRiskLevelName = (riskLevel: string): string => {
 // 获取类型标签样式
 const getTypeTagType = (type: string): string => {
   switch (type) {
-    case 'DISCOUNT': return 'warning'
-    case 'PAYMENT': return 'danger'
-    case 'DELIVERY': return 'primary'
-    case 'CONTRACT': return 'success'
-    default: return 'info'
+    case 'DISCOUNT':
+      return 'warning'
+    case 'PAYMENT':
+      return 'danger'
+    case 'DELIVERY':
+      return 'primary'
+    case 'CONTRACT':
+      return 'success'
+    default:
+      return 'info'
   }
 }
 
 // 获取状态标签样式
 const getStatusTagType = (status: string): string => {
   switch (status) {
-    case 'DRAFT': return 'info'
-    case 'PENDING': return 'warning'
-    case 'APPROVED': return 'success'
-    case 'REJECTED': return 'danger'
-    case 'SOLVED': return 'success'
-    default: return 'info'
+    case 'DRAFT':
+      return 'info'
+    case 'PENDING':
+      return 'warning'
+    case 'APPROVED':
+      return 'success'
+    case 'REJECTED':
+      return 'danger'
+    case 'SOLVED':
+      return 'success'
+    default:
+      return 'info'
   }
 }
 
 // 获取紧急程度标签样式
 const getUrgencyTagType = (urgency: number): string => {
   switch (urgency) {
-    case 1: return 'danger'  // 特急 - 红色
-    case 2: return 'warning' // 紧急 - 橙色
-    case 3: return 'primary' // 普通 - 蓝色
-    case 4: return 'info'    // 低 - 灰色
-    default: return 'info'
+    case 1:
+      return 'danger' // 特急 - 红色
+    case 2:
+      return 'warning' // 紧急 - 橙色
+    case 3:
+      return 'primary' // 普通 - 蓝色
+    case 4:
+      return 'info' // 低 - 灰色
+    default:
+      return 'info'
   }
 }
 
 // 获取风险等级标签样式
 const getRiskLevelTagType = (riskLevel: string): string => {
   switch (riskLevel) {
-    case 'HIGH': return 'danger'   // 高风险 - 红色
-    case 'MEDIUM': return 'warning' // 中风险 - 橙色
-    case 'LOW': return 'success'   // 低风险 - 绿色
-    default: return 'info'
+    case 'HIGH':
+      return 'danger' // 高风险 - 红色
+    case 'MEDIUM':
+      return 'warning' // 中风险 - 橙色
+    case 'LOW':
+      return 'success' // 低风险 - 绿色
+    default:
+      return 'info'
   }
 }
 
@@ -245,7 +277,6 @@ const viewDetail = (row: any) => {
 // 批准
 const approve = async (row: any) => {
   try {
-
     const userInfo = localStorage.getItem('crm_userInfo')
     const managerId = userInfo ? JSON.parse(userInfo).userId : null
 
@@ -256,14 +287,16 @@ const approve = async (row: any) => {
     await ElMessageBox.confirm('确定要批准该突发事件吗？', '确认批准', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
-      type: 'warning'
+      type: 'warning',
     })
 
-    const res = await request.put<ResponseData>(`/api/salesEmergency/${row.id}/approve?managerId=${managerId}`)
+    const res = await request.put<ResponseData>(
+      `/api/salesEmergency/${row.id}/approve?managerId=${managerId}`,
+    )
     if (res.data.code === 200) {
       ElMessage.success('批准成功')
       // 从列表中移除
-      pendingEmergencies.value = pendingEmergencies.value.filter(item => item.id !== row.id)
+      pendingEmergencies.value = pendingEmergencies.value.filter((item) => item.id !== row.id)
     } else {
       ElMessage.error(res.data.message || '批准失败')
     }
@@ -287,7 +320,6 @@ const confirmReject = async () => {
   if (!currentRejectRow.value) return
 
   try {
-
     const userInfo = localStorage.getItem('crm_userInfo')
     const managerId = userInfo ? JSON.parse(userInfo).userId : null
     console.log('managerId:', managerId)
@@ -295,12 +327,16 @@ const confirmReject = async () => {
       ElMessage.error('未检测到登录用户信息')
       return
     }
-    const res = await request.put<ResponseData>(`/api/salesEmergency/${currentRejectRow.value.id}/reject?managerId=${managerId}&reason=${rejectForm.reason}`)
+    const res = await request.put<ResponseData>(
+      `/api/salesEmergency/${currentRejectRow.value.id}/reject?managerId=${managerId}&reason=${rejectForm.reason}`,
+    )
 
     if (res.data.code === 200) {
       ElMessage.success('拒绝成功')
       // 从列表中移除
-      pendingEmergencies.value = pendingEmergencies.value.filter(item => item.id !== currentRejectRow.value.id)
+      pendingEmergencies.value = pendingEmergencies.value.filter(
+        (item) => item.id !== currentRejectRow.value.id,
+      )
       rejectDialogVisible.value = false
     } else {
       ElMessage.error(res.data.message || '拒绝失败')
@@ -311,8 +347,13 @@ const confirmReject = async () => {
   }
 }
 
+const hasPermission = ref(true)
+
 onMounted(() => {
-  loadPendingEmergencies()
+  hasPermission.value = permissionStore.hasButtonPermission('/emergency/approve')
+  if (hasPermission.value) {
+    loadPendingEmergencies()
+  }
 })
 </script>
 

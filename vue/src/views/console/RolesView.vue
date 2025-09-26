@@ -67,7 +67,7 @@
       </el-dialog>
 
       <!-- 权限分配对话框 -->
-<el-dialog title="分配权限" v-model="authDialogVisible" width="500px">
+<el-dialog title="分配权限" v-model="authDialogVisible" width="600px">
   <el-form :model="authForm" label-width="100px">
     <el-form-item label="角色名称">
       <el-input v-model="authForm.roleName" disabled />

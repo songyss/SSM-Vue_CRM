@@ -16,10 +16,10 @@ public class AfterSaleOrdersController {
     private AfterSaleOrderService afterSaleOrderService;
 
     @GetMapping("/getAfterSaleOrderByStatus")
-    public R getAfterSaleOrderByStatus(@RequestParam(value = "afterSaleStatus",defaultValue = "1") Integer afterSaleStatus){
-        List<AfterSaleOrder> afterSaleOrders = afterSaleOrderService.getAfterSaleOrderByStatus(afterSaleStatus);
+    public R getAfterSaleOrderByStatus(){
+        List<AfterSaleOrder> afterSaleOrders = afterSaleOrderService.getAfterSaleOrderByStatus();
         // 正确的判断逻辑：检查列表是否不为空且包含元素
-        if (afterSaleOrders.size()>0) {
+        if (afterSaleOrders.size()>=0) {
             return R.ok(afterSaleOrders);
         } else {
             return R.error() ;
@@ -63,7 +63,7 @@ public class AfterSaleOrdersController {
         if (afterSaleOrders != null && !afterSaleOrders.isEmpty()) {
             return R.ok(afterSaleOrders);
         } else {
-            return R.error();
+            return R.okMessage("没有符合条件的售后订单");
         }
     }
 

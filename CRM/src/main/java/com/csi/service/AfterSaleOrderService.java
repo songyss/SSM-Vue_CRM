@@ -7,7 +7,7 @@ import java.util.List;
 public interface AfterSaleOrderService {
 
     //根据状态查询售后订单
-    List<AfterSaleOrder> getAfterSaleOrderByStatus(int afterSaleStatus);
+    List<AfterSaleOrder> getAfterSaleOrderByStatus();
     //根据订单号查询售后订单
     List<AfterSaleOrder> getAfterSaleOrderByOrderNumber(String orderNumber);
     //    根据时间范围查询售后订单

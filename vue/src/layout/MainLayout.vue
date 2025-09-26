@@ -58,6 +58,16 @@
             </template>
           </el-sub-menu>
         </template>
+
+        <el-menu-item index="/formCreate">
+          <el-icon><House /></el-icon>
+          <span v-if="!isCollapsed">表单构建</span>
+        </el-menu-item>
+
+        <el-menu-item index="/about">
+          <el-icon><House /></el-icon>
+          <span v-if="!isCollapsed">about</span>
+        </el-menu-item>
       </el-menu>
     </el-aside>
 

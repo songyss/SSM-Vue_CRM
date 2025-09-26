@@ -43,7 +43,6 @@
         LEFT JOIN plan_status ps ON pp.status = ps.plan_id
         LEFT JOIN employees s ON pp.submitter_id = s.id
         LEFT JOIN employees a ON pp.approver_id = a.id
-        WHERE pp.status = 0;
     </select>
 
 

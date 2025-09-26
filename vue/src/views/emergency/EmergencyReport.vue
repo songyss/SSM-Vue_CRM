@@ -218,7 +218,7 @@ const submitForm = async () => {
     // 🔵 成功后显示“提交给了谁”
     const leader = res.data?.data?.leaderName
     if (leader) {
-      ElMessage.success(`提交成功，提交给了：${leader}`)
+      ElMessage.success("新增成功，已添加至事件列表")
     } else {
       ElMessage.success(res.data?.message || '提交成功')
     }

@@ -1119,9 +1119,9 @@ const saveLead = async () => {
     }
 
     // 确保响应存在并具有code属性
-    if (response && typeof response === 'object' && 'code' in response) {
-      if (response.code === 200) {
-        ElMessage.success(response.message || (leadToSave.id ? '更新成功' : '新增成功'))
+    if (response) {
+      if (response.data.code === 200) {
+        ElMessage.success(response.data.message || (leadToSave.id ? '更新成功' : '新增成功'))
         // 如果是从其他阶段更新为"赢单"，提示用户订单已自动创建
         if (isStageChangedToWin) {
           ElMessage.success('商机已更新为赢单，系统已自动创建订单')

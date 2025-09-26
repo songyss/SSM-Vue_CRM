@@ -111,5 +111,7 @@ export const moduleRouteMap: Record<number, RouteRecordRaw>  = {
       permission: 'aftersale:module',
       moduleId: 10
     },
-  }
+  },
+
+
 }

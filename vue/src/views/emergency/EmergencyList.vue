@@ -34,7 +34,11 @@
       <template #header>
         <div class="card-header">
           <span>突发事件列表</span>
-          <el-button type="primary" @click="loadData">刷新</el-button>
+          <div style="display: flex; gap: 10px;">
+            <el-button type="primary" @click="loadData">刷新</el-button>
+            <el-button type="success" @click="navigateToReport">新增报告</el-button>
+            <el-button @click="navigateToApproval">审批处理</el-button>
+          </div>
         </div>
       </template>
 
@@ -98,6 +102,7 @@
         size="small"
         type="success"
         @click="markAsSolved(row)"
+        style="width: 60px;"
       >
         标记解决
       </el-button>
@@ -172,9 +177,15 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
 import type { ResponseData } from '@/utils/request'
+import { useRouter } from 'vue-router'
+
+import { usePermissionStore } from '@/stores/permission'
+const permissionStore = usePermissionStore()
+
+const router = useRouter()
 
 // 数据
 const emergencies = ref<any[]>([])
@@ -306,7 +317,7 @@ const submitForApproval = async (row: any) => {
     const res = await request.put<ResponseData>(`/api/salesEmergency/${row.id}/submit?empId=${empId}`)
     console.log('提交审批响应:', res)
     if (res.data.code === 200) {
-      ElMessage.success('提交成功')
+      ElMessage.success('提交成功，')
       // 更新本地数据状态
       row.status = 'PENDING'
       // 重新加载数据
@@ -446,6 +457,16 @@ const viewDetail = async (id: number) => {
     console.error('加载事件详情失败:', e)
     ElMessage.error('加载事件详情失败: ' + (e.message || '网络错误'))
   }
+}
+
+// 导航到新增报告页面
+const navigateToReport = () => {
+  router.push('/business/emergencies/report')
+}
+
+// 导航到审批处理页面
+const navigateToApproval = () => {
+  router.push('/business/emergencies/approval')
 }
 
 onMounted(() => {

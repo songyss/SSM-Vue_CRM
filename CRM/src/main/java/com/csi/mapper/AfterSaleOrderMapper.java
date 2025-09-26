@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface AfterSaleOrderMapper {
     int saveAfterSaleOrder(AfterSaleOrder afterSaleOrder);
-    List<AfterSaleOrder> getAfterSaleOrderByStatus(int afterSaleStatus);
+    List<AfterSaleOrder> getAfterSaleOrderByStatus();
 
     List<AfterSaleOrder> getAfterSaleOrderByOrderNumber(String orderNumber);
     List<AfterSaleOrder> getAfterSaleOrderByDateRange(@Param("startDate")String startDate,@Param("endDate")String endDate);

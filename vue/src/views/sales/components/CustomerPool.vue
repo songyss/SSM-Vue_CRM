@@ -54,7 +54,8 @@
           :data="paginatedCustomers"
           border
           stripe
-          height="500"
+          v-loading="loading"
+          empty-text="暂无数据"
           style="width: 100%; min-width: 1000px;"
         >
           <el-table-column prop="name" label="客户姓名" width="120" fixed="left" />
@@ -295,9 +296,9 @@ onMounted(() => {
   border-radius: 6px;
   padding: 12px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-  overflow: auto;
-  margin: 0 -12px;
-  width: calc(100% + 24px);
+  overflow: hidden;
+  margin: 0 auto;
+  max-width: 100%;
 }
 
 .table-wrapper {

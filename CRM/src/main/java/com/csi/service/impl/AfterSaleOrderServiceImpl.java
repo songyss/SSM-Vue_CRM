@@ -22,8 +22,8 @@ public class AfterSaleOrderServiceImpl implements AfterSaleOrderService {
      * 根据售后状态查询售后订单
      * */
     @Override
-    public List<AfterSaleOrder> getAfterSaleOrderByStatus(int afterSaleStatus) {
-        return afterSaleOrderMapper.getAfterSaleOrderByStatus(afterSaleStatus);
+    public List<AfterSaleOrder> getAfterSaleOrderByStatus() {
+        return afterSaleOrderMapper.getAfterSaleOrderByStatus();
     }
     /**
      * 根据售后订单编号查询售后订单
@@ -60,6 +60,16 @@ public class AfterSaleOrderServiceImpl implements AfterSaleOrderService {
             Orders orders = new Orders();
             orders.setOrderNumber(afterSaleOrder.getOrderNumber());
             orders.setOrderStatus(4);
+            // 先根据订单号查询订单ID，再更新订单状态
+            Orders existingOrder = ordersService.getOrdersByOrderNumber(afterSaleOrder.getOrderNumber());
+            if (existingOrder != null) {
+                orders.setId(existingOrder.getId());
+                ordersService.updateOrdersStatus(orders);
+            }
+        }else if (afterSaleOrder.getAfterSaleStatus()==4){
+            Orders orders = new Orders();
+            orders.setOrderNumber(afterSaleOrder.getOrderNumber());
+            orders.setOrderStatus(7);
             // 先根据订单号查询订单ID，再更新订单状态
             Orders existingOrder = ordersService.getOrdersByOrderNumber(afterSaleOrder.getOrderNumber());
             if (existingOrder != null) {

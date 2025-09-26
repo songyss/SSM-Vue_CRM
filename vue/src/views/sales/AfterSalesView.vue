@@ -15,13 +15,14 @@
           class="el-input"
         />
       </el-form-item>
-      <el-form-item label="订单状态" label-width="65px" class="el-form-item">
+      <el-form-item label="订单状态" label-width="70px" class="el-form-item">
         <el-select
           v-model="searchForm.status"
           placeholder="请选择"
           clearable
           size="small"
           class="el-select"
+          style="width: 120px"
         >
           <el-option label="待处理" value="1"/>
           <el-option label="处理中" value="2"/>
@@ -30,7 +31,7 @@
           <el-option label="已驳回" value="5"/>
         </el-select>
       </el-form-item>
-      <el-form-item label="申请时间" label-width="65px" class="el-form-item">
+      <el-form-item label="申请时间" label-width="70px" class="el-form-item">
         <el-date-picker
           v-model="searchForm.dateRange"
           type="daterange"
@@ -359,11 +360,7 @@ const fetchAfterSales = async () => {
     // 默认查询待处理状态
     else {
       try {
-        data = await request.get('/afterSaleOrders/getAfterSaleOrderByStatus', {
-          params: {
-            afterSaleStatus: 1  // 默认查询待处理状态
-          }
-        });
+        data = await request.get('/afterSaleOrders/getAfterSaleOrderByStatus');
       } catch (error) {
         ElMessage.error('查询默认数据失败: ' + (error.message || '网络错误'));
         return;

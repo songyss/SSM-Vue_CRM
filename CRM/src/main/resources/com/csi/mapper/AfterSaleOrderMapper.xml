@@ -4,7 +4,7 @@
     <!--获取售后订单信息-->
     <insert id="saveAfterSaleOrder">
         insert into after_sale_order(order_number, customer_id, total_amount, signed_date,
-                                 after_sale_status, after_sale_apply_time, file_url, notes, create_time)
+                                     after_sale_status, after_sale_apply_time, file_url, notes, create_time)
         values (#{orderNumber}, #{customerId}, #{totalAmount}, #{signedDate},
                 #{afterSaleStatus}, #{afterSaleApplyTime}, #{fileUrl}, #{notes}, #{createTime})
     </insert>
@@ -12,41 +12,40 @@
 
     <select id="getAfterSaleOrderByStatus" resultType="com.csi.domain.AfterSaleOrder">
         select
-            a.id,
-            a.order_number,
-            c.name as customer_name,
-            a.total_amount,
-            a.signed_date,
-            a.after_sale_status,
-            a.after_sale_apply_time,
-            a.after_sale_complete_time,
-            a.after_sale_handler_id,
-            a.file_url,
-            a.notes,
-            s.status_name,
-            a.create_time,
-            a.update_time
+        a.id,
+        a.order_number,
+        c.name as customer_name,
+        a.total_amount,
+        a.signed_date,
+        a.after_sale_status,
+        a.after_sale_apply_time,
+        a.after_sale_complete_time,
+        a.after_sale_handler_id,
+        a.file_url,
+        a.notes,
+        s.status_name,
+        a.create_time,
+        a.update_time
         from after_sale_order as a
-                 left join aftersale_status as s on a.after_sale_status = s.id
-                 left join customers c on a.customer_id = c.id
-        where after_sale_status = #{afterSaleStatus}
+        left join aftersale_status as s on a.after_sale_status = s.id
+        left join customers c on a.customer_id = c.id
+
     </select>
     <select id="getAfterSaleOrderByOrderNumber" resultType="com.csi.domain.AfterSaleOrder">
-        select
-            a.id,
-            a.order_number,
-            c.name as customer_name,
-            a.total_amount,
-            a.signed_date,
-            a.after_sale_status,
-            a.after_sale_apply_time,
-            a.after_sale_complete_time,
-            a.after_sale_handler_id,
-            a.file_url,
-            a.notes,
-            s.status_name,
-            a.create_time,
-            a.update_time
+        select a.id,
+               a.order_number,
+               c.name as customer_name,
+               a.total_amount,
+               a.signed_date,
+               a.after_sale_status,
+               a.after_sale_apply_time,
+               a.after_sale_complete_time,
+               a.after_sale_handler_id,
+               a.file_url,
+               a.notes,
+               s.status_name,
+               a.create_time,
+               a.update_time
         from after_sale_order as a
                  left join aftersale_status as s on a.after_sale_status = s.id
                  left join customers c on a.customer_id = c.id
@@ -126,7 +125,9 @@
         order by a.create_time desc
     </select>
 
-    <update id="updateAfterSaleOrder" >
-        update after_sale_order set after_sale_status = #{afterSaleStatus} where order_number = #{orderNumber}
+    <update id="updateAfterSaleOrder">
+        update after_sale_order
+        set after_sale_status = #{afterSaleStatus}
+        where order_number = #{orderNumber}
     </update>
 </mapper>

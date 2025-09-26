@@ -75,6 +75,7 @@
                 type="primary"
                 :disabled="row.planStatusName !== '待审批'"
                 @click="handleApprovePlan(row)"
+                v-if="permissionStore.hasButtonPermission('/marketActivity/approve')"
               >
                 审批
               </el-button>
@@ -568,7 +569,7 @@
           <el-table-column label="操作" width="150" fixed="right" align="center">
             <template #default="{ row }">
               <el-button size="small" @click="handleEditReport(row)">编辑</el-button>
-              <el-button size="small" type="danger" @click="handleDeleteReport(row)">删除</el-button>
+              <el-button size="small" type="danger" @click="handleDeleteReport(row)" v-if="permissionStore.hasButtonPermission('/activityReport/delete')">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -683,6 +684,9 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
 import { useRouter } from 'vue-router'
 import { Calendar, TrendCharts, Document, Expand, Fold } from '@element-plus/icons-vue'
+
+import { usePermissionStore } from '@/stores/permission'
+const permissionStore = usePermissionStore()
 
 // 获取路由实例
 const router = useRouter()

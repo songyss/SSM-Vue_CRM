@@ -100,6 +100,22 @@ const router = createRouter({
             },
           ],
         },
+
+        {
+          path: '/formCreate',
+          name: 'formCreate',
+          component: () => import('../views/FormView.vue'),
+          meta: { title: '表单创建', icon: 'edit', requiresAuth: true },
+
+        },
+
+
+        {
+          path: '/about',
+          name: 'about',
+          component: () => import('../views/AboutView.vue'),
+          meta: { title: 'about', icon: 'edit', requiresAuth: true },
+        }
       ],
     },
   ],

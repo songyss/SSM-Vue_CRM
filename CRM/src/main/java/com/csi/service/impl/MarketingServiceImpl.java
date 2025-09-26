@@ -83,6 +83,8 @@ public class MarketingServiceImpl implements MarketingService {
                 activity.setActivityStatus(1);
                 activity.setCreateTime(new DateTime().toString());
                 result = marketActivitiesService.addMarketActivity(activity);
+            } else if (promotionPlans.getStatus() == 2) {
+                result = promotionPlansMapper.updateByStatus(promotionPlans.getStatus(), promotionPlans.getId(),promotionPlans.getApproverId(),promotionPlans.getFeedback());
             }
         }
         return result;
