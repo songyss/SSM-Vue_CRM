@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 
 @Configuration
-@ComponentScan("com.csi.service")
+@ComponentScan({"com.csi.service","com.csi.util"})
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
 public class ServiceJavaConfig {

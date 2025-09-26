@@ -55,6 +55,17 @@
             <el-button size="small" type="info" text @click="addEmergency(scope.row)">
               新增事件
             </el-button>
+
+            <!-- 新增：生成 AI 话术 按钮 -->
+            <el-button 
+              size="small" 
+              type="primary" 
+              text 
+              @click="generateScript(scope.row)"
+              :loading="scope.row.generating"
+            >
+              {{ scope.row.generating ? '生成中...' : '生成话术' }}
+            </el-button>
           </div>
         </template>
       </el-table-column>
@@ -151,7 +162,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from "vue";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import request from "@/utils/request";
 import { useRouter } from 'vue-router';
 import type { ResponseData } from "@/utils/request";
@@ -312,6 +323,45 @@ const handleClose = () => {
   editMode.value = false;
 };
 
+// ========== 新增：生成 AI 话术 ==========
+const generateScript = async (row: any) => {
+  row.generating = true;
+  try {
+    const res = await request.post<ResponseData>("/ai/script/generate", {
+      customerId: row.id,
+      scenario: "客户沟通"
+    },
+    {
+      timeout: 60000 // ⬅ 这里设置请求超时时间为 60 秒
+    });
+    const data = res.data;
+    if (data.code === 200) {
+      const scriptText = data.data || "AI 未返回话术内容";
+      ElMessage.success("话术生成成功");
+      // 用弹窗展示（如果是多行文本，弹窗也会展示）
+      ElMessageBox.alert(
+        `<div class="ai-script-container">
+          <h3>${row.name}的专属沟通话术</h3>
+          <div class="ai-script-content">${scriptText.replace(/\n/g, '<br>')}</div>
+        </div>`, 
+        "专属沟通话术", {
+          confirmButtonText: "确定",
+          dangerouslyUseHTMLString: true,
+          customClass: 'ai-script-dialog'
+        }
+      );
+    } else {
+      ElMessage.error(data.message || "生成失败");
+    }
+  } catch (e) {
+    console.error(e);
+    ElMessage.error("调用AI失败");
+  } finally {
+    row.generating = false;
+  }
+};
+// ======================================
+
 onMounted(loadData);
 </script>
 
@@ -327,11 +377,96 @@ onMounted(loadData);
 .action-buttons {
   display: flex;
   flex-wrap: nowrap;
-  gap: 4px;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 1px;
+  scrollbar-width: none; /* 隐藏滚动条 */
+}
+
+.action-buttons::-webkit-scrollbar {
+  height: 1px;
+  background-color: transparent;
+}
+
+.action-buttons::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 0.5px;
+}
+
+.action-buttons:hover::-webkit-scrollbar-thumb {
+  background-color: #c0c4cc;
+}
+
+.action-buttons::-webkit-scrollbar-track {
+  background-color: transparent;
 }
 
 .action-buttons .el-button {
-  padding: 0 6px;
+  padding: 0 8px;
   font-size: 12px;
+  margin-bottom: 4px;
+  height: 28px;
+  border-radius: 4px;
+}
+
+.action-buttons .el-button--primary {
+  background-color: #f0f7ff;
+  border-color: #409eff;
+}
+
+.action-buttons .el-button--success {
+  background-color: #f0f9eb;
+  border-color: #67c23a;
+}
+
+.action-buttons .el-button--warning {
+  background-color: #fdf6ec;
+  border-color: #e6a23c;
+}
+
+.action-buttons .el-button--info {
+  background-color: #f4f4f5;
+  border-color: #909399;
+}
+
+.action-buttons .el-button--danger {
+  background-color: #fef0f0;
+  border-color: #f56c6c;
+}
+
+.action-buttons .el-button:last-child {
+  margin-left: auto;
+  background-color: #409eff;
+  color: white;
+  border: none;
+  font-weight: 500;
+}
+
+.action-buttons .el-button:last-child:hover {
+  background-color: #66b1ff;
+}
+</style>
+
+<style>
+.ai-script-dialog {
+  max-width: 800px;
+}
+
+.ai-script-container {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.ai-script-content {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: #f5f7fa;
+  border-radius: 8px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  font-size: 15px;
+  color: #333;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 </style>
