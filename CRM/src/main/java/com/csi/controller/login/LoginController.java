@@ -4,6 +4,7 @@ import com.csi.annotation.OperateLog;
 import com.csi.domain.Employee;
 import com.csi.service.EmployeeService;
 import com.csi.util.JwtTokenUtils;
+import com.csi.util.PasswordUtil;
 import com.csi.util.R;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -20,15 +21,17 @@ public class LoginController {
     private EmployeeService employeeService;
 
     @PostMapping("/login")
-    @OperateLog(operation = "登录",targetType = "employee")
+    @OperateLog(operation = "登录",targetType = "员工")
     public R login(@RequestBody Map<String, String> loginParam){
+
 
         String username = loginParam.get("username");
         String password = loginParam.get("password");
 
-        Employee login = employeeService.login(username, password);
+        Employee login = employeeService.login(username);
+        boolean verify = PasswordUtil.verify(login.getPassword(), password);
 
-        if (login == null) { // 实际需加密校验
+        if (!verify) { // 实际需加密校验
             return R.loginFail();
         }
 

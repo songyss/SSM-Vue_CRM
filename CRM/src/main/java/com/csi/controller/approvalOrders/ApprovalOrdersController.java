@@ -1,5 +1,6 @@
 package com.csi.controller.approvalOrders;
 
+import com.csi.annotation.OperateLog;
 import com.csi.domain.ApprovalOrders;
 import com.csi.service.ApprovalOrdersService;
 import com.csi.util.R;
@@ -26,6 +27,7 @@ public class ApprovalOrdersController {
      * @return 添加结果，成功返回订单ID，失败返回错误信息
      */
     @PutMapping("/add")
+    @OperateLog(operation = "添加审批订单", targetType = "approvalOrders")
     public R insert(@RequestBody ApprovalOrders approvalOrders) {
         // 设置默认状态为1（待审批）
         approvalOrders.setStatus(1);
@@ -49,6 +51,7 @@ public class ApprovalOrdersController {
      * @return 审批结果，成功返回更新记录数，失败返回错误信息
      */
     @PatchMapping("/approve")
+    @OperateLog(operation = "审批订单", targetType = "approvalOrders")
     public R approve(@RequestBody ApprovalOrders approvalOrders) {
         // 设置审批人ID为2002（经理）
         approvalOrders.setApproverId(2002);
@@ -68,6 +71,7 @@ public class ApprovalOrdersController {
      * @return 所有审批订单列表
      */
     @GetMapping("/list")
+    @OperateLog(operation = "获取所有审批订单列表", targetType = "approvalOrders")
     public R selectAll() {
         List<ApprovalOrders> approvalOrders = approvalOrdersService.selectAll();
         return R.ok(approvalOrders) ;
@@ -79,6 +83,7 @@ public class ApprovalOrdersController {
      * @return 审批订单列表
      */
     @GetMapping("/personal")
+    @OperateLog(operation = "根据审批人ID查询审批订单列表", targetType = "approvalOrders")
     public R selectPersonal(@RequestParam("approverId") int approverId) {
         List<ApprovalOrders> approvalOrders = approvalOrdersService.selectByApproverId(approverId);
         return R.ok(approvalOrders) ;
@@ -90,6 +95,7 @@ public class ApprovalOrdersController {
      * @return 审批订单列表
      */
     @GetMapping("/byApplicant")
+    @OperateLog(operation = "根据申请人ID查询审批订单列表", targetType = "approvalOrders")
     public R selectByApplicant(@RequestParam("applicantId") int applicantId) {
         List<ApprovalOrders> approvalOrders = approvalOrdersService.selectByApplicantId(applicantId);
         return R.ok(approvalOrders) ;
@@ -100,6 +106,7 @@ public class ApprovalOrdersController {
      * @return 待审批订单数量
      */
     @GetMapping("/pendingCount")
+    @OperateLog(operation = "获取待审批的订单数量", targetType = "approvalOrders")
     public R getPendingApprovalCount() {
         // 获取所有待审批的订单 (状态为1表示待审批)
         List<ApprovalOrders> allOrders = approvalOrdersService.selectAll();

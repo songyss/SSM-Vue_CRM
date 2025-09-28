@@ -64,7 +64,8 @@
         e.create_time,
         e.update_time,
         e.superior_id,
-        sup.name as superiorName
+        sup.name as superiorName,
+        e.is_delete
         from employees e
         join departments d on e.department = d.department_id
         join roles r on e.role = r.id
@@ -85,7 +86,9 @@
             <if test="conditions.email != null and conditions.email != ''">
                 AND e.email LIKE CONCAT('%', #{conditions.email}, '%')
             </if>
-            AND e.is_delete = 0
+            <if test="conditions.isDelete != null">
+                AND e.is_delete = #{conditions.isDelete}
+            </if>
         </where>
     </select>
 
@@ -169,7 +172,7 @@
     </select>
 
     <select id="login" resultType="com.csi.domain.Employee">
-        select * from employees where username = #{username} and password = #{password}
+        select * from employees where username = #{username}
     </select>
     <!-- 重置员工密码 -->
     <update id="updatePassword" parameterType="map">
@@ -186,10 +189,10 @@
     <insert id="save" parameterType="com.csi.domain.Employee">
         INSERT INTO employees (
         username, password, name, sex, phone, borndate, email,
-        department, role, superior_id
+        department, role, superior_id,is_delete
         ) VALUES (
         #{username}, #{password}, #{name}, #{sex}, #{phone}, #{borndate}, #{email},
-        #{department}, #{role}, #{superiorId}
+        #{department}, #{role}, #{superiorId},#{isDelete}
         )
     </insert>
 

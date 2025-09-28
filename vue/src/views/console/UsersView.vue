@@ -102,19 +102,19 @@
         />
         <el-table-column label="性别" align="center" prop="sex" width="100">
           <template #default="scope">
-            <span>{{ scope.row.sex === 1 ? '男' : scope.row.sex === 0 ? '女' : '未知' }}</span>
+            <span>{{ scope.row.sex === 1 ? '男' : '女' }}</span>
           </template>
         </el-table-column>
         <el-table-column label="手机号码" align="center" prop="phone" width="120" />
         <el-table-column label="邮箱" align="center" prop="email" width="150" />
         <el-table-column label="所属部门" align="center" prop="department" width="120">
           <template #default="scope">
-            <span>{{ departmentMap[scope.row.department] || '未知' }}</span>
+            <span>{{ scope.row.departmentName || '未知' }}</span>
           </template>
         </el-table-column>
         <el-table-column label="角色" align="center" prop="role" width="120">
           <template #default="scope">
-            <span>{{ roleMap[scope.row.role] || '未知' }}</span>
+            <span>{{ scope.row.roleName || '未知' }}</span>
           </template>
         </el-table-column>
         <!-- 在角色列后添加直属上级列 -->
@@ -173,8 +173,8 @@
     </el-card>
 
     <!-- 添加或修改用户对话框 -->
-    <el-dialog :title="title" v-model="open" width="700px" append-to-body>
-      <el-form ref="userRef" :model="form" :rules="rules" label-width="80px">
+    <el-dialog :title="title" v-model="open" width="750px" append-to-body>
+      <el-form ref="userRef" :model="form" :rules="rules" label-width="100px">
         <el-row>
           <el-col :span="12">
             <el-form-item label="登录用户名" prop="username">
@@ -205,7 +205,7 @@
               <el-radio-group v-model="form.sex">
                 <el-radio label="1">男</el-radio>
                 <el-radio label="0">女</el-radio>
-                <el-radio label="2">未知</el-radio>
+
               </el-radio-group>
             </el-form-item>
           </el-col>
@@ -286,7 +286,9 @@ interface User {
   borndate: string
   email: string
   department: number
+  departmentName: string
   role: number
+  roleName: string
   superiorId: number
   superiorName: string
   createTime: string
@@ -294,19 +296,6 @@ interface User {
   isDelete: number
 }
 
-// 字典映射
-const departmentMap = {
-  1: '技术部',
-  2: '销售部',
-  3: '人事部',
-  4: '财务部',
-}
-
-const roleMap = {
-  1: '管理员',
-  2: '普通用户',
-  3: '超级管理员',
-}
 
 // 模拟字典数据
 const sys_normal_disable = [
@@ -326,7 +315,7 @@ const queryParams = reactive({
   name: '',
   phone: '',
   email: '',
-  isDelete: '',
+  isDelete: 0,
   department: undefined,
   status: '' // 用户状态
 })
@@ -341,7 +330,7 @@ const form = reactive<User>({
   phone: '',
   borndate: '',
   email: '',
-  department: 1,
+  department: '1',
   role: 2,
   superiorId: 0,
   superiorName: '',
@@ -412,7 +401,9 @@ const getList = async () => {
     const currentUserId = userInfo.userId
 
     // 构造查询参数
-    const params: any = {}
+    const params: any = {
+
+    }
 
     // 添加模糊查询条件
     if (queryParams.username) {
@@ -427,12 +418,16 @@ const getList = async () => {
     if (queryParams.email) {
       params.email = queryParams.email
     }
+    if (queryParams.status) {
+      params.status = queryParams.status
+    }
 
     let response
     if (currentUserRole === 1) {
       // 管理员查询所有下级员工（支持模糊查询）
       response = await request.get('/employee/allList', { params })
       console.log(response)
+      console.log(params)
       if (response.data.code !== 200) {
         ElMessage.error('获取用户数据失败')
         loading.value = false
@@ -445,6 +440,7 @@ const getList = async () => {
       params.superiorId = currentUserId
       response = await request.get('/employee/allList', { params })
       console.log(response)
+      console.log(params)
       if (response.data.code !== 200) {
         ElMessage.error('获取用户数据失败')
         loading.value = false
@@ -652,8 +648,8 @@ const handleResetPwd = (row: User) => {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     closeOnClickModal: false,
-    inputPattern: /^.{5,20}$/,
-    inputErrorMessage: '用户密码长度必须介于 5 和 20 之间',
+    inputPattern: /^.{6,20}$/,
+    inputErrorMessage: '用户密码长度必须介于 6 和 20 之间',
   })
     .then(async ({ value }) => {
       try {

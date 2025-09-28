@@ -1,5 +1,6 @@
 package com.csi.controller.marketDepartment;
 
+import com.csi.annotation.OperateLog;
 import com.csi.domain.Customer;
 import com.csi.domain.PromotionPlans;
 import com.csi.service.CustomerService;
@@ -29,6 +30,7 @@ public class MarketingController {
      * @return
      */
     @PutMapping("/savecustomer")
+    @OperateLog(operation = "录入客户信息",targetType = "客户")
     public R saveCustomer(@RequestBody Customer customer) {
         int i = customerService.addCustomer(customer);
         if (i == 1) {
@@ -44,6 +46,7 @@ public class MarketingController {
      *
      */
     @PutMapping("/savePromotionPlans")
+    @OperateLog(operation = "提交活动计划",targetType = "活动计划")
     public R savePromotionPlans(@RequestBody PromotionPlans promotionPlans) {
 
         int i = marketingService.savePromotionPlans(promotionPlans);
@@ -60,6 +63,7 @@ public class MarketingController {
      * @return
      */
     @GetMapping("/getPromotionPlans")
+    @OperateLog(operation = "获取活动计划",targetType = "活动计划")
     public R getPromotionPlans() {
         List<PromotionPlans> promotionPlans = marketingService.getPromotionPlans();
         if (promotionPlans != null) {
@@ -70,6 +74,7 @@ public class MarketingController {
     }
 
     @PutMapping("/updatePromotionPlans")
+    @OperateLog(operation = "修改活动计划",targetType = "活动计划")
     public R updatePromotionPlans(@RequestBody PromotionPlans promotionPlans) {
         int i = marketingService.updateByStatus(promotionPlans);
         if (i == 1) {

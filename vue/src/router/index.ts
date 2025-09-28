@@ -76,6 +76,7 @@ const router = createRouter({
               path: 'emergencies',
               name: 'business.emergencies',
               component: () => import('../views/sales/EmergenciesView.vue'),
+              redirect: '/business/emergencies/list',
               meta: { title: '突发事件管理', requiresAuth: true },
               children: [
                 {

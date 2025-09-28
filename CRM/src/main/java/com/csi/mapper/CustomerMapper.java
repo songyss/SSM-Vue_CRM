@@ -39,7 +39,7 @@ public interface CustomerMapper {
     Customer findById(int id);
 
     // 销售获取接受分配的客户
-    List<Customer> getPersonalCustomer(int id);
+    List<Customer> getPersonalCustomer(Customer  customer);
 
     // 销售新增客户（5个以内）
     int add5Customer(Customer customer);

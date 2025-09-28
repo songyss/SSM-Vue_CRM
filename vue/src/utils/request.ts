@@ -14,7 +14,7 @@ interface ResponseData<T = unknown> {
 
 // 1. 创建 Axios 实例
 const request: AxiosInstance = axios.create({
-  baseURL: 'http://localhost:8080/',
+  baseURL: 'http://192.168.120.120:8080/',
   timeout: 5000,
   headers: {
     'Content-Type': 'application/json;charset=utf-8'

@@ -21,6 +21,7 @@ public class MoveCustomerController {
 
     //选中复选框 拿到客户id列表
     @PostMapping("/modify")//modifyAssigneeId 市场部经理传客户给销售部经理 把负责人id改为销售经理id
+    @OperateLog(operation = "市场部经理推送客户给销售经理",targetType = "推送")
     public R modifyAssigneeId(@RequestBody Map<String, Object> paramMap, HttpServletRequest request){
 
         //到时候前端要 传客户id列表 和 目标经理id 和 操作人id也就是市场部经理id

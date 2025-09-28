@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import * as echarts from 'echarts'
 import type { ECharts } from 'echarts'
 import { ElIcon } from 'element-plus'
@@ -14,6 +14,11 @@ const props = defineProps({
     type: Object,
     default: () => ({ width: '100%', height: '400px' }),
   },
+  // 允许外部控制是否显示loading
+  showLoading: {
+    type: Boolean,
+    default: true
+  }
 })
 
 const chartRef = ref<HTMLElement | null>(null)
@@ -22,20 +27,25 @@ let chartInstance: ECharts | null = null
 const initChart = () => {
   if (chartRef.value) {
     chartInstance = echarts.init(chartRef.value)
-    // 添加loading效果
-    chartInstance.showLoading({
-      text: '加载中...',
-      color: '#409eff',
-      textColor: '#000',
-      maskColor: 'rgba(255, 255, 255, 0.8)',
-      zlevel: 0,
-    })
+    
+    // 根据配置决定是否显示loading效果
+    if (props.showLoading) {
+      chartInstance.showLoading({
+        text: '加载中...',
+        color: '#409eff',
+        textColor: '#000',
+        maskColor: 'rgba(255, 255, 255, 0.8)',
+        zlevel: 0,
+      })
+    }
 
     // 设置图表配置
     chartInstance.setOption(props.options)
 
     // 隐藏loading
-    chartInstance.hideLoading()
+    if (props.showLoading) {
+      chartInstance.hideLoading()
+    }
 
     // 添加图表点击事件
     chartInstance.on('click', (params) => {
@@ -43,6 +53,24 @@ const initChart = () => {
     })
   }
 }
+
+// 监听options变化，更新图表
+watch(() => props.options, (newOptions) => {
+  if (chartInstance && newOptions) {
+    // 根据配置决定是否显示loading效果
+    if (props.showLoading) {
+      chartInstance.showLoading()
+    }
+    
+    // 使用true参数强制更新所有配置
+    chartInstance.setOption(newOptions, true)
+    
+    // 隐藏loading
+    if (props.showLoading) {
+      chartInstance.hideLoading()
+    }
+  }
+}, { deep: true })
 
 const resizeChart = () => {
   if (chartInstance) {
@@ -76,7 +104,7 @@ defineExpose({
     <div ref="chartRef" :style="style"></div>
     <div v-if="!chartInstance" class="chart-loading">
       <el-icon class="is-loading"><Loading /></el-icon>
-      图表初始化中...
+      实时更新中
     </div>
   </div>
 </template>

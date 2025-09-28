@@ -38,7 +38,7 @@ public interface EmployeeService {
     void update(Employee employee);
     void deleteById(Integer id);
 
-    Employee login(@Param("username") String username, @Param("password") String password);
+    Employee login(String username);
 
 
 

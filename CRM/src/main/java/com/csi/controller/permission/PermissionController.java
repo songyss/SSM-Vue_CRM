@@ -1,6 +1,7 @@
 package com.csi.controller.permission;
 
 
+import com.csi.annotation.OperateLog;
 import com.csi.domain.PermissionTreeNode;
 import com.csi.domain.RolePermission;
 import com.csi.service.PermissionTreeService;
@@ -24,6 +25,7 @@ public class PermissionController {
 
 
     @GetMapping("/getPermission")
+    @OperateLog(operation = "获取权限", targetType = "角色")
     public R getPermission(@RequestParam("roleId") int roleId) {
         //拿着角色id 找到角色模块权限集合
         List<RolePermission> rolePermissions = rolePermissionService.selectPermissions(roleId);
@@ -53,6 +55,7 @@ public class PermissionController {
     }
 
     @PostMapping("/savePermission")
+    @OperateLog(operation = "保存权限", targetType = "角色")
     public R savePermission(@RequestParam("roleId") int roleId,
                             @RequestParam("modelsId") String modelsId,
                             @RequestParam("permissionsId") String permissionsId) {
@@ -103,6 +106,7 @@ public class PermissionController {
     }
 
     @GetMapping("/tree")
+    @OperateLog(operation = "获取权限树", targetType = "角色")
     public R getPermissionTree() {
         List<PermissionTreeNode> tree = permissionTreeService.buildPermissionTree();
         return R.ok(tree);

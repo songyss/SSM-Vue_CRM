@@ -5,6 +5,7 @@ import com.csi.interceptor.TokenAuthInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.servlet.HandlerAdapter;
@@ -21,6 +22,7 @@ import java.util.List;
 @Configuration
 @EnableWebMvc
 @ComponentScan({"com.csi.controller","com.csi.util","com.csi.aspect"})
+@EnableAspectJAutoProxy
 public class SpringMvcConfig implements WebMvcConfigurer {
 
     @Bean

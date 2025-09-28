@@ -1,5 +1,6 @@
 package com.csi.controller.emergency;
 
+import com.csi.annotation.OperateLog;
 import com.csi.domain.Employee;
 import com.csi.domain.SalesEmergency;
 import com.csi.service.EmployeeService;
@@ -28,6 +29,7 @@ public class SalesEmergencyController {
 
     // 销售人员填写突发状况
     @PostMapping
+    @OperateLog(operation = "新增突发事件", targetType = "突发事件")
     public R createEmergency(@RequestBody SalesEmergency emergency,
                              @RequestParam("empId") Integer empId) {
 
@@ -68,6 +70,7 @@ public class SalesEmergencyController {
 
     // 审批拒绝
     @PostMapping("/{id}/reject")
+    @OperateLog(operation = "审批拒绝", targetType = "突发事件")
     public R reject(@PathVariable Integer id,
                     @RequestParam Integer managerId) {
         try {
@@ -80,6 +83,7 @@ public class SalesEmergencyController {
 
     // 查看自己创建的突发状况
     @GetMapping("/creator/{empId}")
+    @OperateLog(operation = "查看自己创建的突发事件", targetType = "突发事件")
     public R listByCreator(@PathVariable Integer empId) {
         try {
             List<SalesEmergency> emergencies = salesEmergencyService.listByCreator(empId);
@@ -91,6 +95,7 @@ public class SalesEmergencyController {
 
     // 经理查看待审批信息
     @GetMapping("/pending")
+    @OperateLog(operation = "查看待审批信息", targetType = "突发事件")
     public R listPending() {
         try {
             List<SalesEmergency> emergencies = salesEmergencyService.listPending();
@@ -102,6 +107,7 @@ public class SalesEmergencyController {
 
     // 查看指定经理的待审批列表
     @GetMapping("/pending/{managerId}")
+    @OperateLog(operation = "查看指定经理的待审批列表", targetType = "突发事件")
     public R getPendingByManager(@PathVariable Integer managerId) {
         try {
             List<SalesEmergency> emergencies = salesEmergencyService.getPendingEmergenciesByManager(managerId);
@@ -113,6 +119,7 @@ public class SalesEmergencyController {
 
     // 根据ID查看详情
     @GetMapping("/{id}")
+    @OperateLog(operation = "查看突发事件详情", targetType = "突发事件")
     public R getById(@PathVariable("id") Integer id) {
         try {
             SalesEmergency emergency = salesEmergencyService.getById(id);
@@ -125,6 +132,7 @@ public class SalesEmergencyController {
 
     // 经理查看需要处理的突发情况
     @GetMapping("/handler/{handlerId}")
+    @OperateLog(operation = "查看需要处理的突发事件", targetType = "突发事件")
     public R listByHandler(@PathVariable Integer handlerId) {
         try {
             List<SalesEmergency> emergencies = salesEmergencyService.listByHandler(handlerId);
@@ -136,6 +144,7 @@ public class SalesEmergencyController {
 
     // 条件查询突发情况
     @GetMapping("/search")
+    @OperateLog(operation = "条件查询突发事件", targetType = "突发事件")
     public R listByCondition(@RequestParam(value = "pageNum", required = false) Integer pageNum,
                              @RequestParam(value = "pageSize", required = false) Integer pageSize,
                              @RequestParam(value = "title", required = false) String title,
@@ -162,6 +171,7 @@ public class SalesEmergencyController {
 
     // 获取统计信息
     @GetMapping("/stats/{salespersonId}")
+    @OperateLog(operation = "获取统计信息", targetType = "突发事件")
     public R getStats(@PathVariable Integer salespersonId) {
         try {
             Map<String, Integer> stats = salesEmergencyService.getStatsBySalesperson(salespersonId);
@@ -173,6 +183,7 @@ public class SalesEmergencyController {
 
     // 获取风险等级选项
     @GetMapping("/options/risk-levels")
+    @OperateLog(operation = "获取风险等级选项", targetType = "突发事件")
     public R getRiskLevelOptions() {
         try {
             Map<String, String> options = OptionUtils.getRiskLevelOptions();
@@ -184,6 +195,7 @@ public class SalesEmergencyController {
 
     // 获取紧急程度选项
     @GetMapping("/options/urgency-levels")
+    @OperateLog(operation = "获取紧急程度选项", targetType = "突发事件")
     public R getUrgencyOptions() {
         try {
             Map<Integer, String> options = OptionUtils.getUrgencyOptions();
@@ -195,6 +207,7 @@ public class SalesEmergencyController {
 
     // 获取类型选项
     @GetMapping("/options/types")
+    @OperateLog(operation = "获取类型选项", targetType = "突发事件")
     public R getTypeOptions() {
         try {
             Map<String, String> options = OptionUtils.getTypeOptions();
@@ -206,6 +219,7 @@ public class SalesEmergencyController {
 
     // 获取所有选项
     @GetMapping("/options/all")
+    @OperateLog(operation = "获取所有选项", targetType = "突发事件")
     public R getAllOptions() {
         try {
             Map<String, Object> options = new HashMap<>();
@@ -222,6 +236,7 @@ public class SalesEmergencyController {
      * 员工提交审批
      */
     @PutMapping("/{id}/submit")
+    @OperateLog(operation = "员工提交审批", targetType = "突发事件")
     public R submitForApproval(@PathVariable("id") Integer id,
                                @RequestParam("empId") Integer empId) {
         try {
@@ -236,6 +251,7 @@ public class SalesEmergencyController {
      * 经理审批通过
      */
     @PutMapping("/{id}/approve")
+    @OperateLog(operation = "经理审批通过", targetType = "突发事件")
     public R approve(@PathVariable("id") Integer id,
                      @RequestParam("managerId") Integer managerId) {
         try {
@@ -250,6 +266,7 @@ public class SalesEmergencyController {
      * 经理审批拒绝
      */
     @PutMapping("/{id}/reject")
+    @OperateLog(operation = "经理审批拒绝", targetType = "突发事件")
     public R reject(@PathVariable("id") Integer id,
                     @RequestParam("managerId") Integer managerId,
                     @RequestParam("reason") String reason) {
@@ -271,6 +288,7 @@ public class SalesEmergencyController {
      * 标记为已解决
      */
     @PutMapping("/{id}/solve")
+    @OperateLog(operation = "标记为已解决", targetType = "突发事件")
     public R markAsSolved(@PathVariable("id") Integer id,
                           @RequestParam("empId") Integer empId,
                           @RequestParam("solutionDescription") String solutionDescription) {

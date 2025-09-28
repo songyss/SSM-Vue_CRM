@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csi.mapper.CountOrderMapper">
+    <!-- 获取当月总销售额 -->
+    <select id="getCurrentMonthTotalSales" resultType="double">
+        SELECT COALESCE(SUM(total_amount), 0)
+        FROM orders
+        WHERE YEAR(create_time) = YEAR(NOW())
+        AND MONTH(create_time) = MONTH(NOW())
+    </select>
+
+    <!-- 获取上月总销售额 -->
+    <select id="getLastMonthTotalSales" resultType="double">
+        SELECT COALESCE(SUM(total_amount), 0)
+        FROM orders
+        WHERE YEAR(create_time) = YEAR(DATE_SUB(NOW(), INTERVAL 1 MONTH))
+        AND MONTH(create_time) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))
+    </select>
+
+    <!-- 获取当月总订单数 -->
+    <select id="getCurrentMonthTotalOrders" resultType="int">
+        SELECT COUNT(*)
+        FROM orders
+        WHERE YEAR(create_time) = YEAR(NOW())
+        AND MONTH(create_time) = MONTH(NOW())
+    </select>
+
+    <!-- 获取上月总订单数 -->
+    <select id="getLastMonthTotalOrders" resultType="int">
+        SELECT COUNT(*)
+        FROM orders
+        WHERE YEAR(create_time) = YEAR(DATE_SUB(NOW(), INTERVAL 1 MONTH))
+        AND MONTH(create_time) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))
+    </select>
+
+    <!-- 获取当月独立客户数 -->
+    <select id="getCurrentMonthUniqueCustomers" resultType="long">
+        SELECT COUNT(DISTINCT customer_id)
+        FROM orders
+        WHERE YEAR(create_time) = YEAR(NOW())
+        AND MONTH(create_time) = MONTH(NOW())
+    </select>
+
+    <!-- 获取上月独立客户数 -->
+    <select id="getLastMonthUniqueCustomers" resultType="long">
+        SELECT COUNT(DISTINCT customer_id)
+        FROM orders
+        WHERE YEAR(create_time) = YEAR(DATE_SUB(NOW(), INTERVAL 1 MONTH))
+        AND MONTH(create_time) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))
+    </select>
+
+    <!-- 获取近6个月销售数据 -->
+    <select id="getSalesDataLastSixMonths" resultType="com.csi.domain.SalesData">
+        SELECT
+        DATE_FORMAT(create_time, '%m月') as month,
+        COALESCE(SUM(total_amount), 0) as sales,
+        COUNT(*) as orders
+        FROM orders
+        WHERE create_time >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+        GROUP BY DATE_FORMAT(create_time, '%Y-%m'), DATE_FORMAT(create_time, '%m月')
+        ORDER BY DATE_FORMAT(create_time, '%Y-%m')
+    </select>
+
+    <!-- 获取销售渠道分布 -->
+    <select id="getSalesChannels" resultType="com.csi.domain.SalesChannel">
+        SELECT c.source as name, COUNT(*) as value
+        FROM orders
+        left join customers c on orders.customer_id = c.id
+        GROUP BY c.source
+    </select>
+</mapper>

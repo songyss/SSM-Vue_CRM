@@ -1,5 +1,6 @@
 package com.csi.controller.market;
 
+import com.csi.annotation.OperateLog;
 import com.csi.util.QRCodeUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
@@ -20,6 +21,7 @@ public class QrCodeController {
      * 生成普通活动二维码（不带logo）
      */
     @GetMapping("/common")
+    @OperateLog(operation = "生成普通二维码", targetType = "活动")
     public void createCommonQRCode(
             @RequestParam("activityId") Integer activityId,
             @RequestParam("creatorId") Integer creatorId,
@@ -45,6 +47,7 @@ public class QrCodeController {
      * 生成带logo的活动二维码（logo放在 src/main/resources/logo.jpg）
      */
     @GetMapping("/withLogo")
+    @OperateLog(operation = "生成带logo二维码", targetType = "活动")
     public void createLogoQRCode(
             @RequestParam("activityId") Integer activityId,
             HttpServletResponse response

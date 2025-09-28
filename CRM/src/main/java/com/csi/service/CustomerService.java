@@ -35,7 +35,7 @@ public interface CustomerService {
 
     List<Customer> getPoolCustomer(); // 客户池
 
-    PageInfo<Customer> getPersonalCustomerByPage(Integer employeeId, int page, int size);
+    PageInfo<Customer> getPersonalCustomerByPage(Customer customer);
 
     List<Customer> getUnAssignedCustomerList(Integer status); // 获取待分配客户（可按状态过滤）
 
@@ -53,7 +53,6 @@ public interface CustomerService {
     int addCustomer(Customer customer);  // 新增客户（标准接口）
 
     // ================== 客户分配 ==================
-    List<Customer> getPersonalCustomer(int id); // 销售获取接受分配
     void assignCustomers(Integer employeeId, List<Integer> customerIds);
 
     // ================== 分页查询 ==================

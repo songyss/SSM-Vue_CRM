@@ -41,7 +41,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-empty description="您没有权限查看此页面" />
+      <el-empty description="您没有权限查看此页面" v-if="!hasPermission"/>
     </el-card>
 
     <!-- 详情弹窗 -->

@@ -1,6 +1,7 @@
 // OperationLogsController.java
 package com.csi.controller.operationLogs;
 
+import com.csi.annotation.OperateLog;
 import com.csi.domain.OperateLogs;
 import com.csi.service.OperationLogsService;
 import com.github.pagehelper.PageInfo;
@@ -28,6 +29,7 @@ public class OperationLogsController {
      * 获取所有操作日志（分页）
      */
     @GetMapping("/list")
+    @OperateLog(operation = "获取所有操作日志", targetType = "操作日志")
     public ResponseEntity<Map<String, Object>> getAllLogs(
             @RequestParam(value = "page", defaultValue = "1") Integer page,
             @RequestParam(value = "size", defaultValue = "10") Integer size) {
@@ -61,6 +63,7 @@ public class OperationLogsController {
      * 根据条件筛选日志（分页）
      */
     @GetMapping("/search")
+    @OperateLog(operation = "根据条件筛选日志", targetType = "操作日志")
     public ResponseEntity<Map<String, Object>> searchLogs(
             @RequestParam(value = "operatorId", required = false) Integer operatorId,
             @RequestParam(value = "operation", required = false) String operation,

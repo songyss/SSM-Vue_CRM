@@ -171,8 +171,14 @@
 
 
     <!-- 员工负责客户 -->
-    <select id="getPersonalCustomer" resultType="com.csi.domain.Customer">
+    <select id="getPersonalCustomer" parameterType="com.csi.domain.Customer" resultType="com.csi.domain.Customer">
         SELECT * FROM customers WHERE assignee_id = #{assigneeId}
+        <if test="name != null and name != ''">
+            AND name LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="phone != null and phone != ''">
+            AND phone LIKE CONCAT('%', #{phone}, '%')
+        </if>
     </select>
 
     <!-- 检查手机号是否存在 -->

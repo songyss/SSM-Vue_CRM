@@ -1,5 +1,6 @@
 package com.csi.controller.department;
 
+import com.csi.annotation.OperateLog;
 import com.csi.domain.Department;
 import com.csi.service.DepartmentService;
 import com.csi.util.R;
@@ -19,6 +20,7 @@ public class DepartmentController {
     private DepartmentService departmentService;
 
     @GetMapping("list")
+    @OperateLog(operation = "部门列表", targetType = "部门")
     public R getDepartmentList(){
         List<Department> allCompanys = departmentService.findAllCompanys();
         Map<Department, List<Department>> map = new HashMap<>();
@@ -31,12 +33,14 @@ public class DepartmentController {
     }
 
     @PutMapping
+    @OperateLog(operation = "部门更新", targetType = "部门")
     public R updateDepartment(@RequestBody Department department){
         departmentService.updateDepartment(department);
         return R.okMessage("更新成功");
     }
 
     @PostMapping
+    @OperateLog(operation = "部门添加", targetType = "部门")
     public R addDepartment(@RequestBody Department department){
         // 设置默认值
         department.setIsDelete(0); // 新增时默认为正常状态
@@ -46,6 +50,7 @@ public class DepartmentController {
 
     // 删除部门（逻辑删除）
     @DeleteMapping("/{departmentId}")
+    @OperateLog(operation = "部门删除", targetType = "部门")
     public R deleteDepartment(@PathVariable("departmentId") Integer departmentId) {
         Department department = new Department();
         department.setDepartmentId(departmentId);
@@ -55,6 +60,7 @@ public class DepartmentController {
     }
 
     @GetMapping("condition")
+    @OperateLog(operation = "部门查询", targetType = "部门")
     public R getDepartmentByCondition(@RequestParam(value = "departmentName" ,required = false) String departmentName,
                                       @RequestParam(value = "isDelete" ,required = false) Integer isDelete){
 
@@ -64,6 +70,7 @@ public class DepartmentController {
     }
 
     @GetMapping("tree")
+    @OperateLog(operation = "部门树", targetType = "部门")
     public R getDepartmentTree() {
         List<Department> allCompanys = departmentService.findAllCompanys();
         Map<Department, List<Department>> map = new HashMap<>();

@@ -1,5 +1,6 @@
 package com.csi.controller.orders;
 
+import com.csi.annotation.OperateLog;
 import com.csi.domain.AfterSaleOrder;
 import com.csi.service.AfterSaleOrderService;
 import com.csi.util.R;
@@ -16,6 +17,7 @@ public class AfterSaleOrdersController {
     private AfterSaleOrderService afterSaleOrderService;
 
     @GetMapping("/getAfterSaleOrderByStatus")
+    @OperateLog(operation = "查询售后订单",targetType = "查询")
     public R getAfterSaleOrderByStatus(){
         List<AfterSaleOrder> afterSaleOrders = afterSaleOrderService.getAfterSaleOrderByStatus();
         // 正确的判断逻辑：检查列表是否不为空且包含元素
@@ -27,6 +29,7 @@ public class AfterSaleOrdersController {
     }
 
     @GetMapping("/getAfterSaleOrderByOrderNumber")
+    @OperateLog(operation = "查询售后订单",targetType = "查询")
     public R getAfterSaleOrderByOrderNumber(@RequestParam("orderNumber") String orderNumber) {
         List<AfterSaleOrder> afterSaleOrders = afterSaleOrderService.getAfterSaleOrderByOrderNumber(orderNumber);
         if (afterSaleOrders.size()>0) {
@@ -37,6 +40,7 @@ public class AfterSaleOrdersController {
     }
 
     @GetMapping("/getAfterSaleOrderByDateRange")
+    @OperateLog(operation = "查询售后订单",targetType = "查询")
     public R getAfterSaleOrderByDateRange(
             @RequestParam(value = "startDate", required = false) String startDate,
             @RequestParam(value = "endDate", required = false) String endDate) {
@@ -51,6 +55,7 @@ public class AfterSaleOrdersController {
     }
 
     @GetMapping("/getAfterSaleOrderByCondition")
+    @OperateLog(operation = "查询售后订单",targetType = "查询")
     public R getAfterSaleOrderByCondition(
             @RequestParam(value = "afterSaleStatus", required = false) Integer afterSaleStatus,
             @RequestParam(value = "orderNumber", required = false) String orderNumber,
@@ -69,6 +74,7 @@ public class AfterSaleOrdersController {
 
 
     @GetMapping("/updateAfterSaleOrderStatus")
+    @OperateLog(operation = "修改售后订单状态",targetType = "修改")
     public R updateAfterSaleOrderStatus(AfterSaleOrder afterSaleOrder) {
         int result=afterSaleOrderService.updateAfterSaleOrderStatus(afterSaleOrder);
         if (result>0){

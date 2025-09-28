@@ -161,8 +161,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Employee login(String username, String password) {
-        return employeeMapper.login(username, password);
+    public Employee login(String username) {
+        return employeeMapper.login(username);
     }
 
 

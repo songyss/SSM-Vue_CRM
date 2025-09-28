@@ -39,7 +39,7 @@ public interface EmployeeMapper {
     void updatePassword(@Param("id") Integer id, @Param("password") String password);
 
 
-    Employee login(@Param("username") String username,@Param("password") String password);
+    Employee login(String username);
 
     List<Employee> getAllEmployeesWithConditions(@Param("superiorId") Integer superiorId, @Param("conditions") Employee conditions);
 

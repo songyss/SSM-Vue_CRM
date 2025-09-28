@@ -1,5 +1,6 @@
 package com.csi.controller.model;
 
+import com.csi.annotation.OperateLog;
 import com.csi.domain.Model;
 import com.csi.service.ModelService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ public class ModelController {
 
     @ResponseBody
     @GetMapping("/list")
+    @OperateLog(operation = "查询模块列表", targetType = "模块")
     public Map<String, Object> list() {
         Map<String, Object> result = new HashMap<>();
         try {
@@ -36,6 +38,7 @@ public class ModelController {
 
     @ResponseBody
     @PostMapping("/save")
+    @OperateLog(operation = "添加或更新模块", targetType = "模块")
     public Map<String, Object> save(@RequestBody Model model) {
         Map<String, Object> result = new HashMap<>();
         try {
@@ -57,6 +60,7 @@ public class ModelController {
 
     @ResponseBody
     @DeleteMapping("/delete/{id}")
+    @OperateLog(operation = "删除模块", targetType = "模块")
     public Map<String, Object> delete(@PathVariable Integer id) {
         Map<String, Object> result = new HashMap<>();
         try {

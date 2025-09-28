@@ -1,5 +1,6 @@
 package com.csi.controller.opportunities;
 
+import com.csi.annotation.OperateLog;
 import com.csi.domain.Opportunities;
 import com.csi.service.OpportunitiesService;
 import com.csi.util.R;
@@ -19,6 +20,7 @@ public class OpportunitiesController {
     private OpportunitiesService opportunitiesService;
 
     @GetMapping("/allList")
+    @OperateLog(operation = "查询商机列表",targetType = "商机")
     public R getOpportunities() {
         java.util.List<Opportunities> opportunities = opportunitiesService.getOpportunities();
         if (opportunities != null) {
@@ -30,6 +32,7 @@ public class OpportunitiesController {
 
     // 修改分页查询接口，添加排序支持
     @GetMapping("/page")
+    @OperateLog(operation = "分页查询商机列表",targetType = "商机")
     public R getOpportunitiesByPage(@RequestParam(value = "page", defaultValue = "1") int page,
                                    @RequestParam(value = "size", defaultValue = "10") int size,
                                    @RequestParam(value = "customerName", required = false) String customerName,
@@ -49,6 +52,7 @@ public class OpportunitiesController {
     }
 
     @PutMapping("/add")
+    @OperateLog(operation = "添加商机",targetType = "商机")
     public R addOpportunity(@RequestBody Opportunities opportunities) {
         try {
             // 设置创建时间和更新时间
@@ -71,6 +75,7 @@ public class OpportunitiesController {
     }
 
     @PatchMapping("/update")
+    @OperateLog(operation = "更新商机",targetType = "商机")
     public R updateOpportunity(@RequestBody Opportunities opportunities) {
         try {
             // 设置更新时间

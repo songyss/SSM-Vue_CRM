@@ -1,5 +1,6 @@
 package com.csi.controller.role;
 
+import com.csi.annotation.OperateLog;
 import com.csi.domain.Role;
 import com.csi.service.RoleService;
 import com.csi.util.R;
@@ -18,6 +19,7 @@ public class RoleController {
 
     // 获取所有角色
     @GetMapping("/list")
+    @OperateLog(operation = "获取所有角色", targetType = "角色")
     public R getAllRoles(
             @RequestParam(value = "roleName", required = false) String roleName,
             @RequestParam(value = "isDelete", required = false) Integer isDelete
@@ -32,6 +34,7 @@ public class RoleController {
 
     // 根据ID获取角色
     @GetMapping("/get")
+    @OperateLog(operation = "根据ID获取角色", targetType = "角色")
     public R getRoleById(@RequestParam("id") Integer id) {
         try {
             Role role = roleService.findById(id);
@@ -47,6 +50,7 @@ public class RoleController {
 
     // 创建新角色
     @PostMapping("/create")
+    @OperateLog(operation = "创建新角色", targetType = "角色")
     public R createRole(@RequestBody Role role) {
         try {
             role.setIsDelete(0);
@@ -59,6 +63,7 @@ public class RoleController {
 
     // 更新角色
     @PostMapping("/update")
+    @OperateLog(operation = "更新角色", targetType = "角色")
     public R updateRole(@RequestParam("id") Integer id, @RequestBody Role role) {
         try {
             role.setId(id);
@@ -71,6 +76,7 @@ public class RoleController {
 
     // 删除角色
     @PostMapping("/delete")
+    @OperateLog(operation = "删除角色", targetType = "角色")
     public R deleteRole(@RequestParam("id") Integer id) {
         try {
             roleService.deleteRole(id);

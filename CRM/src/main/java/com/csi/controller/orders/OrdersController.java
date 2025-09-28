@@ -1,5 +1,6 @@
 package com.csi.controller.orders;
 
+import com.csi.annotation.OperateLog;
 import com.csi.domain.Orders;
 import com.csi.service.OrdersService;
 import com.csi.util.R;
@@ -18,6 +19,7 @@ public class OrdersController {
     private OrdersService ordersService;
 
     @PutMapping("/add")
+    @OperateLog(operation = "添加订单",targetType = "订单")
     public R addOrders(@RequestBody Orders order) {
         int i = ordersService.addOrders(order);
         if (i > 0) {
@@ -28,6 +30,7 @@ public class OrdersController {
     }
 
     @PatchMapping("/update")
+    @OperateLog(operation = "更新订单",targetType = "订单")
     public R updateOrdersStatus(@RequestBody Orders order) {
         try {
             // 添加日志以便调试
@@ -64,6 +67,7 @@ public class OrdersController {
     }
 
     @GetMapping("/personalList")
+    @OperateLog(operation = "查询个人订单",targetType = "订单")
     public R selectPersonalOrders(@RequestParam("id") int id) {
         List<Orders> orders = ordersService.selectPersonalOrders(id);
         if (orders.size() > 0) {
@@ -77,6 +81,7 @@ public class OrdersController {
      * 查询所有订单
      */
     @GetMapping("/list")
+    @OperateLog(operation = "查询所有订单",targetType = "订单")
     public R selectAllOrders() {
         List<Orders> orders = ordersService.selectAllOrders();
         if (orders.size() > 0) {
@@ -90,6 +95,7 @@ public class OrdersController {
      * 分页查询订单列表
      */
     @GetMapping("/page")
+    @OperateLog(operation = "分页查询订单列表",targetType = "订单")
     public R selectOrdersByPage(@RequestParam(value = "page", defaultValue = "1") int page,
                                 @RequestParam(value = "size", defaultValue = "10") int size) {
         try {
@@ -104,6 +110,7 @@ public class OrdersController {
      * 根据条件分页查询订单列表
      */
     @GetMapping("/pageByCondition")
+    @OperateLog(operation = "根据条件分页查询订单列表",targetType = "订单")
     public R selectOrdersByCondition(@RequestParam(value = "orderNo", required = false) String orderNo,
                                      @RequestParam(value = "status", required = false) String status,
                                      @RequestParam(value = "startDate", required = false) String startDate,

@@ -1,5 +1,6 @@
 package com.csi.controller.CustomerFollows;
 
+import com.csi.annotation.OperateLog;
 import com.csi.domain.CustomerFollows;
 import com.csi.service.CustomerFollowsService;
 import com.csi.util.R;
@@ -17,6 +18,7 @@ public class CustomerFollowsController {
     private CustomerFollowsService customerFollowsService;
 
     @GetMapping("/allList")
+    @OperateLog(operation = "获取所有客户跟进记录", targetType = "客户")
     public R getAllCustomerFollows() {
         List<CustomerFollows> allCustomerFollows = customerFollowsService.getAllCustomerFollows();
         if (allCustomerFollows != null) {
@@ -28,6 +30,7 @@ public class CustomerFollowsController {
 
     //根据跟进时间筛选客户
     @GetMapping("/personalCustomerByTime")
+    @OperateLog(operation = "获取所有客户跟进记录", targetType = "客户")
     public R getPersonalCustomerByTime(@RequestParam("startTime")String startTime, @RequestParam("endTime")String endTime) {
         List<CustomerFollows> customers = customerFollowsService.getPersonalCustomerByTime(startTime,endTime);
 
@@ -40,6 +43,7 @@ public class CustomerFollowsController {
 
     // 根据客户ID获取跟进记录
     @GetMapping("/customer/{customerId}")
+    @OperateLog(operation = "获取所有客户跟进记录", targetType = "客户")
     public R getCustomerFollowsByCustomerId(@PathVariable("customerId") Integer customerId) {
         List<CustomerFollows> customerFollows = customerFollowsService.getCustomerFollowsByCustomerId(customerId);
         if (customerFollows != null) {
@@ -50,6 +54,7 @@ public class CustomerFollowsController {
     }
 
     @PutMapping("/add")
+    @OperateLog(operation = "添加客户跟进记录", targetType = "客户")
     public R addCustomerFollows(@RequestBody CustomerFollows customerFollows) {
         int i = customerFollowsService.addCustomerFollows(customerFollows);
         if (i > 0) {
@@ -60,6 +65,7 @@ public class CustomerFollowsController {
     }
 
     @PatchMapping("/update")
+    @OperateLog(operation = "更新客户跟进记录", targetType = "客户")
     public R updateCustomerFollows(@RequestBody CustomerFollows customerFollows) {
         int i = customerFollowsService.updateCustomerFollows(customerFollows);
         if (i > 0) {

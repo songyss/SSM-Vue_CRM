@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csi.mapper.CountCustomerMapper">
+    <!-- 获取当月新增客户数 -->
+    <select id="getCurrentMonthNewCustomers" resultType="int">
+        SELECT COUNT(*)
+        FROM customers
+        WHERE YEAR(create_time) = YEAR(NOW())
+        AND MONTH(create_time) = MONTH(NOW())
+    </select>
+
+    <!-- 获取上月新增客户数 -->
+    <select id="getLastMonthNewCustomers" resultType="int">
+        SELECT COUNT(*)
+        FROM customers
+        WHERE YEAR(create_time) = YEAR(DATE_SUB(NOW(), INTERVAL 1 MONTH))
+        AND MONTH(create_time) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))
+    </select>
+
+    <!--    &lt;!&ndash; 获取当月访客数 &ndash;&gt;-->
+    <!--    <select id="getCurrentMonthVisitors" resultType="long">-->
+    <!--        SELECT COUNT(*)-->
+    <!--        FROM visitors-->
+    <!--        WHERE YEAR(visit_time) = YEAR(NOW())-->
+    <!--        AND MONTH(visit_time) = MONTH(NOW())-->
+    <!--    </select>-->
+
+    <!-- 获取上月访客数 -->
+    <select id="getLastMonthVisitors" resultType="long">
+        SELECT COUNT(*)
+        FROM visitors
+        WHERE YEAR(visit_time) = YEAR(DATE_SUB(NOW(), INTERVAL 1 MONTH))
+        AND MONTH(visit_time) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))
+    </select>
+
+    <!-- 获取客户来源分布 -->
+    <select id="getCustomerSources" resultType="com.csi.domain.CustomerSource">
+        SELECT source as name, COUNT(*) as value
+        FROM customers
+        GROUP BY source
+    </select>
+</mapper>
