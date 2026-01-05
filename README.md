@@ -1,92 +1,183 @@
-# moe49xpxn87GM
+# CRM客户关系管理系统
 
+一个基于SSM + Vue.js的现代化客户关系管理系统，帮助企业高效管理客户信息、销售流程和营销活动。
 
+## 项目简介
 
-## Getting started
+本CRM系统是一个功能完整的客户关系管理平台，采用前后端分离架构，支持多角色用户权限管理，包含客户管理、商机管理、订单管理、营销管理、数据统计分析等核心功能模块。
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+### 主要功能
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+- **用户认证与权限管理**：基于JWT的用户认证，RBAC角色权限控制
+- **客户信息管理**：客户信息收集、审核、分配、跟进
+- **营销活动管理**：活动策划、执行、效果分析、二维码推广
+- **销售管理**：商机管理、订单处理、售后服务、发票管理
+- **电话销售管理**：任务分配、通话记录、客户回访
+- **数据统计与分析**：仪表盘、销售报表、客户分析、营销分析
+- **系统管理**：员工管理、部门管理、角色管理、操作日志
+- **紧急事务管理**：紧急事件上报、应急处理
 
-## Add your files
+## 技术栈
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+### 后端技术
+- **语言**：Java 17
+- **框架**：Spring 6.1, Spring MVC, Spring AOP, Spring Transaction
+- **数据访问**：MyBatis 3.5, Druid连接池
+- **数据库**：MySQL 8.0
+- **安全**：JWT Token, Argon2密码加密
+- **其他**：Lombok, PageHelper分页, Hutool工具类
+
+### 前端技术
+- **框架**：Vue.js 3.5, Vue Router 4.5, Pinia 3.0
+- **UI组件**：Element Plus 2.11
+- **图表**：ECharts 6.0
+- **HTTP客户端**：Axios 1.12
+- **构建工具**：Vite 7.0
+
+## 项目结构
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.omniedu.com/root/moe49xpxn87GM.git
-git branch -M main
-git push -uf origin main
+├── CRM/                    # 后端Spring项目
+│   ├── src/main/java/com/csi/  # Java源码
+│   │   ├── controller/     # 控制器层
+│   │   ├── service/        # 业务逻辑层
+│   │   ├── mapper/         # 数据访问层
+│   │   ├── domain/         # 实体类
+│   │   ├── config/         # 配置类
+│   │   └── util/           # 工具类
+│   ├── src/main/resources/ # 配置文件
+│   └── pom.xml            # Maven依赖配置
+├── vue/                   # 前端Vue项目
+│   ├── src/               # Vue源码
+│   │   ├── components/    # 组件
+│   │   ├── views/         # 页面视图
+│   │   ├── router/        # 路由配置
+│   │   ├── stores/        # Pinia状态管理
+│   │   └── utils/         # 工具函数
+│   └── package.json       # npm依赖配置
 ```
 
-## Integrate with your tools
+## 安装与部署
 
-- [ ] [Set up project integrations](https://gitlab.omniedu.com/root/moe49xpxn87GM/-/settings/integrations)
+### 环境要求
 
-## Collaborate with your team
+- **后端**：
+  - Java 17+
+  - Maven 3.6+
+  - MySQL 8.0+
+  - Redis（可选）
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+- **前端**：
+  - Node.js 20.19+ 或 >=22.12.0
+  - npm 或 yarn
 
-## Test and Deploy
+### 后端部署
 
-Use the built-in continuous integration in GitLab.
+1. **数据库配置**
+   ```bash
+   # 创建数据库
+   CREATE DATABASE crm CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   
+   # 导入数据库结构（具体SQL文件请参考项目文档）
+   ```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+2. **修改数据库配置**
+   ```bash
+   # 修改 CRM/src/main/resources/jdbc.properties
+   jdbc.driver=com.mysql.cj.jdbc.Driver
+   jdbc.url=jdbc:mysql://localhost:3306/crm?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+   jdbc.username=your_username
+   jdbc.password=your_password
+   ```
 
-***
+3. **编译和运行**
+   ```bash
+   cd CRM
+   mvn clean compile
+   mvn spring-boot:run
+   ```
 
-# Editing this README
+### 前端部署
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!).  Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+1. **安装依赖**
+   ```bash
+   cd vue
+   npm install
+   ```
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+2. **启动开发服务器**
+   ```bash
+   npm run dev
+   ```
 
-## Name
-Choose a self-explaining name for your project.
+3. **构建生产版本**
+   ```bash
+   npm run build
+   ```
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+## 使用说明
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+系统支持多种用户角色，包括：
+- 系统管理员：负责系统配置和用户管理
+- 市场部经理：负责营销活动和客户审核
+- 电话销售经理：负责客户分配和任务管理
+- 销售部经理：负责商机和订单审批
+- 普通员工：执行具体业务操作
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+### 主要业务流程
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+1. **客户信息收集**：市场部员工录入潜在客户信息
+2. **客户审核**：市场部经理审核客户信息
+3. **客户分配**：客户进入公共池，由经理分配给相应员工
+4. **销售跟进**：销售员工跟进商机，处理订单
+5. **数据分析**：通过仪表盘查看业务数据
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+## API文档
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+系统提供RESTful API接口，支持：
+- 用户认证（JWT Token）
+- 客户信息管理
+- 商机订单管理
+- 营销活动管理
+- 数据统计分析
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+详细API接口文档请参考后端Controller层注释。
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+## 贡献指南
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+欢迎提交Issue和Pull Request来帮助改进这个项目！
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+### 开发规范
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+- 代码遵循阿里巴巴Java开发手册
+- 前端代码遵循Vue官方风格指南
+- 提交信息使用约定式提交规范
+- 功能开发遵循分支开发流程
 
-## License
-For open source projects, say how it is licensed.
+### 本地开发
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+1. Fork本项目
+2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 创建Pull Request
+
+## 许可证
+
+本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件。
+
+## 作者与致谢
+
+- 感谢所有为项目贡献代码和提出建议的开发者
+
+## 项目状态
+
+本项目已完成核心功能开发，处于维护阶段。欢迎社区贡献者参与功能扩展和问题修复。
+
+---
+
+## 支持
+
+如需帮助，请通过以下方式联系我们：
+- 提交GitHub Issue
+- 查看项目文档
